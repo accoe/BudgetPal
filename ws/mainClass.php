@@ -99,8 +99,10 @@ class mainClass
 			else
 				echo 'This email is already taken!';
 		}	
-		else
-			echo 'This username is already taken!';
+		else{
+			$json = array('error' => 'This username is already taken!');	
+			echo json_encode($json);
+		}
 	}
 
 
