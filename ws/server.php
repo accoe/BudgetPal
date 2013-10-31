@@ -4,6 +4,12 @@ ini_set('display_errors', '1');
 
 require_once 'mainClass.php';
 require_once 'config.php';
+$json = true;
+
+if ($json)
+	require_once 'json.php';
+else
+	require_once 'default.php';
 
 
 	$ws = new mainClass($user,$pass,$host,$base);
@@ -33,7 +39,7 @@ require_once 'config.php';
 			if ($action == 'register')
 			{
 				if (isset($G['user']) && isset($G['pass']) && isset($G['email']))
-					$ws->register($G['user'],$G['pass'],$G['email']);
+					show($ws->register($G['user'],$G['pass'],$G['email']));
 
 			}
 
