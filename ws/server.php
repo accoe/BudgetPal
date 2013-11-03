@@ -20,11 +20,12 @@ else
 	$ws->Connect();
 	$G = $_GET;
 
+	$mustBeLoggedIn = array('logout','budget');
+	$mustBeLoggedOut = array('login','register');
+
 	// 'a' means 'action'
 	if(isset($_GET['a']))
 	{
-
-
 		$action = $G['a'];
 
 
@@ -39,16 +40,15 @@ else
 		{
 			//Wylogowanie
 			if ($action == 'logout')
-			{	
 				show($ws->Logout());
-			}
+
 			//Lista budzetow
 			if ($action == 'budget')
-			{	
 				show($ws->getBudgets());
-			}
 
-
+			// Jezeli jestesmy zalogowani a probujemy wykonac akcję tylko dla wylogowanych
+			if (in_array($action, $mustBeLoggedOut))
+				show(status('MUST_BE_LOGGED_OUT'));
 		}
 		//NIEZALOGOWANY
 		else{
@@ -57,7 +57,8 @@ else
 			{
 				if (isset($G['user']) && isset($G['pass']) && isset($G['email']))
 					show($ws->register($G['user'],$G['pass'],$G['email']));
-
+				else 
+					show(status('WRONG_PARAMETERS'));
 			}
 				
 			// Logowanie uzytkownika
@@ -68,6 +69,9 @@ else
 
 			}
 
+			// Jezeli jestesmy wylogowani a probujemy wykonac akcję tylko dla zalogowanych
+			if (in_array($action, $mustBeLoggedIn))
+				show(status('MUST_BE_LOGGED_IN'));
 		}
 	}
 ?>
