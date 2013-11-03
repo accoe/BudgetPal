@@ -4,7 +4,11 @@ ini_set('display_errors', '1');
 
 require_once 'mainClass.php';
 require_once 'config.php';
+require_once 'english.php';
+
 $json = true;
+define('USE_JSON',true);
+define('PRETTY_PRINT',true);
 
 if ($json)
 	require_once 'json.php';
@@ -19,16 +23,29 @@ else
 	// 'a' means 'action'
 	if(isset($_GET['a']))
 	{
+
+
 		$action = $G['a'];
+
+
+			if ($action == 'test')
+			{	
+				show($ws->test());
+			}
+
+
 		//ZALOGOWANY
 		if ($ws->isLogged())
 		{
-			echo "User ".$_SESSION['username']." is currently logged in";
-
 			//Wylogowanie
 			if ($action == 'logout')
 			{	
-				$ws->Logout();
+				show($ws->Logout());
+			}
+			//Lista budzetow
+			if ($action == 'budget')
+			{	
+				show($ws->getBudgets());
 			}
 
 
@@ -42,12 +59,12 @@ else
 					show($ws->register($G['user'],$G['pass'],$G['email']));
 
 			}
-
+				
 			// Logowanie uzytkownika
 			if ($action == 'login')
 			{
 				if (isset($G['user']) && isset($G['pass']))
-					$ws->login($G['user'],$G['pass']);
+					show($ws->login($G['user'],$G['pass']));
 
 			}
 

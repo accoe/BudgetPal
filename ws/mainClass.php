@@ -1,5 +1,14 @@
 <?php
 
+function getAllResults($result){
+	$all = array();
+	while ($row = $result->fetch_assoc())
+			$all[] = $row;
+	return $all;
+}
+
+
+
 
 class mainClass
 {
@@ -13,12 +22,14 @@ class mainClass
 
 
 
+
+
+
 	public function __construct($user, $password, $host, $database){
 		$this->DBUSER = $user;
 		$this->DBPASS = $password;
 		$this->DBHOST = $host;
 		$this->DBNAME = $database;
-
 		$this->InitializeSession();
 	} 
 
@@ -54,7 +65,7 @@ class mainClass
 	public function UserPrint(){
 		$result = $this->mysqli->query("SELECT * FROM Uzytkownicy");
 	    while ($row = $result->fetch_assoc())
-			echo $row['login']."<br/>";
+			echo $row['login']." ".$row['haslo']."<br/>";
 	}
 
 
@@ -95,13 +106,14 @@ class mainClass
 					$s->execute();
 					$s->store_result();
 	  			}
+	  			return array('ok' => 'User has been successfully registered');
 			}
 			else
 				return array('error' => 'This email is already taken!');	
 
 		}	
 		else{
-			return array('error' => 'This username is already taken!');	
+			return status('USERNAME_TAKEN');	
 		}
 	}
 
@@ -120,12 +132,13 @@ class mainClass
 					$user_browser = $_SERVER['HTTP_USER_AGENT']; 
 					$_SESSION['userId'] = $userId; 
 					$_SESSION['username'] = $username;
-					$_SESSION['login_string'] = hash('sha512', $password.$user_browser);	
+					$_SESSION['login_string'] = hash('sha512', $password.$user_browser);
+					return array('ok' => 'You are now logged');	
 				}
   			}
 		}	
 		else
-			echo 'Username or password is wrong';
+			return array('error' => 'Username or password is wrong');
 	}
 
 
@@ -158,7 +171,56 @@ class mainClass
 		$params = session_get_cookie_params();
 		setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"]);
 		session_destroy();
+		return array('ok' => 'You have been logged out');
 	}
+
+
+
+	public function getBudgets(){
+		if (isset($_SESSION['userId'])){
+			if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis, dataUtowrzenia FROM Budzet where ID_Uzytkownika = ?")) { 
+					$s->bind_param('s', $_SESSION['userId']);
+					$s->execute();
+					if ($s->num_rows > 0){
+						//echo $s->num_rows;
+						//echo $s->
+						//$s->bind_result($result, $);
+
+					    /* fetch values */
+					    //while ($stmt->fetch()) {
+					      //  printf ("%s (%s)\n", $name, $code);
+					    //}
+					    return $s->get_result()->fetch_assoc();
+					}
+				}
+				else
+					return array('info' => 'You dont have any budgets defined');
+		}
+		else
+			return array('error' => 'You have to be logged in to perform this action');
+	}
+
+	public function test(){
+		if (isset($_SESSION['userId'])){
+				if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis FROM Budzet where ID_Uzytkownika = ?")) { 
+						$s->bind_param('i', $_SESSION['userId']);
+						$s->execute();
+						$s->bind_result($ID_Budzetu,$nazwa,$opis);
+						$arr = array();
+						while ( $s->fetch() ) {
+							$row = array('ID_Budzetu' => $ID_Budzetu,'nazwa' => $nazwa,'opis' => $opis);
+							$arr[] = $row;
+						}
+						return array('count' =>  $s->num_rows,
+									 'budgets' => $arr);
+					}
+					else
+						return array('info' => 'You dont have any budgets defined');
+			}
+			else
+				return array('error' => 'You have to be logged in to perform this action');	
+	}
+
 
 }
 ?>
