@@ -29,12 +29,6 @@ else
 		$action = $G['a'];
 
 
-			if ($action == 'test')
-			{	
-				show($ws->test());
-			}
-
-
 		//ZALOGOWANY
 		if ($ws->isLogged())
 		{
