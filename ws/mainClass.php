@@ -1,30 +1,14 @@
 <?php
 
-function getAllResults($result) {
-    $all = array();
-    while ($row = $result->fetch_assoc())
-        $all[] = $row;
-    return $all;
-}
-
-
-
-
 class mainClass
 {
 
     var $mysqli;
-
     var $DBHOST;
     var $DBNAME;
     var $DBUSER;
     var $DBPASS;
-
-
-
-
-
-
+	
     public function __construct($user, $password, $host, $database) 
     {
         $this->DBUSER = $user;
@@ -33,8 +17,6 @@ class mainClass
         $this->DBNAME = $database;
         $this->InitializeSession();
     }
-
-
 
     private function InitializeSession() 
     {
@@ -57,7 +39,7 @@ class mainClass
         $this->mysqli->close();
     }
 
-    public function isConnected() 
+    private function isConnected() 
     {
         if (!$this->mysqli->connect_error)
             return true;
@@ -74,7 +56,7 @@ class mainClass
     }
 
 
-    public function UserNameAlreadyExists($username) 
+    private function UserNameAlreadyExists($username) 
     {
         if ($s = $this->mysqli->prepare("SELECT login FROM Uzytkownicy where login = ?")) {
             $s->bind_param('s', $username);
@@ -89,7 +71,7 @@ class mainClass
     }
 
 
-    public function UserEmailAlreadyExists($email) 
+    private function UserEmailAlreadyExists($email) 
     {
         if ($s = $this->mysqli->prepare("SELECT email FROM Uzytkownicy where email = ?")) {
             $s->bind_param('s', $email);
@@ -103,9 +85,12 @@ class mainClass
         return false;
     }
 
-    /**
-      * @return array
-      */
+    /** 
+     * @desc Funkcja rejestruje uzytkownika
+     * @param string, string, string
+     * @return array
+     * @example krystek, trunde, krystek@example.com
+     */
     public function Register($login, $password, $email) 
     {
         if (!$this->UserNameAlreadyExists($login)) {
@@ -116,18 +101,21 @@ class mainClass
                     $s->execute();
                     $s->store_result();
                 }
-                return array('ok' => 'User has been successfully registered');
+                return status('REGISTERED');
             }
             else
-                return array('error' => 'This email is already taken!');
-
+                return status('USERNAME_TAKEN');
         }
-        else {
+        else
             return status('USERNAME_TAKEN');
-        }
     }
 
-
+	/** 
+	  * @desc Zaloguj uzytkownika
+	  * @param string, string
+	  * @return array
+	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
+	  */
     public function Login($login, $password)
     {
         if ($this->UserNameAlreadyExists($login)) {
@@ -143,12 +131,12 @@ class mainClass
                     $_SESSION['userId'] = $userId;
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = hash('sha512', $password.$user_browser);
-                    return array('ok' => 'You are now logged');
+                    return status('LOGGED_IN');
                 }
             }
         }
         else
-            return array('error' => 'Username or password is wrong');
+            return status('WRONG_PASS');
     }
 
 
@@ -176,19 +164,17 @@ class mainClass
         return false;
     }
 
-
     public function Logout() 
     {
         $_SESSION = array();
         $params = session_get_cookie_params();
         setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"]);
         session_destroy();
-        return array('ok' => 'You have been logged out');
+        return status('LOGGED_OUT');
     }
 
-    public function getBudgets() 
+    public function budgets() 
     {
-        if (isset($_SESSION['userId'])) {
             if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis FROM Budzet where ID_Uzytkownika = ?")) {
                 $s->bind_param('i', $_SESSION['userId']);
                 $s->execute();
@@ -202,10 +188,7 @@ class mainClass
                              'budgets' => $arr);
             }
             else
-                return array('info' => 'You dont have any budgets defined');
-        }
-        else
-            return array('error' => 'You have to be logged in to perform this action');
+                return status('NO_BUDGETS');
     }
 
 
