@@ -31,9 +31,9 @@ $PATH = "http://mybudgetpal.com/krystek/";
 	echo '</table>';
 
 	echo "<h1>Sample usage</h1><ul>";
-	echo '<li>&rarr; Log in as \'test\' user <a target="_blank" href="'. $PATH .'server.php?a=login&user=test&pass=ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49">[click]</a></li>';
+	echo '<li>&rarr; Log in as \'test\' user <a target="_blank" href="server.php?a=login&user=test&pass=ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49">[click]</a></li>';
 
-	echo '<li>&rarr; Log out <a target="_blank" href="'. $PATH .'server.php?a=logout">[click]</a></li>';
+	echo '<li>&rarr; Log out <a target="_blank" href="server.php?a=logout">[click]</a></li>';
 	echo '</ul>';
 	echo "<h1>Methods</h1><ul>";
 	$formatter = new methodsFormatter('mainClass');

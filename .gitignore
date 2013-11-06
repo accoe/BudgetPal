@@ -1,2 +1,5 @@
 ws/config.php
 phpinfo.php
+ws/.settings/
+ws/.project
+ws/.buildpath
