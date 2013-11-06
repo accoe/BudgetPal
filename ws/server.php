@@ -18,11 +18,16 @@ else
 
 	$ws = new mainClass($user,$pass,$host,$base);
 	$ws->Connect();
-	$G = $_GET;
+	
+if ($_GET['a'] == 'register'){if (!$ws->IsLogged()){if (isset($_GET['login']) && isset($_GET['password']) && isset($_GET['email'])){$ws->Register($_GET['login'], $_GET['password'], $_GET['email']);}else{show(status('WRONG_PARAMETERS'));}}else{show(status('MUST_BE_LOGGED_OUT'));}}if ($_GET['a'] == 'login'){if (!$ws->IsLogged()){if (isset($_GET['user']) && isset($_GET['password'])){$ws->Login($_GET['user'], $_GET['password']);}else{show(status('WRONG_PARAMETERS'));}}else{show(status('MUST_BE_LOGGED_OUT'));}}	
+	
+	
+/*
+ 
+  $G = $_GET;
 
 	$mustBeLoggedIn = array('logout','budget');
 	$mustBeLoggedOut = array('login','register');
-
 	// 'a' means 'action'
 	if(isset($_GET['a']))
 	{
@@ -40,7 +45,7 @@ else
 			if ($action == 'budget')
 				show($ws->getBudgets());
 
-			// Jezeli jestesmy zalogowani a probujemy wykonac akcję tylko dla wylogowanych
+			// Jezeli jestesmy zalogowani a probujemy wykonac akcj�� tylko dla wylogowanych
 			if (in_array($action, $mustBeLoggedOut))
 				show(status('MUST_BE_LOGGED_OUT'));
 		}
@@ -63,9 +68,10 @@ else
 
 			}
 
-			// Jezeli jestesmy wylogowani a probujemy wykonac akcję tylko dla zalogowanych
+			// Jezeli jestesmy wylogowani a probujemy wykonac akcj�� tylko dla zalogowanych
 			if (in_array($action, $mustBeLoggedIn))
 				show(status('MUST_BE_LOGGED_IN'));
 		}
-	}
+	}*/
+	
 ?>

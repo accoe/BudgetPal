@@ -90,6 +90,7 @@ class mainClass
      * @param string, string, string
      * @return array
      * @example krystek, trunde, krystek@example.com
+     * @logged false
      */
     public function Register($login, $password, $email) 
     {
@@ -115,12 +116,13 @@ class mainClass
 	  * @param string, string
 	  * @return array
 	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
+	  * @logged false
 	  */
-    public function Login($login, $password)
+    public function Login($user, $password)
     {
-        if ($this->UserNameAlreadyExists($login)) {
+        if ($this->UserNameAlreadyExists($user)) {
             if ($s = $this->mysqli->prepare("SELECT ID_Uzytkownika, login, haslo FROM Uzytkownicy where login = ? AND haslo = ?")) {
-                $s->bind_param('ss', $login,$password);
+                $s->bind_param('ss', $user,$password);
                 $s->execute();
                 $s->store_result();
                 $s->bind_result($userId, $username, $password);
