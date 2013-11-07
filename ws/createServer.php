@@ -23,12 +23,30 @@ class createServer {
 	public function createClassHandler($class){
 		$this->class = $class;
 		$class_methods = get_class_methods($class);
+		
+		echo '<?php
+				require_once \'mainClass.php\';
+				require_once \'config.php\';
+				require_once \'english.php\';
+				
+				$json = true;
+				define(\'USE_JSON\',true);
+				define(\'PRETTY_PRINT\',true);
+				
+				if ($json)
+					require_once \'json.php\';
+				else
+					require_once \'default.php\';
+				$'.$this->instance.' = new mainClass($user,$pass,$host,$base);
+				$'.$this->instance.'->Connect();';
+		echo 'if (isset($_GET[\'a\'])){switch($_GET[\'a\']){';
 		$this->createMethodHandler('Register');
+		$this->createMethodHandler('Login');
 		//foreach ($class_methods as $method_name)
 		//$this->createMethodHandler($method_name);
+		echo '}}';
+		echo '$'.$this->instance.'->Close();?>';
 	}
-	
-	
 	
 	
 	
@@ -55,7 +73,7 @@ class createServer {
 		// Generujemy serwer dla wszystkich metod publicznych i nie bedacych konstruktorem
 		if ($method->isPublic() && !in_array($method_name,$this->doNotCreate))
 		{	
-			echo 'if ($_GET[\'a\'] == \''.strtolower($method_name).'\'){';
+			echo 'case \''.strtolower($method_name).'\' : {';
 			// Nie trzeba byc zalogowanym
 			if (!$this->hasToBeLoggedIn($comment)){
 				echo 'if (!$ws->IsLogged()){';
@@ -75,7 +93,7 @@ class createServer {
 				echo '}';
 				echo '}else{show(status(\'MUST_BE_LOGGED_IN\'));}';
 			}
-			echo '}';
+			echo 'break;}';
 		}
 	}
 
@@ -109,7 +127,7 @@ $x->createClassHandler('mainClass');
 
 $page = ob_get_contents();
 ob_end_flush();
-$fp = fopen("server2.php","w");
+$fp = fopen("server.php","w");
 fwrite($fp,$page);
 fclose($fp);
 

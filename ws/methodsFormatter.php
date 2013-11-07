@@ -17,10 +17,12 @@ Class methodsFormatter{
 	public function EachInSeparateBlock(){
 		$class_methods = get_class_methods($this->class);
 		foreach ($class_methods as $method_name) {
+			echo '<div class="method">';
 			$this->getExample($method_name);
 			echo '<pre class="prettyprint php">';
 			$this->formatSingleMethod($method_name);
 			echo '</pre>';	
+			echo '</div>';
 		}
 	}
 
@@ -33,7 +35,7 @@ Class methodsFormatter{
 		$header = "";
 		if (strlen($comment)>0){
 			$example_link = $this->getExampleFromComment($comment, $params,$method_name);
-			echo '<a href="'.$example_link.'">'.$example_link.'</a>';
+			echo '<div class="example">&rarr; Example usage: <a target="_blank" href="'.$example_link.'">[click]</a></div>';
 		}
 	}
 	
