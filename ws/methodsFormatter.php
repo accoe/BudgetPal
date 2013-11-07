@@ -50,14 +50,26 @@ Class methodsFormatter{
 		if (strlen($comment)>0){
 			if ($this->showComments)
 				printf("\n    %s\n", str_replace("\t"," ",$comment));
+			
+			if ($method->isPublic())
+				$header .= 'public ';
+			else
+				$header .= 'private ';
+			
 			$header .= trim($this->getValueFromComment("@return",$comment))." ";
 			$params_type = $this->getParamTypesFromComment($comment);
 		}
 		else
 		{
+			if ($method->isPublic())
+				$header .= 'public ';
+			else
+				$header .= 'private ';
 			$header .=  'void ';
-
 		}
+		
+		
+		
 		$header .=  $method_name.'(';
 
 		if ($params_num == 0){
