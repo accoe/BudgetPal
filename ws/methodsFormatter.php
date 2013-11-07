@@ -6,26 +6,40 @@ Class methodsFormatter{
 	var $showComments;
 	var $showMethodBody;
 	var $counter;
+	var $publicOnly;
+	var $oNotCreate;
 
 	public function __construct($class){
 		$this->class = $class;
 		$this->showComments = false;
 		$this->showMethodBody = true;
 		$this->counter=0;
+		$this->publicOnly = true;
+		$this->doNotCreate = array('__construct','UserPrint','isLogged');
 	}
 
 	public function EachInSeparateBlock(){
 		$class_methods = get_class_methods($this->class);
 		foreach ($class_methods as $method_name) {
-			echo '<div class="method">';
-			$this->getExample($method_name);
-			echo '<pre class="prettyprint php">';
-			$this->formatSingleMethod($method_name);
-			echo '</pre>';	
-			echo '</div>';
+			
+			if ($this->publicOnly == $this->isPublic($method_name) && !in_array($method_name,$this->doNotCreate))
+			{
+				echo '<div class="method">';
+				$this->getExample($method_name);
+				echo '<pre class="prettyprint php">';
+				$this->formatSingleMethod($method_name);
+				echo '</pre>';	
+				echo '</div>';
+			}
 		}
 	}
 
+	
+	private function isPublic($method_name){
+		$method = new ReflectionMethod($this->class, $method_name);
+		return $method->isPublic();
+	}
+	
 	public function getExample($method_name){
 		
 		$method = new ReflectionMethod($this->class, $method_name);
@@ -127,7 +141,8 @@ Class methodsFormatter{
 	private function getExampleFromComment($comment, $params,$methodName){
 		$example_array = $this->getValueFromComment('@example', $comment);
 		$examples = explode(',',$example_array);
-		
+		if (count($examples) == 1 && trim($examples[0]) == 'void')
+			return  "server.php?a=".strtolower($methodName);
 		if (count($params) == count($examples)){
 			$link = "server.php?a=".strtolower($methodName);
 			

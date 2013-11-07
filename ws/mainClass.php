@@ -141,7 +141,11 @@ class mainClass
             return status('WRONG_PASS');
     }
 
-
+	/** 
+	  * @desc Sprawdza czy uzytkownik jest zalogowany
+	  * @param void
+	  * @return bool
+	  */
     public function isLogged() 
     {
         if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {
@@ -166,6 +170,13 @@ class mainClass
         return false;
     }
 
+    /** 
+      * @desc Wylogowuje uztykownika
+      * @param void
+      * @return array
+      * @example void
+      * @logged true
+      */
     public function Logout() 
     {
         $_SESSION = array();
@@ -175,7 +186,14 @@ class mainClass
         return status('LOGGED_OUT');
     }
 
-    public function budgets() 
+    /** 
+      * @desc Zwraca liste budzetow nalezacych do uzytkownika
+      * @param void
+      * @return array
+      * @example void
+      * @logged true
+      */
+    public function Budgets() 
     {
             if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis FROM Budzet where ID_Uzytkownika = ?")) {
                 $s->bind_param('i', $_SESSION['userId']);
@@ -193,6 +211,60 @@ class mainClass
                 return status('NO_BUDGETS');
     }
 
+    
+    /** 
+      * @desc Dodaje budzet 
+      * @param string, string
+      * @return array
+      * @example testowy, Testowy opis budzetu
+      * @logged true
+      */
+    public function AddBudget($name, $description)
+    {
+        $userId = $_SESSION['userId'];
+        if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
+        	$s->bind_param('is',$userId,$name);
+        	$s->execute();
+        	$s->store_result();
+        	if ($s->num_rows > 0)
+        		return status('BUDGET_EXISTS');
+        }
+    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
+    		$s->bind_param('iss',$userId,$name, $description);
+    		$s->execute();
+    		$s->bind_result();
+    		return status('BUDGET_ADDED');
+    	}
+    	else
+    		return status('BUDGET_NOT_ADDED');
+    }
+    
+    /** 
+      * @desc Usuwa zdefiniowany budzet
+      * @param int
+      * @return array
+      * @example 14
+      * @logged true
+      */
+    public function DeleteBudget($budget_id)
+    {
+        $userId = $_SESSION['userId'];
+        if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
+        	$s->bind_param('ii',$userId,$budget_id);
+        	$s->execute();
+        	$s->store_result();
+        	if ($s->num_rows == 0)
+        		return status('NO_SUCH_BUDGET');
+        }       
+    	if ($s = $this->mysqli->prepare("DELETE FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
+    		$s->bind_param('ii',$userId,$budget_id);
+    		$s->execute();
+    		$s->bind_result();
+    		return status('BUDGET_DELETED');
+    	}
+    	else
+    		return status('BUDGET_NOT_DELETED');
+    }
 
 }
 ?>

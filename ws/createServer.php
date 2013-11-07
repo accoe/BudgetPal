@@ -40,10 +40,8 @@ class createServer {
 				$'.$this->instance.' = new mainClass($user,$pass,$host,$base);
 				$'.$this->instance.'->Connect();';
 		echo 'if (isset($_GET[\'a\'])){switch($_GET[\'a\']){';
-		$this->createMethodHandler('Register');
-		$this->createMethodHandler('Login');
-		//foreach ($class_methods as $method_name)
-		//$this->createMethodHandler($method_name);
+		foreach ($class_methods as $method_name)
+		$this->createMethodHandler($method_name);
 		echo '}}';
 		echo '$'.$this->instance.'->Close();?>';
 	}
@@ -77,20 +75,28 @@ class createServer {
 			// Nie trzeba byc zalogowanym
 			if (!$this->hasToBeLoggedIn($comment)){
 				echo 'if (!$ws->IsLogged()){';
+				if ($params_num != 0){
 					echo 'if ('.$this->createIssetForParams($params).'){';
-						echo '$'.$this->instance.'->'.$method_name.'('.$this->createGETParams($params).');';
+						echo 'show($'.$this->instance.'->'.$method_name.'('.$this->createGETParams($params).'));';
 					echo '}else{';
 						echo 'show(status(\'WRONG_PARAMETERS\'));';
 					echo '}';
+				}
+				else 
+					echo 'show($'.$this->instance.'->'.$method_name.'());';
 				echo '}else{show(status(\'MUST_BE_LOGGED_OUT\'));}';
 			}
 			else {
 				echo 'if ($ws->IsLogged()){';
-				echo 'if ('.$this->createIssetForParams($params).'){';
-				echo '$'.$this->instance.'->'.$method_name.'('.$this->createGETParams($params).');';
-				echo '}else{';
-				echo 'show(status(\'WRONG_PARAMETERS\'));';
-				echo '}';
+				if ($params_num != 0){
+					echo 'if ('.$this->createIssetForParams($params).'){';
+					echo 'show($'.$this->instance.'->'.$method_name.'('.$this->createGETParams($params).'));';
+					echo '}else{';
+					echo 'show(status(\'WRONG_PARAMETERS\'));';
+					echo '}';
+				}
+				else
+					echo 'show($'.$this->instance.'->'.$method_name.'());';
 				echo '}else{show(status(\'MUST_BE_LOGGED_IN\'));}';
 			}
 			echo 'break;}';
