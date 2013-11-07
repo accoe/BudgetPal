@@ -24,8 +24,12 @@ Class methodsFormatter{
 			
 			if ($this->publicOnly == $this->isPublic($method_name) && !in_array($method_name,$this->doNotCreate))
 			{
-				echo '<div class="method">';
+				echo '<div class="method_name"><h3>'.$method_name.'</h3> ';
 				$this->getExample($method_name);
+				echo '</div>';
+
+				echo '<div class="method">';
+				$this->getDescriptionFromComment($method_name);
 				echo '<pre class="prettyprint php">';
 				$this->formatSingleMethod($method_name);
 				echo '</pre>';	
@@ -49,7 +53,7 @@ Class methodsFormatter{
 		$header = "";
 		if (strlen($comment)>0){
 			$example_link = $this->getExampleFromComment($comment, $params,$method_name);
-			echo '<div class="example">&rarr; Example usage: <a target="_blank" href="'.$example_link.'">[click]</a></div>';
+			echo '<div class="example">&rarr; example usage <a target="_blank" href="'.$example_link.'">[click]</a></div>';
 		}
 	}
 	
@@ -65,8 +69,7 @@ Class methodsFormatter{
 		$header = "";
 		if (strlen($comment)>0){
 			if ($this->showComments)
-				printf("\n    %s\n", str_replace("\t"," ",$comment));
-			
+				printf("\n    %s\n", str_replace("\t"," ",$comment));			
 			if ($method->isPublic())
 				$header .= 'public ';
 			else
@@ -124,8 +127,12 @@ Class methodsFormatter{
 		return substr($comment, $pos, ( strpos($comment, PHP_EOL, $pos) ) - $pos);
 	}
 
-	private function getDescriptionFromComment($comment){
-		return $this->getValueFromComment('@desc', $comment);
+	private function getDescriptionFromComment($method_name){
+		$method = new ReflectionMethod($this->class, $method_name);
+		$comment = $method->getDocComment();
+		echo '<div class="desc">';
+		echo trim($this->getValueFromComment('@desc', $comment));
+		echo '</div>';
 	}
 	
 	private function getParamTypesFromComment($comment)

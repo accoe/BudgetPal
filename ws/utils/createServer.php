@@ -25,18 +25,18 @@ class createServer {
 		$class_methods = get_class_methods($class);
 		
 		echo '<?php
-				require_once \'../mainClass.php\';
-				require_once \'../config.php\';
-				require_once \'../lang/english.php\';
+				require_once \'mainClass.php\';
+				require_once \'config.php\';
+				require_once \'lang/english.php\';
 				
 				$json = true;
 				define(\'USE_JSON\',true);
 				define(\'PRETTY_PRINT\',true);
 				
 				if ($json)
-					require_once \'../formats/json.php\';
+					require_once \'formats/json.php\';
 				else
-					require_once \'../formats/default.php\';
+					require_once \'formats/default.php\';
 				$'.$this->instance.' = new mainClass($user,$pass,$host,$base);
 				$'.$this->instance.'->Connect();';
 		echo 'if (isset($_GET[\'a\'])){switch($_GET[\'a\']){';
@@ -133,8 +133,8 @@ $x->createClassHandler('mainClass');
 
 $page = ob_get_contents();
 ob_end_flush();
-$fp = fopen("server.php","w");
+$fp = fopen("../server.php","w");
 fwrite($fp,$page);
 fclose($fp);
-
+header("Location: ../index.php");
 ?>

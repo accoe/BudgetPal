@@ -2,16 +2,24 @@
 <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
 <link rel="stylesheet" type="text/css" href="css/style.css" />
 <link rel="stylesheet" type="text/css" href="css/toggle.css" />
-
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.0/js/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.min.css" rel="stylesheet"/>
 <title>MyBugetPal.com - planowanie bud&#380;etu domowego</title>
+<script>
+function showToast()
+{	
+	toastr.success('Wygenerowano nowy plik serwera!')
+}
+</script>
 
+<body onload="">
 <div id="header">
 <div class="logo"><img src="/budget_logo_280_white.png"></div>
 </div>
 
 <div id="content">
-<div class="box_min">Go to the server: <a href="server.php">server.php</a> <a href="createServer.php">(generate new one)</a></div>
+<div class="box_min">Go to the server: <a href="server.php">server.php</a> <a onclick="showToast()" href="utils/createServer.php">(generate new one)</a></div>
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
@@ -42,3 +50,4 @@ Created by <a href="http://swidurski.pl">Krystian &#346;widurski</a> and <a href
 <div style="float:right"><a href="https://github.com/TheKrystek/BudgetPal">Follow this project on GitHub <img src="img/github.png"/></a></div>
 </div>
 </div>
+</body>
