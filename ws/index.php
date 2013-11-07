@@ -18,7 +18,7 @@ ini_set('display_errors', '1');
 
 require_once 'mainClass.php';
 require_once 'config.php';
-require 'methodsFormatter.php';
+require 'utils/methodsFormatter.php';
 $PATH = "http://mybudgetpal.com/krystek/";
 
 	$ws = new mainClass($user,$pass,$host,$base);
