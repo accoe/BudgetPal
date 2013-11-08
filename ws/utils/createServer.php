@@ -107,10 +107,16 @@ class createServer {
 	private function createIssetForParams($params){
 		$condition = "";
 		for ($i = 0; $i < count($params)-1; $i++) {
-			$arg = 'isset($_GET[\''.$params[$i]->getName().'\']) && ';
-			$condition .= $arg;
+			if (!$params[$i]->isDefaultValueAvailable()){
+				$arg = 'isset($_GET[\''.$params[$i]->getName().'\']) && ';
+				$condition .= $arg;
+			}
 		}
-		$condition .= 'isset($_GET[\''.end($params)->getName().'\'])';
+		if (!$params[$i]->isDefaultValueAvailable()){
+			$condition .= 'isset($_GET[\''.end($params)->getName().'\'])';
+		}
+		else
+			$condition = substr($condition, 0, strlen($condition) - 4);
 		return $condition;	
 	}
 

@@ -414,12 +414,12 @@ class mainClass
 
     /**
      * @desc Dodaje nowy wydatek
-     * @param int, string, string
+     * @param int, string, double, int
      * @return array
-     * @example owoce
+     * @example 3, jablko, 1.3, 1
      * @logged true
      */
-    public function AddExpense($budget_Id,$name,$cost,$purchase = -1)
+    public function AddExpense($budget_Id,$name,$cost,$purchase_Id = -1)
     {
     	/*
         $userId = $_SESSION['userId'];

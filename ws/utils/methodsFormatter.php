@@ -97,12 +97,24 @@ Class methodsFormatter{
 		else{
 			if (count($params_type) == $params_num){
 		    	for ($i = 0; $i < $params_num -1; $i++) {
-		        	$header .=  $params_type[$i]." ".$params[$i]->getName().', ';
+		    		if ($params[$i]->isDefaultValueAvailable())
+		    			$header .= '[ ';	
+
+		        	$header .=  $params_type[$i]." ".$params[$i]->getName();
+
+		        	if ($params[$i]->isDefaultValueAvailable())
+		    			$header .= ' = '.$params[$i]->getDefaultValue() . ' ]';	
+
+		    		$header .= ', ';
 		    	}
+		    	if ($params[$i]->isDefaultValueAvailable())
+		    			$header .= '[ ';	
 		    	$header .=  $params_type[$params_num -1]." ".$params[$params_num -1]->getName();
+		    	if ($params[$i]->isDefaultValueAvailable())
+		    			$header .= ' = '.$params[$i]->getDefaultValue() . ' ]';
 			}
-		//	else 
-			//	die($params_num." ".count($example_val).'Number of parameters in method header and number of examples isn\'t equal');
+			else 
+				die($params_num." ".count($example_val).'Number of parameters in method header and number of examples isn\'t equal');
 		}
 		$header .=  ')';
 
