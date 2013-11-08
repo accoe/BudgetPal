@@ -18,6 +18,50 @@ class mainClass
         $this->InitializeSession();
     }
 
+    public function Connect()
+    {
+    	$this->mysqli = new mysqli($this->DBHOST, $this->DBUSER, $this->DBPASS, $this->DBNAME);
+    	$this->mysqli->connect_error;
+    }
+    
+    public function Close()
+    {
+    	$this->mysqli->close();
+    }
+    
+    public function UserPrint()
+    {
+    	$result = $this->mysqli->query("SELECT * FROM Uzytkownicy");
+    	while ($row = $result->fetch_assoc())
+    		echo "<tr><td>{$row['ID_Uzytkownika']}.</td><td>{$row['login']}</td><td>{$row['email']}</td><td>{$row['dataRejestracji']}</td><td>".substr($row['haslo'],0,30)."...</td></tr>";
+    }
+
+    public function isLogged()
+    {
+    	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {
+    		$userId = $_SESSION['userId'];
+    		$login_string = $_SESSION['login_string'];
+    		$username = $_SESSION['username'];
+    		$user_browser = $_SERVER['HTTP_USER_AGENT'];
+    		if ($s = $this->mysqli->prepare("SELECT haslo FROM Uzytkownicy WHERE ID_Uzytkownika = ? LIMIT 1")) {
+    			$s->bind_param('i', $userId);
+    			$s->execute();
+    			$s->store_result();
+    			if($s->num_rows == 1) {
+    				$s->bind_result($password);
+    				$s->fetch();
+    				$login_check = hash('sha512', $password.$user_browser);
+    				if($login_check == $login_string) {
+    					return true;
+    				}
+    			}
+    		}
+    	}
+    	return false;
+    }	
+    
+    
+    
     private function InitializeSession() 
     {
         $session_name = 'myBudgetPal';
@@ -29,16 +73,6 @@ class mainClass
         session_regenerate_id();
     }
 
-    public function Connect() 
-    {
-        $this->mysqli = new mysqli($this->DBHOST, $this->DBUSER, $this->DBPASS, $this->DBNAME);
-        $this->mysqli->connect_error;
-    }
-
-    public function Close() 
-    {
-        $this->mysqli->close();
-    }
 
     private function isConnected() 
     {
@@ -47,44 +81,96 @@ class mainClass
         else
             return false;
     }
-
-
-    public function UserPrint() 
+    
+    private function DoesUserHaveBudgetWithName($userId,$name)
     {
-        $result = $this->mysqli->query("SELECT * FROM Uzytkownicy");
-        while ($row = $result->fetch_assoc())
-            echo "<tr><td>{$row['ID_Uzytkownika']}.</td><td>{$row['login']}</td><td>{$row['email']}</td><td>{$row['dataRejestracji']}</td><td>".substr($row['haslo'],0,30)."...</td></tr>";
+    	$userId = $_SESSION['userId'];
+    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
+    		$s->bind_param('is',$userId,$name);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows > 0)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
     }
-
-
-    private function UserNameAlreadyExists($username) 
+    
+    private function BudgetExists($userId,$budget_id)
     {
-        if ($s = $this->mysqli->prepare("SELECT login FROM Uzytkownicy where login = ?")) {
-            $s->bind_param('s', $username);
-            $s->execute();
-            $s->store_result();
-            if ($s->num_rows == 1)
-                return true;
-            else
-                return false;
-        }
-        return false;
+    	$userId = $_SESSION['userId'];
+    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
+    		$s->bind_param('is',$userId,$budget_id);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows > 0)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
     }
-
-
-    private function UserEmailAlreadyExists($email) 
+    
+    private function UserNameAlreadyExists($username)
     {
-        if ($s = $this->mysqli->prepare("SELECT email FROM Uzytkownicy where email = ?")) {
-            $s->bind_param('s', $email);
-            $s->execute();
-            $s->store_result();
-            if ($s->num_rows == 1)
-                return true;
-            else
-                return false;
-        }
-        return false;
+    	if ($s = $this->mysqli->prepare("SELECT login FROM Uzytkownicy where login = ?")) {
+    		$s->bind_param('s', $username);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
     }
+    
+    
+    private function UserEmailAlreadyExists($email)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT email FROM Uzytkownicy where email = ?")) {
+    		$s->bind_param('s', $email);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
+    }
+    
+    
+    private function ProductCategoryExist($name){
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategoriaProd where nazwa = ?")) {
+    		$s->bind_param('s', $name);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
+    
+    }
+    
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+   
 
     /** 
      * @desc Funkcja rejestruje uzytkownika
@@ -106,7 +192,7 @@ class mainClass
                 return status('REGISTERED');
             }
             else
-                return status('USERNAME_TAKEN');
+                return status('EMAIL_TAKEN');
         }
         else
             return status('USERNAME_TAKEN');
@@ -147,29 +233,7 @@ class mainClass
 	  * @param void
 	  * @return bool
 	  */
-    public function isLogged() 
-    {
-        if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {
-            $userId = $_SESSION['userId'];
-            $login_string = $_SESSION['login_string'];
-            $username = $_SESSION['username'];
-            $user_browser = $_SERVER['HTTP_USER_AGENT'];
-            if ($s = $this->mysqli->prepare("SELECT haslo FROM Uzytkownicy WHERE ID_Uzytkownika = ? LIMIT 1")) {
-                $s->bind_param('i', $userId);
-                $s->execute();
-                $s->store_result();
-                if($s->num_rows == 1) {
-                    $s->bind_result($password);
-                    $s->fetch();
-                    $login_check = hash('sha512', $password.$user_browser);
-                    if($login_check == $login_string) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+
 
     /** 
       * @desc Wylogowuje uztykownika
@@ -194,7 +258,7 @@ class mainClass
       * @example void
       * @logged true
       */
-    public function Budgets() 
+    public function GetBudgets() 
     {
             if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis FROM Budzet where ID_Uzytkownika = ?")) {
                 $s->bind_param('i', $_SESSION['userId']);
@@ -211,23 +275,7 @@ class mainClass
             else
                 return status('NO_BUDGETS');
     }
-
-    
-    
-    private function BudgetExists($userId,$name)
-    {
-        $userId = $_SESSION['userId'];
-            if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
-        	$s->bind_param('is',$userId,$name);
-        	$s->execute();
-        	$s->store_result();
-        	if ($s->num_rows > 0)
-        		return true;
-        	else 
-        		return false;
-        }
-        return false;
-    }
+   
     
     /** 
       * @desc Dodaje budzet 
@@ -239,7 +287,7 @@ class mainClass
     public function AddBudget($name, $description)
     {
         $userId = $_SESSION['userId'];
-        if ($this->BudgetExists($userId,$name))
+        if ($this->DoesUserHaveBudgetWithName($userId,$name))
         	return status('BUDGET_EXISTS');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
@@ -253,6 +301,42 @@ class mainClass
 	    }
     }
     
+    /**
+     * @desc Modyfikuje zdefiniowany budzet
+     * @param int, string, string
+     * @return array
+     * @example 14, Nowa nazwa, zmieniony opis
+     * @logged true
+     */
+    public function UpdateBudget($budget_id,$name,$description)
+    {
+    	$userId = $_SESSION['userId'];
+    	if (!$this->BudgetExists($userId,$budget_id))
+    		return status('NO_SUCH_BUDGET');
+    	{
+    		// Pobierz stare wartości
+    		if ($s = $this->mysqli->prepare("SELECT nazwa, opis FROM Budzet where where ID_Uzytkownika = ? ID_Budzetu = ?")) {
+    			$s->bind_param('ii',$userId, $budget_id);
+    			$s->execute();
+    			$s->bind_result($nazwa,$opis);
+    			$arr = array();
+    			$s->fetch();
+    			if (empty($name))
+    				$name = $nazwa;
+    			if (empty($description))
+    				$description = $opis;
+    		}
+    		if ($s = $this->mysqli->prepare("UPDATE Budzet set nazwa = ?, opis = ? where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
+    			$s->bind_param('ssii',$name,$description,$userId,$budget_id);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('BUDGET_UPDATED');
+    		}
+    		else
+    			return status('BUDGET_NOT_UPDATED');
+    	}
+    }
+    
     /** 
       * @desc Usuwa zdefiniowany budzet
       * @param int
@@ -263,7 +347,7 @@ class mainClass
     public function DeleteBudget($budget_id)
     {
         $userId = $_SESSION['userId'];
-        if (!$this->BudgetExists($userId,$name))
+        if (!$this->BudgetExists($userId,$budget_id))
         		return status('NO_SUCH_BUDGET');
         { 
 	    	if ($s = $this->mysqli->prepare("DELETE FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
@@ -276,6 +360,37 @@ class mainClass
 	    		return status('BUDGET_NOT_DELETED');
         }
     }
+    
+    
+    /**
+     * @desc Dodaje kategorię do listy kategorii produktów
+     * @param void
+     * @return array
+     * @example void
+     * @logged false
+     */
+    public function GetProductsCategories()
+    {
+    	if (!$this->ProductCategoryExist($name)){
+    		if ($s = $this->mysqli->prepare("SELECT  FROM  where ID_Uzytkownika = ?")) {
+    			$s->bind_param('i',$userId);
+    			$s->execute();
+    			$s->bind_result();
+    			$arr = array();
+    			while ( $s->fetch() ) {
+    				//  $row = array('' => $);
+    				//  $arr[] = $row;
+    			}
+    			return array('count' =>  $s->num_rows,
+    					'' => $arr);
+    		}
+    		else
+    			return status('');
+    	}
+    	else
+    		return status('PROCDUCT_CATEGORY_EXISTS');
+    }
+
 
     /** 
       * @desc Dodaje kategorię do listy kategorii produktów
@@ -284,7 +399,7 @@ class mainClass
       * @example owoce
       * @logged true
       */
-    public function addProductsCategory($name)
+    public function AddProductsCategory($name)
     {
     	if (!$this->ProductCategoryExist($name)){
 	    	if ($s = $this->mysqli->prepare("SELECT  FROM  where ID_Uzytkownika = ?")) {
@@ -293,8 +408,8 @@ class mainClass
 	    		$s->bind_result();
 	    		$arr = array();
 	    		while ( $s->fetch() ) {
-	    		    $row = array('' => $);
-	    		    $arr[] = $row;
+	    		  //  $row = array('' => $);
+	    		  //  $arr[] = $row;
 	    		}
 	    		return array('count' =>  $s->num_rows,
 	    		             '' => $arr);
@@ -306,19 +421,7 @@ class mainClass
     		return status('PROCDUCT_CATEGORY_EXISTS');
     }
     
-    private function ProductCategoryExist($name){
-    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategoriaProd where nazwa = ?")) {
-    		$s->bind_param('s', $name);
-    		$s->execute();
-    		$s->store_result();
-    		if ($s->num_rows == 1)
-    			return true;
-    		else
-    			return false;
-    	}
-    	return false;
-    	
-    }
+
     
     // dodawanie produktu do budzetu
     

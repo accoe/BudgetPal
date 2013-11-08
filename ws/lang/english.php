@@ -11,6 +11,7 @@ $errors['MUST_BE_LOGGED_IN'] = 'To perform this action you have to be logged in'
 $errors['MUST_BE_LOGGED_OUT'] = 'To perform this action you have to be logged out';
 $errors['WRONG_PASS'] = 'Username or password is wrong';
 $errors['BUDGET_NOT_ADDED'] = 'Budget cannot be added';
+$errors['BUDGET_NOT_UPDATED'] = 'Budget cannot be updated';
 $errors['BUDGET_NOT_DELETED'] = 'This budget cannot be deleted';
 $errors['NO_SUCH_BUDGET'] = 'Budget doesn\'t exist';
 $errors['BUDGET_EXISTS'] = 'Choose a different name for this budget';
@@ -19,6 +20,7 @@ $errors[''] = '';
 $infos['NO_BUDGETS'] = 'You dont have any budgets defined';
 
 $ok['BUDGET_DELETED'] = 'Budget has been deleted successfully';
+$ok['BUDGET_UPDATED'] = 'Budget has been updated successfully';
 $ok['BUDGET_ADDED'] = 'New budget has been added successfully';
 $ok['LOGGED_OUT'] = 'You have been logged out';
 $ok['LOGGED_IN'] = 'You have been logged in';
