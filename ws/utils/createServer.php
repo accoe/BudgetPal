@@ -42,6 +42,7 @@ class createServer {
 		echo 'if (isset($_GET[\'a\'])){switch($_GET[\'a\']){';
 		foreach ($class_methods as $method_name)
 		$this->createMethodHandler($method_name);
+		echo 'default: show(status(\'NOT_SUPPORTED\'));';
 		echo '}}';
 		echo '$'.$this->instance.'->Close();?>';
 	}

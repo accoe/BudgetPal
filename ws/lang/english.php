@@ -15,10 +15,21 @@ $errors['BUDGET_NOT_UPDATED'] = 'Budget cannot be updated';
 $errors['BUDGET_NOT_DELETED'] = 'This budget cannot be deleted';
 $errors['NO_SUCH_BUDGET'] = 'Budget doesn\'t exist';
 $errors['BUDGET_EXISTS'] = 'Choose a different name for this budget';
+$errors['CANNOT_GET_PRODUCT_CATEGORIES'] = 'Cannot get product categories';
+$errors['NOT_SUPPORTED'] = 'This operation is not yet supported';
+$errors['STUB_METHOD'] = 'This method is a stub (hopefully just for now)';
+$errors['PRODUCT_CATEGORY_NOT_ADDED'] = 'Product category cannot be added';
+$errors['PRODUCT_CATEGORY_NOT_UPDATED'] = 'Product category cannot be updated';
+$errors['PRODUCT_CATEGORY_NOT_DELETED'] = 'Product category cannot be deleted';
+$errors['PRODUCT_CATEGORY_EXISTS'] = 'This product category already exists';
+$errors[''] = '';
 $errors[''] = '';
 
 $infos['NO_BUDGETS'] = 'You dont have any budgets defined';
 
+$ok['PRODUCT_CATEGORY_ADDED'] = 'Product category has been added successfully';
+$ok['PRODUCT_CATEGORY_UPDATED'] = 'Product category has been updated successfully';
+$ok['PRODUCT_CATEGORY_DELETED'] = 'Product category has been deleted successfully';
 $ok['BUDGET_DELETED'] = 'Budget has been deleted successfully';
 $ok['BUDGET_UPDATED'] = 'Budget has been updated successfully';
 $ok['BUDGET_ADDED'] = 'New budget has been added successfully';
@@ -38,7 +49,7 @@ function status($key){
 	if (array_key_exists($key, $ok))
 		return array('ok' =>  $ok[$key]);
 
-	return array('error' => 'No such key!');
+	return array('error' => 'No such key: \''.$key.'\'');
 }
 
 

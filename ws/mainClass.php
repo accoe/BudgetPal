@@ -142,8 +142,9 @@ class mainClass
     }
     
     
-    private function ProductCategoryExist($name){
-    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategoriaProd where nazwa = ?")) {
+    private function ProductCategoryExist($name)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategorieProduktow where nazwa = ?")) {
     		$s->bind_param('s', $name);
     		$s->execute();
     		$s->store_result();
@@ -363,67 +364,80 @@ class mainClass
     
     
     /**
-     * @desc Dodaje kategorię do listy kategorii produktów
+     * @desc Pobiera listę kategorii produktów
      * @param void
      * @return array
      * @example void
-     * @logged false
+     * @logged true
      */
-    public function GetProductsCategories()
+    public function GetProductCategories()
     {
-    	if (!$this->ProductCategoryExist($name)){
-    		if ($s = $this->mysqli->prepare("SELECT  FROM  where ID_Uzytkownika = ?")) {
-    			$s->bind_param('i',$userId);
-    			$s->execute();
-    			$s->bind_result();
-    			$arr = array();
-    			while ( $s->fetch() ) {
-    				//  $row = array('' => $);
-    				//  $arr[] = $row;
-    			}
-    			return array('count' =>  $s->num_rows,
-    					'' => $arr);
-    		}
-    		else
-    			return status('');
+    	if ($s = $this->mysqli->prepare("SELECT ID_KatProduktu, nazwa FROM KategorieProduktow")) {
+    		$s->execute();
+    		$s->bind_result($ID_KatProduktu,$nazwa);
+    		$arr = array();
+            	while ( $s->fetch() ) {
+               		$row = array('ID_KatProduktu' => $ID_KatProduktu,'nazwa' => $nazwa);
+                    $arr[] = $row;
+                }
+                return array('count' =>  $s->num_rows,
+                             'categories' => $arr);
     	}
     	else
-    		return status('PROCDUCT_CATEGORY_EXISTS');
+    		return status('CANNOT_GET_PRODUCT_CATEGORIES');
     }
 
 
     /** 
-      * @desc Dodaje kategorię do listy kategorii produktów
+      * @desc Dodaje kategorie do listy kategorii produktow
       * @param string
       * @return array
       * @example owoce
       * @logged true
       */
-    public function AddProductsCategory($name)
+    public function AddProductCategory($name)
     {
-    	if (!$this->ProductCategoryExist($name)){
-	    	if ($s = $this->mysqli->prepare("SELECT  FROM  where ID_Uzytkownika = ?")) {
-	    		$s->bind_param('i',$userId);
+    	$userId = $_SESSION['userId'];
+    	if ($this->ProductCategoryExist($name))
+    		return status('PRODUCT_CATEGORY_EXISTS');
+    	else{
+    		if ($s = $this->mysqli->prepare("INSERT INTO KategorieProduktow (nazwa) values (?);")) {
+    			$s->bind_param('s',$name);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('PRODUCT_CATEGORY_ADDED');
+    		}
+    		else
+    			return status('PRODUCT_CATEGORY_NOT_ADDED');
+    	}
+    }
+
+    /**
+     * @desc Dodaje nowy wydatek
+     * @param int, string, string
+     * @return array
+     * @example owoce
+     * @logged true
+     */
+    public function AddExpense($budget_Id,$name,$cost,$purchase = -1)
+    {
+    	/*
+        $userId = $_SESSION['userId'];
+        if (!$this->BudgetExists($userId,$budget_id))
+        	return status('NO_SUCH_BUDGET');
+        else{
+	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
+	    		$s->bind_param('iss',$userId,$name, $description);
 	    		$s->execute();
 	    		$s->bind_result();
-	    		$arr = array();
-	    		while ( $s->fetch() ) {
-	    		  //  $row = array('' => $);
-	    		  //  $arr[] = $row;
-	    		}
-	    		return array('count' =>  $s->num_rows,
-	    		             '' => $arr);
+	    		return status('EXPENSE_ADDED');
 	    	}
 	    	else
-	    		return status('');
-    	}
-    	else
-    		return status('PROCDUCT_CATEGORY_EXISTS');
+	    		return status('EXPENSE_NOT_ADDED');
+	    }
+	    */
+    	return status('STUB_METHOD');
     }
-    
-
-    
-    // dodawanie produktu do budzetu
     
     
     
