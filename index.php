@@ -42,7 +42,7 @@ a:hover
 }
 </style>
 
-<center><img src="http://icons.iconarchive.com/icons/visualpharm/ios7v2/96/Shopping-Money-box-icon.png" alt="jak planować budżet" title="budget planner"><br />
+<center><img src="budget_logo_320.png" alt="jak planować budżet" title="budget planner"><br />
 <h1>MyBudgetPal.com</h1>
 <h2>zaplanuj budżet dla domu i firmy</h2>
 <h3>wersja webowa, aplikacja Android z systemem OCR paragonów fiskalnych</h3>
