@@ -36,6 +36,11 @@ class mainClass
     		echo "<tr><td>{$row['ID_Uzytkownika']}.</td><td>{$row['login']}</td><td>{$row['email']}</td><td>{$row['dataRejestracji']}</td><td>".substr($row['haslo'],0,30)."...</td></tr>";
     }
 
+    /**
+     * @desc Sprawdza czy uzytkownik jest zalogowany
+     * @param void
+     * @return bool
+     */
     public function isLogged()
     {
     	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {
@@ -82,7 +87,7 @@ class mainClass
             return false;
     }
     
-    private function DoesUserHaveBudgetWithName($userId,$name)
+    private function BudgetExistsWithName($userId,$name)
     {
     	$userId = $_SESSION['userId'];
     	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
@@ -97,7 +102,7 @@ class mainClass
     	return false;
     }
     
-    private function BudgetExists($userId,$budget_id)
+    private function BudgetExistsWithId($userId,$budget_id)
     {
     	$userId = $_SESSION['userId'];
     	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
@@ -157,10 +162,48 @@ class mainClass
     
     }
     
-    
+    private function ProductCategoryExistWithId($product_cat)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategorieProduktow where ID_KatProduktu = ?")) {
+    		$s->bind_param('i', $product_cat);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
+    }
 
-
+    private function ProductExist($name)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM Produkty where nazwa = ?")) {
+    		$s->bind_param('s', $name);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
     
+    }
+    
+    private function ProductExistWithId($product_id)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM Produkty where ID_Produktu = ?")) {
+    		$s->bind_param('i', $product_id);
+    		$s->execute();
+    		$s->store_result();
+    		if ($s->num_rows == 1)
+    			return true;
+    		else
+    			return false;
+    	}
+    	return false;
+    }
     
     
     
@@ -229,11 +272,7 @@ class mainClass
             return status('WRONG_PASS');
     }
 
-	/** 
-	  * @desc Sprawdza czy uzytkownik jest zalogowany
-	  * @param void
-	  * @return bool
-	  */
+
 
 
     /** 
@@ -288,7 +327,7 @@ class mainClass
     public function AddBudget($name, $description)
     {
         $userId = $_SESSION['userId'];
-        if ($this->DoesUserHaveBudgetWithName($userId,$name))
+        if ($this->BudgetExistsWithName($userId,$name))
         	return status('BUDGET_EXISTS');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
@@ -312,7 +351,7 @@ class mainClass
     public function UpdateBudget($budget_id,$name,$description)
     {
     	$userId = $_SESSION['userId'];
-    	if (!$this->BudgetExists($userId,$budget_id))
+    	if (!$this->BudgetExistsWithId($userId,$budget_id))
     		return status('NO_SUCH_BUDGET');
     	{
     		// Pobierz stare wartości
@@ -348,7 +387,7 @@ class mainClass
     public function DeleteBudget($budget_id)
     {
         $userId = $_SESSION['userId'];
-        if (!$this->BudgetExists($userId,$budget_id))
+        if (!$this->BudgetExistsWithId($userId,$budget_id))
         		return status('NO_SUCH_BUDGET');
         { 
 	    	if ($s = $this->mysqli->prepare("DELETE FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
@@ -412,6 +451,60 @@ class mainClass
     	}
     }
 
+    
+    /**
+     * @desc Dodaje produkt do listy produktow
+     * @param int,string
+     * @return array
+     * @example 1, jablko
+     * @logged true
+     */
+    public function AddProduct($prodact_cat, $name)
+    {
+    	$userId = $_SESSION['userId'];
+    	if (!$this->ProductCategoryExistWithId($prodact_cat))
+    		return status('PRODUCT_CATEGORY_NOT_EXISTS');
+    	if ($this->ProductExistWithId($name))
+    		return status('PRODUCT_EXISTS');
+
+    	else{
+    		if ($s = $this->mysqli->prepare("INSERT INTO Produkty (ID_KatProduktu, nazwa) values (?, ?);")) {
+    			$s->bind_param('is',$prodact_cat,$name);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('PRODUCT_ADDED');
+    		}
+    		else
+    			return status('PRODUCT_NOT_ADDED');
+    	}
+    }  
+    
+    
+    /**
+     * @desc Pobiera listę produktów
+     * @param void
+     * @return array
+     * @example void
+     * @logged true
+     */
+    public function GetProducts()
+    {
+    	if ($s = $this->mysqli->prepare("SELECT ID_Produktu, ID_KatProduktu, nazwa, data FROM Produkty")) {
+    		$s->execute();
+    		$s->bind_result($ID_Produktu,$ID_KatProduktu,$nazwa,$data);
+    		$arr = array();
+    		while ( $s->fetch() ) {
+    			$row = array('ID_Produktu' => $ID_Produktu,'ID_KatProduktu' => $ID_KatProduktu,'nazwa' => $nazwa, 'data' => $data);
+    			$arr[] = $row;
+    		}
+    		return array('count' =>  $s->num_rows,
+    				'categories' => $arr);
+    	}
+    	else
+    		return status('CANNOT_GET_PRODUCT_CATEGORIES');
+    }
+    
+    
     /**
      * @desc Dodaje nowy wydatek
      * @param int, string, double, int
@@ -421,9 +514,11 @@ class mainClass
      */
     public function AddExpense($budget_Id,$name,$cost,$purchase_Id = -1)
     {
+    	if (empty($purchase_Id))
+    		$purchase_Id = null;
     	/*
         $userId = $_SESSION['userId'];
-        if (!$this->BudgetExists($userId,$budget_id))
+        if (!$this->BudgetExistsWithId($userId,$budget_id))
         	return status('NO_SUCH_BUDGET');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {

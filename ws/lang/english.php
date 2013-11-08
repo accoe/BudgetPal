@@ -22,6 +22,7 @@ $errors['PRODUCT_CATEGORY_NOT_ADDED'] = 'Product category cannot be added';
 $errors['PRODUCT_CATEGORY_NOT_UPDATED'] = 'Product category cannot be updated';
 $errors['PRODUCT_CATEGORY_NOT_DELETED'] = 'Product category cannot be deleted';
 $errors['PRODUCT_CATEGORY_EXISTS'] = 'This product category already exists';
+$errors['PRODUCT_CATEGORY_NOT_EXISTS'] = 'This product category doesn\'t exist';
 $errors[''] = '';
 $errors[''] = '';
 
