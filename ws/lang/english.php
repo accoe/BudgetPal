@@ -23,11 +23,18 @@ $errors['PRODUCT_CATEGORY_NOT_UPDATED'] = 'Product category cannot be updated';
 $errors['PRODUCT_CATEGORY_NOT_DELETED'] = 'Product category cannot be deleted';
 $errors['PRODUCT_CATEGORY_EXISTS'] = 'This product category already exists';
 $errors['PRODUCT_CATEGORY_NOT_EXISTS'] = 'This product category doesn\'t exist';
-$errors[''] = '';
-$errors[''] = '';
+$errors['CANNOT_GET_INCOMES_CATEGORIES'] = '';
+$errors['INCOME_CATEGORY_EXISTS'] = '';
+$errors['INCOME_CATEGORY_NOT_ADDED'] = '';
+$errors['PRODUCT_EXISTS'] = '';
+$errors['PRODUCT_NOT_ADDED'] = '';
+$errors['CANNOT_GET_EXPENSES'] = '';
+$errors['EXPENSE_NOT_ADDED'] = '';
 
-$infos['NO_BUDGETS'] = 'You dont have any budgets defined';
 
+$ok['PRODUCT_ADDED'] = '';
+$ok['EXPENSE_ADDED'] = '';
+$ok['INCOME_CATEGORY_ADDED'] = '';
 $ok['PRODUCT_CATEGORY_ADDED'] = 'Product category has been added successfully';
 $ok['PRODUCT_CATEGORY_UPDATED'] = 'Product category has been updated successfully';
 $ok['PRODUCT_CATEGORY_DELETED'] = 'Product category has been deleted successfully';
@@ -37,6 +44,12 @@ $ok['BUDGET_ADDED'] = 'New budget has been added successfully';
 $ok['LOGGED_OUT'] = 'You have been logged out';
 $ok['LOGGED_IN'] = 'You have been logged in';
 $ok['REGISTERED'] = 'User has been successfully registered';
+
+$infos['NO_BUDGETS'] = 'You dont have any budgets defined';
+
+
+
+
 
 function status($key){
 	global $errors, $infos, $ok;
@@ -52,7 +65,4 @@ function status($key){
 
 	return array('error' => 'No such key: \''.$key.'\'');
 }
-
-
-
 ?>
