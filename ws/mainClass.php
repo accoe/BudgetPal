@@ -87,36 +87,6 @@ class mainClass
             return false;
     }
     
-    private function BudgetExistsWithName($userId,$name)
-    {
-    	$userId = $_SESSION['userId'];
-    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
-    		$s->bind_param('is',$userId,$name);
-    		$s->execute();
-    		$s->store_result();
-    		if ($s->num_rows > 0)
-    			return true;
-    		else
-    			return false;
-    	}
-    	return false;
-    }
-    
-    private function BudgetExistsWithId($userId,$budget_id)
-    {
-    	$userId = $_SESSION['userId'];
-    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
-    		$s->bind_param('is',$userId,$budget_id);
-    		$s->execute();
-    		$s->store_result();
-    		if ($s->num_rows > 0)
-    			return true;
-    		else
-    			return false;
-    	}
-    	return false;
-    }
-    
     private function UserNameAlreadyExists($username)
     {
     	if ($s = $this->mysqli->prepare("SELECT login FROM Uzytkownicy where login = ?")) {
@@ -147,24 +117,62 @@ class mainClass
     }
     
     
-    private function ProductCategoryExist($name)
+    
+    private function GetBudgetByName($name)
     {
-    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategorieProduktow where nazwa = ?")) {
-    		$s->bind_param('s', $name);
+    	$userId = $_SESSION['userId'];
+    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
+    		$s->bind_param('is',$userId,$name);
+    		$s->execute();
+    		$s->bind_result($ID_Budzetu);
+    		$s->store_result();
+    		$s->fetch();
+    		if ($s->num_rows > 0)
+    			return $ID_Budzetu;
+    		else
+    			return false;
+    	}
+    	return false;
+    }
+    
+    private function DoesBudgetExist($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
+    		$s->bind_param('is',$userId,$budgetId);
     		$s->execute();
     		$s->store_result();
-    		if ($s->num_rows == 1)
+    		if ($s->num_rows > 0)
     			return true;
     		else
     			return false;
     	}
     	return false;
+    }
+    
+
+    
+    
+    private function GetProductCategoryByName($name)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT ID_KatProduktu FROM KategorieProduktow where nazwa = ?")) {
+    		$s->bind_param('s', $name);
+    		$s->execute();
+    		$s->bind_result($ID_KatProduktu);
+    		$s->store_result();
+    		$s->fetch();
+    		if ($s->num_rows > 0)
+    			return $ID_KatProduktu;
+    		else
+    			return false;  		
+    	}
+    	return false;
     
     }
     
-    private function ProductCategoryExistWithId($product_cat)
+    private function DoesProductCategoryExist($product_cat)
     {
-    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategorieProduktow where ID_KatProduktu = ?")) {
+    	if ($s = $this->mysqli->prepare("SELECT ID_KatProduktu FROM KategorieProduktow where ID_KatProduktu = ?")) {
     		$s->bind_param('i', $product_cat);
     		$s->execute();
     		$s->store_result();
@@ -175,11 +183,30 @@ class mainClass
     	}
     	return false;
     }
-
-    private function ProductExist($name)
+    
+    
+    //Zwraca id kategorii przychodu
+    private function GetIncomeCategoryByName($name)
     {
-    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM Produkty where nazwa = ?")) {
-    		$s->bind_param('s', $name);
+    	if ($s = $this->mysqli->prepare("SELECT ID_KatPrzychodu FROM KategoriePrzychodow where nazwa = ?")) {
+    		$s->bind_param('i', $name);
+    		$s->execute();
+    		$s->bind_result($ID_KatPrzychodu);
+    		$s->store_result();
+    		$s->fetch();
+    		if ($s->num_rows > 0)
+    			return $ID_KatPrzychodu;
+    		else
+    			return false;
+    	}
+    	return false;
+    
+    }
+    
+    private function DoesIncomeCategoryExist($incomeCat)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT nazwa FROM KategoriePrzychodow where ID_KatPrzychodu = ?")) {
+    		$s->bind_param('i', $incomeCat);
     		$s->execute();
     		$s->store_result();
     		if ($s->num_rows == 1)
@@ -188,13 +215,36 @@ class mainClass
     			return false;
     	}
     	return false;
-    
     }
     
-    private function ProductExistWithId($product_id)
+
+    
+
+    
+
+    private function GetProductByName($name)
+    {
+    	if ($s = $this->mysqli->prepare("SELECT ID_Produktu FROM Produkty where nazwa = ?")) {
+    		$s->bind_param('s', $name);
+    		$s->execute();
+    		$s->bind_result($ProductID);
+    		$s->store_result();
+    		$s->fetch();
+    		if ($s->num_rows > 0)
+    			return $ProductID;
+    		else
+    			return false;
+    	}
+    	return false;
+    }
+    
+
+    
+    
+    private function DoesProductExist($productId)
     {
     	if ($s = $this->mysqli->prepare("SELECT nazwa FROM Produkty where ID_Produktu = ?")) {
-    		$s->bind_param('i', $product_id);
+    		$s->bind_param('i', $productId);
     		$s->execute();
     		$s->store_result();
     		if ($s->num_rows == 1)
@@ -327,7 +377,7 @@ class mainClass
     public function AddBudget($name, $description)
     {
         $userId = $_SESSION['userId'];
-        if ($this->BudgetExistsWithName($userId,$name))
+        if ($this->GetBudgetByName($name))
         	return status('BUDGET_EXISTS');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
@@ -348,15 +398,15 @@ class mainClass
      * @example 14, Nowa nazwa, zmieniony opis
      * @logged true
      */
-    public function UpdateBudget($budget_id,$name,$description)
+    public function UpdateBudget($budgetId,$name,$description)
     {
     	$userId = $_SESSION['userId'];
-    	if (!$this->BudgetExistsWithId($userId,$budget_id))
+    	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	{
     		// Pobierz stare wartości
     		if ($s = $this->mysqli->prepare("SELECT nazwa, opis FROM Budzet where where ID_Uzytkownika = ? ID_Budzetu = ?")) {
-    			$s->bind_param('ii',$userId, $budget_id);
+    			$s->bind_param('ii',$userId, $budgetId);
     			$s->execute();
     			$s->bind_result($nazwa,$opis);
     			$arr = array();
@@ -367,7 +417,7 @@ class mainClass
     				$description = $opis;
     		}
     		if ($s = $this->mysqli->prepare("UPDATE Budzet set nazwa = ?, opis = ? where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
-    			$s->bind_param('ssii',$name,$description,$userId,$budget_id);
+    			$s->bind_param('ssii',$name,$description,$userId,$budgetId);
     			$s->execute();
     			$s->bind_result();
     			return status('BUDGET_UPDATED');
@@ -384,14 +434,14 @@ class mainClass
       * @example 14
       * @logged true
       */
-    public function DeleteBudget($budget_id)
+    public function DeleteBudget($budgetId)
     {
         $userId = $_SESSION['userId'];
-        if (!$this->BudgetExistsWithId($userId,$budget_id))
+        if (!$this->DoesBudgetExist($budgetId))
         		return status('NO_SUCH_BUDGET');
         { 
 	    	if ($s = $this->mysqli->prepare("DELETE FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
-	    		$s->bind_param('ii',$userId,$budget_id);
+	    		$s->bind_param('ii',$userId,$budgetId);
 	    		$s->execute();
 	    		$s->bind_result();
 	    		return status('BUDGET_DELETED');
@@ -437,7 +487,7 @@ class mainClass
     public function AddProductCategory($name)
     {
     	$userId = $_SESSION['userId'];
-    	if ($this->ProductCategoryExist($name))
+    	if ($this->GetProductCategoryByName($name))
     		return status('PRODUCT_CATEGORY_EXISTS');
     	else{
     		if ($s = $this->mysqli->prepare("INSERT INTO KategorieProduktow (nazwa) values (?);")) {
@@ -451,6 +501,57 @@ class mainClass
     	}
     }
 
+    /**
+     * @desc Pobiera listę kategorii przychodow
+     * @param void
+     * @return array
+     * @example void
+     * @logged true
+     */
+    public function GetIncomeCategories()
+    {
+    	if ($s = $this->mysqli->prepare("SELECT ID_KatPrzychodu, nazwa FROM KategoriePrzychodow")) {
+    		$s->execute();
+    		$s->bind_result($ID_KatPrzychodu,$nazwa);
+    		$arr = array();
+    		while ( $s->fetch() ) {
+    			$row = array('ID_KatPrzychodu' => $ID_KatPrzychodu,'nazwa' => $nazwa);
+    			$arr[] = $row;
+    		}
+    		return array('count' =>  $s->num_rows,
+    				'categories' => $arr);
+    	}
+    	else
+    		return status('CANNOT_GET_INCOMES_CATEGORIES');
+    }
+    
+    
+    /**
+     * @desc Dodaje kategorie do listy kategorii przychodow
+     * @param string
+     * @return array
+     * @example pensja
+     * @logged true
+     */
+    public function AddIncomeCategory($name)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->GetIncomeCategoryByName($name))
+    		return status('INCOME_CATEGORY_EXISTS');
+    	else{
+    		if ($s = $this->mysqli->prepare("INSERT INTO KategoriePrzychodow (nazwa) values (?);")) {
+    			$s->bind_param('s',$name);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('INCOME_CATEGORY_ADDED');
+    		}
+    		else
+    			return status('INCOME_CATEGORY_NOT_ADDED');
+    	}
+    }
+    
+    
+    
     
     /**
      * @desc Dodaje produkt do listy produktow
@@ -462,11 +563,11 @@ class mainClass
     public function AddProduct($prodact_cat, $name)
     {
     	$userId = $_SESSION['userId'];
-    	if (!$this->ProductCategoryExistWithId($prodact_cat))
+    	if (!$this->DoesProductCategoryExist($prodact_cat))
     		return status('PRODUCT_CATEGORY_NOT_EXISTS');
-    	if ($this->ProductExistWithId($name))
+    	
+    	if ($this->GetProductByName($name))
     		return status('PRODUCT_EXISTS');
-
     	else{
     		if ($s = $this->mysqli->prepare("INSERT INTO Produkty (ID_KatProduktu, nazwa) values (?, ?);")) {
     			$s->bind_param('is',$prodact_cat,$name);
@@ -498,10 +599,41 @@ class mainClass
     			$arr[] = $row;
     		}
     		return array('count' =>  $s->num_rows,
-    				'categories' => $arr);
+    				'products' => $arr);
     	}
     	else
     		return status('CANNOT_GET_PRODUCT_CATEGORIES');
+    }
+    
+    /**
+     * @desc Pobiera listę wydatków ze wskazanego budzetu
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetExpenses($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Budzetu,W.ID_Produktu, P.nazwa, W.kwota 
+	    			FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?")) {
+	    		$s->bind_param('i', $budgetId);
+	    		$s->execute();
+	    		$s->bind_result($ID_Wydatku,$Id_Budzetu,$IP_Produktu, $nazwa, $kwota);
+	    		$arr = array();
+	            	while ( $s->fetch() ) {
+	               		$row = array('ID_Wydatku' => $ID_Wydatku,'Id_Budzetu' => $Id_Budzetu,'IP_Produktu' => $IP_Produktu,'nazwa' => $nazwa,'kwota' => $kwota);
+	                    $arr[] = $row;
+	                }
+	                return array('count' =>  $s->num_rows,
+	                             'expenses' => $arr);
+	    	}
+	    	else
+	    		return status('CANNOT_GET_EXPENSES');
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
     }
     
     
@@ -512,17 +644,24 @@ class mainClass
      * @example 3, jablko, 1.3, 1
      * @logged true
      */
-    public function AddExpense($budget_Id,$name,$cost,$purchase_Id = -1)
+    public function AddExpense($budgetId,$name,$cost,$purchaseId = -1)
     {
-    	if (empty($purchase_Id))
-    		$purchase_Id = null;
-    	/*
-        $userId = $_SESSION['userId'];
-        if (!$this->BudgetExistsWithId($userId,$budget_id))
+  		
+    	if (empty($purchaseId))
+    		$purchaseId = null;
+    	
+    	// Jezeli dany produkt nie istnieje to dodajemy go do listy z kategoria produktow 'inny'
+    	if (!$this->GetProductByName($name))
+ 	  		$this->AddProduct(1, $name);
+		
+    	$productId = $this->GetProductByName($name);
+        $userId = $_SESSION['userId'];       
+        
+        if (!$this->DoesBudgetExist($userId,$budgetId))
         	return status('NO_SUCH_BUDGET');
         else{
-	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
-	    		$s->bind_param('iss',$userId,$name, $description);
+	    	if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota,ID_Zakupu) values (?, ?, ?, ?);")) {
+	    		$s->bind_param('iidi',$budgetId,$productId,$cost,$purchaseId);
 	    		$s->execute();
 	    		$s->bind_result();
 	    		return status('EXPENSE_ADDED');
@@ -530,31 +669,60 @@ class mainClass
 	    	else
 	    		return status('EXPENSE_NOT_ADDED');
 	    }
-	    */
+    }
+    
+    ///TODO implementacja tej metody
+    /**
+     * @desc Edytuje wydatek
+     * @param int, string, double, int
+     * @return array
+     * @example 3, jablko, 1.3, 1
+     * @logged true
+     */
+    public function UpdateExpense($expenseId,$name,$cost,$purchaseId = -1)
+    {
+    /*
+    	if (empty($purchaseId))
+    		$purchaseId = null;
+    	 
+    	if (!$this->GetProductByName($name))
+    		$this->AddProduct(1, $name);
+    
+    	$productId = $this->GetProductByName($name);
+    	$userId = $_SESSION['userId'];
+    
+    	if (!$this->DoesBudgetExist($userId,$budgetId))
+    		return status('NO_SUCH_BUDGET');
+    	else{
+    		if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota) values (?, ?, ?);")) {
+    			$s->bind_param('iid',$budgetId,$productId,$cost);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('EXPENSE_ADDED');
+    		}
+    		else
+    			return status('EXPENSE_NOT_ADDED');
+    	}
+    	*/
     	return status('STUB_METHOD');
     }
     
     
     
+    //TODO usuwanie i edycja wydatkow z budzetu
+    //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
+    //TODO zmiana danych uzytkownika
+    //TODO dodawanie przychodow
+    //TODO modyfikowanie i usuwanie przychodow
     
+    //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
+    //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
+    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow - automatyczne powiadomienie
     
+    //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow
     
-    // usuwanie i edycja produktow z budzetu
-    // dodawanie nowego produktu do listy produktow
-    // 		jezeli nie ma na liscie w slowniku to dodaje
-    // zrobic slownik wartosc z paragonu - id produktu na liscie
-    // zmiana danych uzytkownika
-    // dodawanie przychodow
-    // modyfikowanie i usuwanie przychodow
-    
-    // raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    // raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    // dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow - automatyczne powiadomienie
-    
-    // dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow
-    
-    // dodawanie zleceń stałych 
-    //dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
+    //TODO dodawanie zleceń stałych 
+    //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
     
     
 }
