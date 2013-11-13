@@ -707,9 +707,55 @@ class mainClass
     	return status('STUB_METHOD');
     }
     
+    ///TODO implementacja tej metody
+    /**
+     * @desc Usuwa zdefiniowany wydatek
+     * @param int
+     * @return array
+     * @example 12
+     * @logged true
+     */
+    public function DeleteExpense($expenseId)
+    {
+    	return status('STUB_METHOD');
+    }
     
     
-    //TODO usuwanie i edycja wydatkow z budzetu
+    /**
+     * @desc Dodaje nowy przychod
+     * @param int, string, double, int
+     * @return array
+     * @example 3, jablko, 1.3, 1
+     * @logged true
+     */
+    public function AddIncome($budgetId,$name,$cost,$purchaseId = -1)
+    {
+    
+    	if (empty($purchaseId))
+    		$purchaseId = null;
+    	 
+    	// Jezeli dany produkt nie istnieje to dodajemy go do listy z kategoria produktow 'inny'
+    	if (!$this->GetProductByName($name))
+    		$this->AddProduct(1, $name);
+    
+    	$productId = $this->GetProductByName($name);
+    	$userId = $_SESSION['userId'];
+    
+    	if (!$this->DoesBudgetExist($userId,$budgetId))
+    		return status('NO_SUCH_BUDGET');
+    	else{
+    		if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota,ID_Zakupu) values (?, ?, ?, ?);")) {
+    			$s->bind_param('iidi',$budgetId,$productId,$cost,$purchaseId);
+    			$s->execute();
+    			$s->bind_result();
+    			return status('EXPENSE_ADDED');
+    		}
+    		else
+    			return status('EXPENSE_NOT_ADDED');
+    	}
+    }
+    
+    ///TODO usuwanie i edycja wydatkow z budzetu
     //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
     //TODO zmiana danych uzytkownika
     //TODO dodawanie przychodow
