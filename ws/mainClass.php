@@ -616,14 +616,14 @@ class mainClass
     {
     	$userId = $_SESSION['userId'];
     	if ($this->DoesBudgetExist($budgetId)){
-	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Budzetu,W.ID_Produktu, P.nazwa, W.kwota 
+	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
 	    			FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?")) {
 	    		$s->bind_param('i', $budgetId);
 	    		$s->execute();
-	    		$s->bind_result($ID_Wydatku,$Id_Budzetu,$IP_Produktu, $nazwa, $kwota);
+	    		$s->bind_result($ID_Wydatku,$ID_Produktu, $nazwa, $kwota, $data);
 	    		$arr = array();
 	            	while ( $s->fetch() ) {
-	               		$row = array('ID_Wydatku' => $ID_Wydatku,'Id_Budzetu' => $Id_Budzetu,'IP_Produktu' => $IP_Produktu,'nazwa' => $nazwa,'kwota' => $kwota);
+	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => $kwota, 'data' => $data);
 	                    $arr[] = $row;
 	                }
 	                return array('count' =>  $s->num_rows,
@@ -644,7 +644,7 @@ class mainClass
      * @example 3, jablko, 1.3, 1
      * @logged true
      */
-    public function AddExpense($budgetId,$name,$cost,$purchaseId = -1)
+    public function AddExpense($budgetId,$name,$amount,$purchaseId = -1)
     {
   		
     	if (empty($purchaseId))
@@ -657,11 +657,11 @@ class mainClass
     	$productId = $this->GetProductByName($name);
         $userId = $_SESSION['userId'];       
         
-        if (!$this->DoesBudgetExist($userId,$budgetId))
+        if (!$this->DoesBudgetExist($budgetId))
         	return status('NO_SUCH_BUDGET');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota,ID_Zakupu) values (?, ?, ?, ?);")) {
-	    		$s->bind_param('iidi',$budgetId,$productId,$cost,$purchaseId);
+	    		$s->bind_param('iidi',$budgetId,$productId,$amount,$purchaseId);
 	    		$s->execute();
 	    		$s->bind_result();
 	    		return status('EXPENSE_ADDED');
@@ -679,7 +679,7 @@ class mainClass
      * @example 3, jablko, 1.3, 1
      * @logged true
      */
-    public function UpdateExpense($expenseId,$name,$cost,$purchaseId = -1)
+    public function UpdateExpense($expenseId,$name,$amount,$purchaseId = -1)
     {
     /*
     	if (empty($purchaseId))
@@ -695,7 +695,7 @@ class mainClass
     		return status('NO_SUCH_BUDGET');
     	else{
     		if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota) values (?, ?, ?);")) {
-    			$s->bind_param('iid',$budgetId,$productId,$cost);
+    			$s->bind_param('iid',$budgetId,$productId,$amount);
     			$s->execute();
     			$s->bind_result();
     			return status('EXPENSE_ADDED');
@@ -722,43 +722,174 @@ class mainClass
     
     
     /**
+     * @desc Pobiera listę dochodow ze wskazanego budzetu
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetIncomes($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+    		if ($s = $this->mysqli->prepare("SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?")) {
+    	    			$s->bind_param('i', $budgetId);
+    	    			$s->execute();
+    	    			$s->bind_result($ID_Przychodu, $nazwa, $kwota, $data);
+    	    			$arr = array();
+    	    			while ( $s->fetch() ) {
+    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+    	    				$arr[] = $row;
+    	    			}
+    	    			return array('count' =>  $s->num_rows,
+    	    					'incomes' => $arr);
+    		}
+    		else
+    			return status('CANNOT_GET_INCOMES');
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    /**
      * @desc Dodaje nowy przychod
      * @param int, string, double, int
      * @return array
-     * @example 3, jablko, 1.3, 1
+     * @example 3, Wypłata listopad, 1600, 1
      * @logged true
      */
-    public function AddIncome($budgetId,$name,$cost,$purchaseId = -1)
+    public function AddIncome($budgetId,$name,$amount,$incomeCategory)
     {
-    
-    	if (empty($purchaseId))
-    		$purchaseId = null;
-    	 
-    	// Jezeli dany produkt nie istnieje to dodajemy go do listy z kategoria produktow 'inny'
-    	if (!$this->GetProductByName($name))
-    		$this->AddProduct(1, $name);
-    
-    	$productId = $this->GetProductByName($name);
     	$userId = $_SESSION['userId'];
-    
-    	if (!$this->DoesBudgetExist($userId,$budgetId))
+ 
+    	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	else{
-    		if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota,ID_Zakupu) values (?, ?, ?, ?);")) {
-    			$s->bind_param('iidi',$budgetId,$productId,$cost,$purchaseId);
+    		if ($s = $this->mysqli->prepare("INSERT INTO Przychody (ID_Budzetu,ID_KatPrzychodu,kwota,nazwa) values (?, ?, ?, ?);")) {
+    			$s->bind_param('iids',$budgetId,$incomeCategory,$amount,$name);
     			$s->execute();
     			$s->bind_result();
-    			return status('EXPENSE_ADDED');
+    			return status('INCOME_ADDED');
     		}
     		else
-    			return status('EXPENSE_NOT_ADDED');
+    			return status('INCOME_NOT_ADDED');
     	}
     }
     
-    ///TODO usuwanie i edycja wydatkow z budzetu
+    /**
+     * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetRecentActivities($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+    		if ($s = $this->mysqli->prepare('(SELECT  "przychod" AS  "rodzaj", nazwa, kwota, data FROM Przychody WHERE ID_Budzetu =1) UNION
+    (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)ORDER BY data DESC')) {
+    			$s->bind_param('ii', $budgetId,$budgetId);
+    			$s->execute();
+    			$s->bind_result($rodzaj, $nazwa, $kwota, $data);
+    			$arr = array();
+    			while ( $s->fetch() ) {
+    				$row = array('rodzaj' => $rodzaj,'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+    				$arr[] = $row;
+    			}
+    			return array('count' =>  $s->num_rows,
+    					'activities' => $arr);
+    		}
+    		else
+    			return status('CANNOT_GET_ACTIVITIES');
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
+    }
+   
+    
+    /**
+     * @desc Pobiera sume przychodow
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetIncomesSum($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+    		if ($s = $this->mysqli->prepare("SELECT sum(kwota) as suma FROM Przychody where ID_Budzetu = ?")) {
+    		$s->bind_param('i', $budgetId);
+    		$s->execute();
+    		$s->bind_result($suma);
+    		$s->store_result();
+    		$s->fetch();
+    		if ($s->num_rows > 0)
+    			return round($suma,2);
+    		else
+    			return status('NO_INCOMES_ADDED');
+    		}
+    	}
+    	return status('NO_SUCH_BUDGET');
+    }
+    
+    /**
+     * @desc Pobiera sume wydatkow
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetExpensesSum($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+    		if ($s = $this->mysqli->prepare("SELECT sum(kwota) as suma FROM Wydatki where ID_Budzetu = ?")) {
+    			$s->bind_param('i', $budgetId);
+    			$s->execute();
+    			$s->bind_result($suma);
+    			$s->store_result();
+    			$s->fetch();
+    			if ($s->num_rows > 0)
+    				return round($suma,2);
+    			else
+    				return status('NO_EXPENSES_ADDED');
+    		}
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    
+    /**
+     * @desc Pobiera bilans danego budzetu
+     * @param int
+     * @return array
+     * @example 1
+     * @logged true
+     */
+    public function GetBudgetBilans($budgetId)
+    {
+    	$userId = $_SESSION['userId'];
+    	if ($this->DoesBudgetExist($budgetId)){
+			$bilans = 0;
+        	$incomes = $this->GetIncomesSum($budgetId);
+        	$expenses = $this->GetExpensesSum($budgetId);
+			$bilans = $incomes - $expenses;
+    		return array('bilans' =>  round($bilans,2));
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    
+    ///TODO 2 usuwanie i edycja wydatkow z budzetu -2
     //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
     //TODO zmiana danych uzytkownika
-    //TODO dodawanie przychodow
     //TODO modyfikowanie i usuwanie przychodow
     
     //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
