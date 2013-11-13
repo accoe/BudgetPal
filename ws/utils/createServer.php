@@ -34,9 +34,13 @@ class createServer {
 				define(\'PRETTY_PRINT\',true);
 				
 				if ($json)
-					require_once \'formats/json.php\';
+					if (isset($_GET[\'pp\']))
+						require_once \'formats/json_pp.php\';
+					else
+						require_once \'formats/json.php\';
 				else
 					require_once \'formats/default.php\';
+
 				$'.$this->instance.' = new mainClass($user,$pass,$host,$base);
 				$'.$this->instance.'->Connect();';
 		echo 'if (isset($_GET[\'a\'])){switch($_GET[\'a\']){';

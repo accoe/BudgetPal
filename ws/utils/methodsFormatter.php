@@ -161,7 +161,7 @@ Class methodsFormatter{
 		$example_array = $this->getValueFromComment('@example', $comment);
 		$examples = explode(',',$example_array);
 		if (count($examples) == 1 && trim($examples[0]) == 'void')
-			return  "server.php?a=".strtolower($methodName);
+			return  "server.php?a=".strtolower($methodName)."&pp";
 		if (count($params) == count($examples)){
 			$link = "server.php?a=".strtolower($methodName);
 			
@@ -169,7 +169,7 @@ Class methodsFormatter{
 				$arg = "&".trim($params[$i]->getName())."=".trim($examples[$i]);
 				$link .= $arg;
 			}
-			return $link;
+			return $link."&pp";
 		}
 			die(count($params)." ".count($examples).' Number of parameters in method header and number of examples isn\'t equal');
 	}

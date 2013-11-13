@@ -2,10 +2,12 @@
 
 
 function show($array){
+	echo '<pre>';
 	if (defined('PRETTY_PRINT') && PRETTY_PRINT)
 		echo prettyPrint(json_encode($array));
 	else
 		echo json_encode($array);
+	echo '</pre>';
 }
 
 

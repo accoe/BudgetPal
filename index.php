@@ -45,7 +45,7 @@ a:hover
 <center><img src="budget_logo_320.png" alt="jak planować budżet" title="budget planner"><br />
 <h1>MyBudgetPal.com</h1>
 <h2>home budget planning made easy</h2>
-<h3>webservice + android application with OCR module</h3>
+<h3>web service + android application with OCR module</h3>
 <p>coming soon...</p>
 <p>developed as student project</p>
 <p><a href="ws/">api</a></p>
