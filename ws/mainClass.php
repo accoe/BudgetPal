@@ -8,6 +8,7 @@ class mainClass
     var $DBNAME;
     var $DBUSER;
     var $DBPASS;
+    var $userId;
 	
     public function __construct($user, $password, $host, $database) 
     {
@@ -16,6 +17,7 @@ class mainClass
         $this->DBHOST = $host;
         $this->DBNAME = $database;
         $this->InitializeSession();
+        $this->userId = $_SESSION['userId'];
     }
 
     public function Connect()
@@ -43,13 +45,12 @@ class mainClass
      */
     public function isLogged()
     {
-    	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {
-    		$userId = $_SESSION['userId'];
+    	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {	
     		$login_string = $_SESSION['login_string'];
     		$username = $_SESSION['username'];
     		$user_browser = $_SERVER['HTTP_USER_AGENT'];
     		if ($s = $this->mysqli->prepare("SELECT haslo FROM Uzytkownicy WHERE ID_Uzytkownika = ? LIMIT 1")) {
-    			$s->bind_param('i', $userId);
+    			$s->bind_param('i', $this->userId);
     			$s->execute();
     			$s->store_result();
     			if($s->num_rows == 1) {
@@ -120,9 +121,9 @@ class mainClass
     
     private function GetBudgetByName($name)
     {
-    	$userId = $_SESSION['userId'];
+    	
     	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND nazwa= ?")) {
-    		$s->bind_param('is',$userId,$name);
+    		$s->bind_param('is',$this->userId,$name);
     		$s->execute();
     		$s->bind_result($ID_Budzetu);
     		$s->store_result();
@@ -137,9 +138,9 @@ class mainClass
     
     private function DoesBudgetExist($budgetId)
     {
-    	$userId = $_SESSION['userId'];
+    	
     	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
-    		$s->bind_param('is',$userId,$budgetId);
+    		$s->bind_param('is',$this->userId,$budgetId);
     		$s->execute();
     		$s->store_result();
     		if ($s->num_rows > 0)
@@ -321,12 +322,12 @@ class mainClass
                 $s->bind_param('ss', $user,$password);
                 $s->execute();
                 $s->store_result();
-                $s->bind_result($userId, $username, $password);
+                $s->bind_result($this->userId, $username, $password);
                 $s->fetch();
                 if ($s->num_rows == 1) {
                     // Poprawnie zalogowano
                     $user_browser = $_SERVER['HTTP_USER_AGENT'];
-                    $_SESSION['userId'] = $userId;
+                    $_SESSION['userId'] = $this->userId;
                     $_SESSION['username'] = $username;
                     $_SESSION['login_string'] = hash('sha512', $password.$user_browser);
                     return status('LOGGED_IN');
@@ -366,7 +367,7 @@ class mainClass
     public function GetBudgets() 
     {
             if ($s = $this->mysqli->prepare("SELECT ID_Budzetu, nazwa, opis FROM Budzet where ID_Uzytkownika = ?")) {
-                $s->bind_param('i', $_SESSION['userId']);
+                $s->bind_param('i', $this->userId);
                 $s->execute();
                 $s->bind_result($ID_Budzetu,$nazwa,$opis);
                 $arr = array();
@@ -391,12 +392,11 @@ class mainClass
       */
     public function AddBudget($name, $description)
     {
-        $userId = $_SESSION['userId'];
         if ($this->GetBudgetByName($name))
         	return status('BUDGET_EXISTS');
         else{
 	    	if ($s = $this->mysqli->prepare("INSERT INTO Budzet (ID_Uzytkownika,nazwa,opis) values (?, ?, ?);")) {
-	    		$s->bind_param('iss',$userId,$name, $description);
+	    		$s->bind_param('iss',$this->userId,$name, $description);
 	    		$s->execute();
 	    		$s->bind_result();
 	    		return status('BUDGET_ADDED');
@@ -415,13 +415,12 @@ class mainClass
      */
     public function UpdateBudget($budgetId,$name,$description)
     {
-    	$userId = $_SESSION['userId'];
     	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	{
     		// Pobierz stare wartości
     		if ($s = $this->mysqli->prepare("SELECT nazwa, opis FROM Budzet where where ID_Uzytkownika = ? ID_Budzetu = ?")) {
-    			$s->bind_param('ii',$userId, $budgetId);
+    			$s->bind_param('ii',$this->userId, $budgetId);
     			$s->execute();
     			$s->bind_result($nazwa,$opis);
     			$arr = array();
@@ -432,7 +431,7 @@ class mainClass
     				$description = $opis;
     		}
     		if ($s = $this->mysqli->prepare("UPDATE Budzet set nazwa = ?, opis = ? where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
-    			$s->bind_param('ssii',$name,$description,$userId,$budgetId);
+    			$s->bind_param('ssii',$name,$description,$this->userId,$budgetId);
     			$s->execute();
     			$s->bind_result();
     			return status('BUDGET_UPDATED');
@@ -451,12 +450,11 @@ class mainClass
       */
     public function DeleteBudget($budgetId)
     {
-        $userId = $_SESSION['userId'];
         if (!$this->DoesBudgetExist($budgetId))
         		return status('NO_SUCH_BUDGET');
         { 
 	    	if ($s = $this->mysqli->prepare("DELETE FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?;")) {
-	    		$s->bind_param('ii',$userId,$budgetId);
+	    		$s->bind_param('ii',$this->userId,$budgetId);
 	    		$s->execute();
 	    		$s->bind_result();
 	    		return status('BUDGET_DELETED');
@@ -501,7 +499,6 @@ class mainClass
       */
     public function AddProductCategory($name)
     {
-    	$userId = $_SESSION['userId'];
     	if ($this->GetProductCategoryByName($name))
     		return status('PRODUCT_CATEGORY_EXISTS');
     	else{
@@ -550,7 +547,6 @@ class mainClass
      */
     public function AddIncomeCategory($name)
     {
-    	$userId = $_SESSION['userId'];
     	if ($this->GetIncomeCategoryByName($name))
     		return status('INCOME_CATEGORY_EXISTS');
     	else{
@@ -577,7 +573,6 @@ class mainClass
      */
     public function AddProduct($prodact_cat, $name)
     {
-    	$userId = $_SESSION['userId'];
     	if (!$this->DoesProductCategoryExist($prodact_cat))
     		return status('PRODUCT_CATEGORY_NOT_EXISTS');
     	
@@ -629,7 +624,6 @@ class mainClass
      */
     public function GetExpenses($budgetId)
     {
-    	$userId = $_SESSION['userId'];
     	if ($this->DoesBudgetExist($budgetId)){
 	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
 	    			FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?")) {
@@ -661,7 +655,6 @@ class mainClass
      */
     public function AddExpense($budgetId,$name,$amount,$purchaseId = -1)
     {
-  		
     	if (empty($purchaseId))
     		$purchaseId = null;
     	
@@ -670,7 +663,7 @@ class mainClass
  	  		$this->AddProduct(1, $name);
 		
     	$productId = $this->GetProductByName($name);
-        $userId = $_SESSION['userId'];       
+               
         
         if (!$this->DoesBudgetExist($budgetId))
         	return status('NO_SUCH_BUDGET');
@@ -704,9 +697,9 @@ class mainClass
     		$this->AddProduct(1, $name);
     
     	$productId = $this->GetProductByName($name);
-    	$userId = $_SESSION['userId'];
+    	
     
-    	if (!$this->DoesBudgetExist($userId,$budgetId))
+    	if (!$this->DoesBudgetExist($this->userId,$budgetId))
     		return status('NO_SUCH_BUDGET');
     	else{
     		if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota) values (?, ?, ?);")) {
@@ -745,7 +738,6 @@ class mainClass
      */
     public function GetIncomes($budgetId)
     {
-    	$userId = $_SESSION['userId'];
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare("SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?")) {
     	    			$s->bind_param('i', $budgetId);
@@ -776,8 +768,6 @@ class mainClass
      */
     public function AddIncome($budgetId,$name,$amount,$incomeCategory)
     {
-    	$userId = $_SESSION['userId'];
- 
     	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	else{
@@ -804,16 +794,12 @@ class mainClass
     	if (empty($order))
     		$order = "DESC";
     	if (empty($limit))
-    		$limit = 20;    	
+    		$limit = 20;    	 	
     	
-    	$userId = $_SESSION['userId'];
    		$sql = $this->OrderBy('(SELECT  "przychod" AS  "rodzaj", nazwa, kwota, data FROM Przychody WHERE ID_Budzetu =1) UNION
     (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)'
-    	, "data", $order);
-   		
+    	, "data", $order);   		
 		$sql = $this->Limit($sql,$limit);
-		
-		echo $sql;
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare($sql)) {
     			$s->bind_param('ii', $budgetId,$budgetId);
@@ -843,8 +829,7 @@ class mainClass
      * @logged true
      */
     public function GetIncomesSum($budgetId)
-    {
-    	$userId = $_SESSION['userId'];
+    { 	
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare("SELECT sum(kwota) as suma FROM Przychody where ID_Budzetu = ?")) {
     		$s->bind_param('i', $budgetId);
@@ -869,8 +854,7 @@ class mainClass
      * @logged true
      */
     public function GetExpensesSum($budgetId)
-    {
-    	$userId = $_SESSION['userId'];
+    {    	
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare("SELECT sum(kwota) as suma FROM Wydatki where ID_Budzetu = ?")) {
     			$s->bind_param('i', $budgetId);
@@ -899,7 +883,6 @@ class mainClass
      */
     public function GetBudgetBilans($budgetId)
     {
-    	$userId = $_SESSION['userId'];
     	if ($this->DoesBudgetExist($budgetId)){
 			$bilans = 0;
         	$incomes = $this->GetIncomesSum($budgetId);
