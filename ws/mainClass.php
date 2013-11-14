@@ -794,20 +794,28 @@ class mainClass
     
     /**
      * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
-     * @param int
+     * @param int, string, int
      * @return array
-     * @example 1
+     * @example 1, DESC, 20
      * @logged true
      */
     public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20)
     {	
+    	if (empty($order))
+    		$order = "DESC";
+    	if (empty($limit))
+    		$limit = 20;    	
+    	
     	$userId = $_SESSION['userId'];
    		$sql = $this->OrderBy('(SELECT  "przychod" AS  "rodzaj", nazwa, kwota, data FROM Przychody WHERE ID_Budzetu =1) UNION
-    (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)ORDER BY data DESC'
+    (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)'
     	, "data", $order);
+   		
 		$sql = $this->Limit($sql,$limit);
+		
+		echo $sql;
     	if ($this->DoesBudgetExist($budgetId)){
-    		if ($s = $this->mysqli->prepare()) {
+    		if ($s = $this->mysqli->prepare($sql)) {
     			$s->bind_param('ii', $budgetId,$budgetId);
     			$s->execute();
     			$s->bind_result($rodzaj, $nazwa, $kwota, $data);
