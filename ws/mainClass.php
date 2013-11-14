@@ -257,12 +257,27 @@ class mainClass
     
     
     
+    private function OrderASCBy($sql, $columns){
+    	return $sql . " ORDER BY ".$columns." ASC";
+    }
     
+    private function OrderDESCBy($sql, $columns){
+    	return $sql . " ORDER BY ".$columns." DESC";
+    }
     
+    private function Limit($sql, $limit){
+    	return $sql . " LIMIT ".$limit;
+    }
     
-    
-
-
+	private function OrderBy($sql, $columns, $mode)
+	{
+		if ($mode == 'ASC')
+			return $this->OrderASCBy($sql, $columns);
+		else if ($mode == 'DESC')
+			return $this->OrderDESCBy($sql, $columns);
+		else
+			return status('NO_SUCH_ORDER');
+	}
 
    
 
@@ -784,12 +799,15 @@ class mainClass
      * @example 1
      * @logged true
      */
-    public function GetRecentActivities($budgetId)
-    {
+    public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20)
+    {	
     	$userId = $_SESSION['userId'];
+   		$sql = $this->OrderBy('(SELECT  "przychod" AS  "rodzaj", nazwa, kwota, data FROM Przychody WHERE ID_Budzetu =1) UNION
+    (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)ORDER BY data DESC'
+    	, "data", $order);
+		$sql = $this->Limit($sql,$limit);
     	if ($this->DoesBudgetExist($budgetId)){
-    		if ($s = $this->mysqli->prepare('(SELECT  "przychod" AS  "rodzaj", nazwa, kwota, data FROM Przychody WHERE ID_Budzetu =1) UNION
-    (SELECT  "wydatek" AS  "rodzaj", nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu =1)ORDER BY data DESC')) {
+    		if ($s = $this->mysqli->prepare()) {
     			$s->bind_param('ii', $budgetId,$budgetId);
     			$s->execute();
     			$s->bind_result($rodzaj, $nazwa, $kwota, $data);
