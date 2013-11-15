@@ -1,0 +1,11 @@
+package json;
+
+import com.google.gson.Gson;
+
+public class GetBudgets {
+
+	public GetBudgets(String json){
+		Budgets budget = new Gson().fromJson(json, Status.class);
+	}
+	
+}

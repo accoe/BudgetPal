@@ -9,7 +9,6 @@ class createServer {
 	var $class;
 	var $method;
 	var $instance;
-	
 	var $doNotCreate;
 	
 	

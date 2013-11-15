@@ -1,0 +1,11 @@
+package json;
+
+public class Main {
+
+	public static void main(String[] args) {
+		URLConnection connection = new URL("http://google.com").openConnection();
+		List<String> cookies = connection.getHeaderFields().get("Set-Cookie");
+
+	}
+
+}

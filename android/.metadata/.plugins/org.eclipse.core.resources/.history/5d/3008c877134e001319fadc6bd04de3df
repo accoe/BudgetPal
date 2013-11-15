@@ -1,0 +1,10 @@
+package json;
+
+public class WebService {
+	Status status;
+	
+	
+	
+	
+	
+}

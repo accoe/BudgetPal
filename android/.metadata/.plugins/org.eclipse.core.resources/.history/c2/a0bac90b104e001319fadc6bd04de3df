@@ -1,0 +1,6 @@
+package json;
+
+public class Status {
+	public String status;
+	public String msg;	
+}

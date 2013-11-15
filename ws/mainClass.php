@@ -45,8 +45,8 @@ class mainClass
      */
     public function isLogged()
     {
-    	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_string'])) {	
-    		$login_string = $_SESSION['login_string'];
+    	if(isset($_SESSION['userId'], $_SESSION['username'], $_SESSION['login_String'])) {	
+    		$login_String = $_SESSION['login_String'];
     		$username = $_SESSION['username'];
     		$user_browser = $_SERVER['HTTP_USER_AGENT'];
     		if ($s = $this->mysqli->prepare("SELECT haslo FROM Uzytkownicy WHERE ID_Uzytkownika = ? LIMIT 1")) {
@@ -57,7 +57,7 @@ class mainClass
     				$s->bind_result($password);
     				$s->fetch();
     				$login_check = hash('sha512', $password.$user_browser);
-    				if($login_check == $login_string) {
+    				if($login_check == $login_String) {
     					return true;
     				}
     			}
@@ -284,7 +284,7 @@ class mainClass
 
     /** 
      * @desc Funkcja rejestruje uzytkownika
-     * @param string, string, string
+     * @param String, String, String
      * @return array
      * @example krystek, trunde, krystek@example.com
      * @logged false
@@ -310,7 +310,7 @@ class mainClass
 
 	/** 
 	  * @desc Zaloguj uzytkownika
-	  * @param string, string
+	  * @param String, String
 	  * @return array
 	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
 	  * @logged false
@@ -329,7 +329,7 @@ class mainClass
                     $user_browser = $_SERVER['HTTP_USER_AGENT'];
                     $_SESSION['userId'] = $this->userId;
                     $_SESSION['username'] = $username;
-                    $_SESSION['login_string'] = hash('sha512', $password.$user_browser);
+                    $_SESSION['login_String'] = hash('sha512', $password.$user_browser);
                     return status('LOGGED_IN');
                 }
             }
@@ -360,7 +360,7 @@ class mainClass
     /** 
       * @desc Zwraca liste budzetow nalezacych do uzytkownika
       * @param void
-      * @return array
+      * @return Budget
       * @example void
       * @logged true
       */
@@ -385,7 +385,7 @@ class mainClass
     
     /** 
       * @desc Dodaje budzet 
-      * @param string, string
+      * @param String, String
       * @return array
       * @example testowy, Testowy opis budzetu
       * @logged true
@@ -408,7 +408,7 @@ class mainClass
     
     /**
      * @desc Modyfikuje zdefiniowany budzet
-     * @param int, string, string
+     * @param int, String, String
      * @return array
      * @example 14, Nowa nazwa, zmieniony opis
      * @logged true
@@ -492,7 +492,7 @@ class mainClass
 
     /** 
       * @desc Dodaje kategorie do listy kategorii produktow
-      * @param string
+      * @param String
       * @return array
       * @example owoce
       * @logged true
@@ -540,7 +540,7 @@ class mainClass
     
     /**
      * @desc Dodaje kategorie do listy kategorii przychodow
-     * @param string
+     * @param String
      * @return array
      * @example pensja
      * @logged true
@@ -566,7 +566,7 @@ class mainClass
     
     /**
      * @desc Dodaje produkt do listy produktow
-     * @param int,string
+     * @param int,String
      * @return array
      * @example 1, jablko
      * @logged true
@@ -648,7 +648,7 @@ class mainClass
     
     /**
      * @desc Dodaje nowy wydatek
-     * @param int, string, double, int
+     * @param int, String, double, int
      * @return array
      * @example 3, jablko, 1.3, 1
      * @logged true
@@ -682,7 +682,7 @@ class mainClass
     ///TODO implementacja tej metody
     /**
      * @desc Edytuje wydatek
-     * @param int, string, double, int
+     * @param int, String, double, int
      * @return array
      * @example 3, jablko, 1.3, 1
      * @logged true
@@ -761,7 +761,7 @@ class mainClass
     
     /**
      * @desc Dodaje nowy przychod
-     * @param int, string, double, int
+     * @param int, String, double, int
      * @return array
      * @example 3, Wypłata listopad, 1600, 1
      * @logged true
@@ -784,7 +784,7 @@ class mainClass
     
     /**
      * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
-     * @param int, string, int
+     * @param int, String, int
      * @return array
      * @example 1, DESC, 20
      * @logged true

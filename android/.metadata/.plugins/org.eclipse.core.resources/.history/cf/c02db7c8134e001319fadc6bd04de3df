@@ -1,0 +1,19 @@
+package json;
+
+import java.net.URLConnection;
+
+public class WebService {
+	Status status;
+	URLConnection connection;
+	
+	private String getJsonFromUrl(String url)
+	
+	public Budgets GetBudgets()
+	{
+		String url = "server.php?a=getbudgets";
+		
+		if ()
+	}
+	
+	
+}

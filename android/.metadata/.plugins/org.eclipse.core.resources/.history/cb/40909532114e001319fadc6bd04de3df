@@ -1,0 +1,24 @@
+package json;
+
+import com.google.gson.Gson;
+
+public class GetStatus {
+	
+	private String status;
+	private String msg;
+	private boolean error;
+	private boolean ok;
+	private boolean info;
+
+	
+	public String toString(){
+		return "["+status+"] "+msg;
+	}
+	
+	public GetStatus(String json){	
+		Status status = new Gson().fromJson(json, Status.class);
+		System.out.println(status.ok);
+		System.out.println(status.error);
+		System.out.println(status.info);	
+	}
+}

@@ -1,0 +1,6 @@
+package json;
+
+public class Budgets {
+	public count = 0;
+	
+}

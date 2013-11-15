@@ -1,0 +1,14 @@
+package json;
+
+public class WebService {
+	Status status;
+	
+	public Budgets GetBudgets()
+	{
+	String url = "server.php?a=getbudgets";
+	}
+	
+	
+	
+	
+}
