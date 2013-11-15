@@ -26,11 +26,42 @@ Class javaGenerator{
 
 	public function generateJavaCode(){
 		$class_methods = get_class_methods($this->class);
-		echo 'public Class Webservice {<br><br>';
+		echo '
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
+import com.google.gson.Gson;
+
+public class WebService {
+	GetStatus status;
+	URLConnection connection;
+	String json;
+	String wsPath = "http://mybudgetpal.com/ws/";
+	
+	private String getJsonFromUrl(String url) throws IOException
+	{
+		try {
+			connection = new URL(wsPath + url).openConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+                connection.getInputStream()));
+		String json = "";
+		String line;
+		while ((line = in.readLine()) != null) {
+			json += line.trim();
+		}
+		in.close();
+		this.json = json;
+		return json;
+	}';
 		foreach ($class_methods as $method_name) {		
 			if (!in_array($method_name,$this->doNotCreate))
 			{
-				echo '//TODO: rzucanie wyjatkow'; 
 				echo $this->createMethodHeader($method_name)."<br/>";
 				echo "{<br/>"; // poczatek metody
 				echo "\t".$this->createMethodBody($method_name);
@@ -72,10 +103,7 @@ Class javaGenerator{
 		}
 		$header .=  $method_name.'(';
 
-		if ($params_num == 0){
-			$header .=  'void';
-		}
-		else{
+		if ($params_num > 0){
 			if (count($params_type) == $params_num){
 		    	for ($i = 0; $i < $params_num -1; $i++) {
 				$header .=  $params_type[$i]." ".$params[$i]->getName();
@@ -103,10 +131,21 @@ Class javaGenerator{
 	}
 
 
-	public function createMethodBody($method_name){
-		
+	public function createMethodBody($method_name){	
+		$method = new ReflectionMethod($this->class, $method_name);
+		$comment = $method->getDocComment();
 		$body = '';
 		$body .= 'String url = "'.$this->createUrl($method_name).';'."<br>";
+		$body .= 'this.getJsonFromUrl(url);';
+		$body .= 'this.status = new GetStatus(json); ';
+		$body .= 'if (this.status.isSet()){';
+		$body .= '	System.out.println(this.status);';
+		$body .= '	return null;';
+		$body .= '}';
+		$body .= 'else';
+		$body .= '{';
+		$body .= '	return new Gson().fromJson(json, '.trim($this->getValueFromComment("@return",$comment)).'.class);';
+		$body .= '}';
 		return $body;
 	}
 

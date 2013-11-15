@@ -36,7 +36,7 @@ public class WebService {
 	
 	public Budgets GetBudgets() throws IOException
 	{
-		String url = "server2.php?a=getbudgets";
+		String url = "server.php?a=getbudgets";
 		this.getJsonFromUrl(url);
 		this.status = new GetStatus(json); 
 		if (this.status.isSet()){
@@ -49,5 +49,5 @@ public class WebService {
 		}
 	}
 	
-
+	
 }

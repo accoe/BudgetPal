@@ -468,7 +468,7 @@ class mainClass
     /**
      * @desc Pobiera listę kategorii produktów
      * @param void
-     * @return array
+     * @return ProductsCategories
      * @example void
      * @logged true
      */
@@ -571,7 +571,7 @@ class mainClass
      * @example 1, jablko
      * @logged true
      */
-    public function AddProduct($prodact_cat, $name)
+    public function AddProduct($product_cat, $name)
     {
     	if (!$this->DoesProductCategoryExist($prodact_cat))
     		return status('PRODUCT_CATEGORY_NOT_EXISTS');
@@ -580,7 +580,7 @@ class mainClass
     		return status('PRODUCT_EXISTS');
     	else{
     		if ($s = $this->mysqli->prepare("INSERT INTO Produkty (ID_KatProduktu, nazwa) values (?, ?);")) {
-    			$s->bind_param('is',$prodact_cat,$name);
+    			$s->bind_param('is',$product_cat,$name);
     			$s->execute();
     			$s->bind_result();
     			return status('PRODUCT_ADDED');
