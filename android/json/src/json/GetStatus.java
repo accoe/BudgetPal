@@ -35,24 +35,28 @@ public class GetStatus {
 		this.error = false;
 		this.ok = false;
 		this.info = false;
-		
-		Status status = new Gson().fromJson(json, Status.class);
-		if (status.error != null){
-			this.error = true;	
-			this.status = "error";
-			this.msg = status.error;
+		try {
+			Status status = new Gson().fromJson(json, Status.class);
+			if (status.error != null){
+				this.error = true;	
+				this.status = "error";
+				this.msg = status.error;
+			}
+			
+			if (status.ok != null){
+				this.ok = true;	
+				this.status = "ok";
+				this.msg = status.ok;
+			}
+			
+			if (status.info != null){
+				this.info = true;	
+				this.status = "info";
+				this.msg = status.info;
+			}
 		}
-		
-		if (status.ok != null){
-			this.ok = true;	
-			this.status = "ok";
-			this.msg = status.ok;
-		}
-		
-		if (status.info != null){
-			this.info = true;	
-			this.status = "info";
-			this.msg = status.info;
+		catch (Exception e){
+			// Nic nie rob - bo spodziewamy sie wyjatku za kazdym razem, gdy nie bedzie statusu tylko obiekt, liczba itp.
 		}
 	}
 }

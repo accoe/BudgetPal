@@ -44,12 +44,20 @@ public class Main {
 			if (ws.Login("test","trunde"))
 				System.out.println("Zalogowano" + ws.status);
 			else
-				System.out.println("Niealogowano" + ws.status);
+				System.out.println("Niezalogowano" + ws.status);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
 		
+		// Pobranie bilansu
+		try {
+
+			System.out.println("Bilans: " + ws.GetBudgetBilans(1));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 		
 	}
 

@@ -14,6 +14,7 @@ public class WebService {
 	String json;
 	String wsPath = "http://mybudgetpal.com/ws/";
 	
+	
 	private String getJsonFromUrl(String url) throws IOException
 	{
 		try {
@@ -34,25 +35,24 @@ public class WebService {
 	}
 	
 	
+	// Przykład metody zwracajacej liste obiektow
 	public Budgets GetBudgets() throws IOException
 	{
-		String url = "server2.php?a=getdbudgets";
+		String url = "server2.php?a=getbudgets";
 		this.getJsonFromUrl(url);
 		this.status = new GetStatus(this.json); 
-		if (this.status.isSet()){
+		if (this.status.isSet())
 			return null;
-		}
 		else
-		{
 			return new Gson().fromJson(this.json, Budgets.class);
-		}
 	}
 	
-	
+	// przyklad metody zwracajacej jedynie status
 	// Zalogowuje, zwraca false w przypadku błędu, albo true jak sie uda
 	public boolean Login(String user, String password) throws Exception
 	{
 		String url = "server.php?a=login&user="+user+"&password="+Utils.sha256(password);
+		
 		this.getJsonFromUrl(url);
 		this.status = new GetStatus(this.json); 
 		if (this.status.isError())
@@ -60,6 +60,18 @@ public class WebService {
 		else
 			return true;
 	}
+	
+	// przyklad metody zwracajacej typ prosty
+	public double GetBudgetBilans(int budgetId) throws Exception
+	{
+		String url = "server.php?a=getbudgetbilans&budgetId=" + budgetId;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(this.json); 
+		if (this.status.isSet())
+			return -1;
+		else
+			return new Gson().fromJson(this.json, Double.class);
+		}
 
 
 }

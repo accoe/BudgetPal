@@ -134,18 +134,29 @@ public class WebService {
 	public function createMethodBody($method_name){	
 		$method = new ReflectionMethod($this->class, $method_name);
 		$comment = $method->getDocComment();
+		$return = trim($this->getValueFromComment("@return",$comment));
+		$primitives = array('double', 'int');
+
 		$body = '';
 		$body .= 'String url = "'.$this->createUrl($method_name).';'."<br>";
 		$body .= 'this.getJsonFromUrl(url);';
 		$body .= 'this.status = new GetStatus(json); ';
-		$body .= 'if (this.status.isSet()){';
-		$body .= '	System.out.println(this.status);';
-		$body .= '	return null;';
-		$body .= '}';
-		$body .= 'else';
-		$body .= '{';
-		$body .= '	return new Gson().fromJson(json, '.trim($this->getValueFromComment("@return",$comment)).'.class);';
-		$body .= '}';
+		if ($return == 'boolean'){
+
+
+		}
+		else{
+			$body .= 'if (this.status.isSet()){';
+			if (in_array($return, $primitives))
+				$body .= '	return -1;';
+			else
+				$body .= '	return null;';
+			$body .= '}';
+			$body .= 'else';
+			$body .= '{';
+			$body .= '	return new Gson().fromJson(json, '.$return.'.class);';
+			$body .= '}';
+		}
 		return $body;
 	}
 

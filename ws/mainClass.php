@@ -288,7 +288,7 @@ class mainClass
     /** 
      * @desc Funkcja rejestruje uzytkownika
      * @param String, String, String
-     * @return array
+     * @return boolean
      * @example krystek, trunde, krystek@example.com
      * @logged false
      */
@@ -314,7 +314,7 @@ class mainClass
 	/** 
 	  * @desc Zaloguj uzytkownika
 	  * @param String, String
-	  * @return array
+	  * @return boolean
 	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
 	  * @logged false
 	  */
@@ -346,7 +346,7 @@ class mainClass
     /** 
       * @desc Wylogowuje uztykownika
       * @param void
-      * @return array
+      * @return boolean
       * @example void
       * @logged true
       */
@@ -388,7 +388,7 @@ class mainClass
     /** 
       * @desc Dodaje budzet 
       * @param String, String
-      * @return array
+      * @return boolean
       * @example testowy, Testowy opis budzetu
       * @logged true
       */
@@ -411,7 +411,7 @@ class mainClass
     /**
      * @desc Modyfikuje zdefiniowany budzet
      * @param int, String, String
-     * @return array
+     * @return boolean
      * @example 14, Nowa nazwa, zmieniony opis
      * @logged true
      */
@@ -446,7 +446,7 @@ class mainClass
     /** 
       * @desc Usuwa zdefiniowany budzet
       * @param int
-      * @return array
+      * @return boolean
       * @example 14
       * @logged true
       */
@@ -495,7 +495,7 @@ class mainClass
     /** 
       * @desc Dodaje kategorie do listy kategorii produktow
       * @param String
-      * @return array
+      * @return boolean
       * @example owoce
       * @logged true
       */
@@ -518,7 +518,7 @@ class mainClass
     /**
      * @desc Pobiera listę kategorii przychodow
      * @param void
-     * @return array
+     * @return IncomeCategories
      * @example void
      * @logged true
      */
@@ -543,7 +543,7 @@ class mainClass
     /**
      * @desc Dodaje kategorie do listy kategorii przychodow
      * @param String
-     * @return array
+     * @return boolean
      * @example pensja
      * @logged true
      */
@@ -569,7 +569,7 @@ class mainClass
     /**
      * @desc Dodaje produkt do listy produktow
      * @param int,String
-     * @return array
+     * @return boolean
      * @example 1, jablko
      * @logged true
      */
@@ -596,7 +596,7 @@ class mainClass
     /**
      * @desc Pobiera listę produktów
      * @param void
-     * @return array
+     * @return Products
      * @example void
      * @logged true
      */
@@ -620,7 +620,7 @@ class mainClass
     /**
      * @desc Pobiera listę wydatków ze wskazanego budzetu
      * @param int
-     * @return array
+     * @return Expenses
      * @example 1
      * @logged true
      */
@@ -651,7 +651,7 @@ class mainClass
     /**
      * @desc Dodaje nowy wydatek
      * @param int, String, double, int
-     * @return array
+     * @return boolean
      * @example 3, jablko, 1.3, 1
      * @logged true
      */
@@ -685,7 +685,7 @@ class mainClass
     /**
      * @desc Edytuje wydatek
      * @param int, String, double, int
-     * @return array
+     * @return boolean
      * @example 3, jablko, 1.3, 1
      * @logged true
      */
@@ -734,7 +734,7 @@ class mainClass
     /**
      * @desc Pobiera listę dochodow ze wskazanego budzetu
      * @param int
-     * @return array
+     * @return Incomes
      * @example 1
      * @logged true
      */
@@ -764,7 +764,7 @@ class mainClass
     /**
      * @desc Dodaje nowy przychod
      * @param int, String, double, int
-     * @return array
+     * @return boolean
      * @example 3, Wypłata listopad, 1600, 1
      * @logged true
      */
@@ -787,7 +787,7 @@ class mainClass
     /**
      * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
      * @param int, String, int
-     * @return array
+     * @return Activities
      * @example 1, DESC, 20
      * @logged true
      */
@@ -826,7 +826,7 @@ class mainClass
     /**
      * @desc Pobiera sume przychodow
      * @param int
-     * @return array
+     * @return double
      * @example 1
      * @logged true
      */
@@ -851,7 +851,7 @@ class mainClass
     /**
      * @desc Pobiera sume wydatkow
      * @param int
-     * @return array
+     * @return double
      * @example 1
      * @logged true
      */
@@ -865,7 +865,7 @@ class mainClass
     			$s->store_result();
     			$s->fetch();
     			if ($s->num_rows > 0)
-    				return round($suma,2);
+    				return array(round($suma,2));
     			else
     				return status('NO_EXPENSES_ADDED');
     		}
@@ -879,7 +879,7 @@ class mainClass
     /**
      * @desc Pobiera bilans danego budzetu
      * @param int
-     * @return array
+     * @return double
      * @example 1
      * @logged true
      */
@@ -890,7 +890,7 @@ class mainClass
         	$incomes = $this->GetIncomesSum($budgetId);
         	$expenses = $this->GetExpensesSum($budgetId);
 			$bilans = $incomes - $expenses;
-    		return array('bilans' =>  round($bilans,2));
+    		return array(round($bilans,2));
     	}
     	else
     		return status('NO_SUCH_BUDGET');
