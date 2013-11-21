@@ -17,7 +17,10 @@ class mainClass
         $this->DBHOST = $host;
         $this->DBNAME = $database;
         $this->InitializeSession();
+        if (isset($_SESSION['userId']))
         $this->userId = $_SESSION['userId'];
+        else
+            $this->userId = 0;
     }
 
     public function Connect()
@@ -334,8 +337,7 @@ class mainClass
                 }
             }
         }
-        else
-            return status('WRONG_PASS');
+        return status('WRONG_PASS');
     }
 
 

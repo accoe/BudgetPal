@@ -36,18 +36,30 @@ public class WebService {
 	
 	public Budgets GetBudgets() throws IOException
 	{
-		String url = "server2.php?a=getbudgets";
+		String url = "server2.php?a=getdbudgets";
 		this.getJsonFromUrl(url);
-		this.status = new GetStatus(json); 
+		this.status = new GetStatus(this.json); 
 		if (this.status.isSet()){
-			System.out.println(this.status);
 			return null;
 		}
 		else
 		{
-			return new Gson().fromJson(json, Budgets.class);
+			return new Gson().fromJson(this.json, Budgets.class);
 		}
 	}
 	
+	
+	// Zalogowuje, zwraca false w przypadku błędu, albo true jak sie uda
+	public boolean Login(String user, String password) throws Exception
+	{
+		String url = "server.php?a=login&user="+user+"&password="+Utils.sha256(password);
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(this.json); 
+		if (this.status.isError())
+			return false;
+		else
+			return true;
+	}
+
 
 }

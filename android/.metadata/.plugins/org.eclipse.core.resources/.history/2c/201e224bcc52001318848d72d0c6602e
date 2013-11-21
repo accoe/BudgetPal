@@ -1,0 +1,41 @@
+package json;
+
+public class Main {
+
+	public static void main(String[] args) {
+		try {
+
+			WebService ws = new WebService();
+			Budgets budgets = ws.GetBudgets();
+			if (budgets != null)
+				for (int i=0;i< budgets.count; i++)
+					System.out.println(budgets.budgets.get(i));
+			else
+				System.out.println(ws.status);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+		// albo
+		try {
+
+			WebService ws = new WebService();
+			Budgets budgets = ws.GetBudgets();
+			if (budgets != null)
+				for (int i=0;i< budgets.count; i++)
+					System.out.println(budgets.budgets.get(i));
+			else
+				System.out.println(ws.status);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+		
+		
+		
+		
+	}
+
+}
