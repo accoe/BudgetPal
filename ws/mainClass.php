@@ -362,7 +362,7 @@ class mainClass
     /** 
       * @desc Zwraca liste budzetow nalezacych do uzytkownika
       * @param void
-      * @return Budget
+      * @return Budgets
       * @example void
       * @logged true
       */
@@ -898,20 +898,18 @@ class mainClass
     
     
     
-    ///TODO 2 usuwanie i edycja wydatkow z budzetu -2
+    //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
+    //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
+    //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow  
+    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow - automatyczne powiadomienie 
+    //TODO dodawanie zleceń stałych 
+    //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
+
+    // W drugiej kolejnosci
+    //TODO usuwanie i edycja wydatkow z budzetu
     //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
     //TODO zmiana danych uzytkownika
     //TODO modyfikowanie i usuwanie przychodow
-    
-    //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow - automatyczne powiadomienie
-    
-    //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow
-    
-    //TODO dodawanie zleceń stałych 
-    //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
-    
-    
+
 }
 ?>

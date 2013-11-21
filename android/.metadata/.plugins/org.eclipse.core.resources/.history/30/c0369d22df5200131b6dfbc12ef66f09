@@ -47,14 +47,14 @@ public class WebService {
         if (this.status.isError()) return false;
         else return true;
     }
-    public Budgets GetBudgets() {
+    public Budget GetBudgets() {
         String url = "server.php?a=getbudgets";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isSet()) {
             return null;
         } else {
-            return new Gson().fromJson(json, Budgets.class);
+            return new Gson().fromJson(json, Budget.class);
         }
     }
     public boolean AddBudget(String name, String description) {

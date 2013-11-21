@@ -19,7 +19,8 @@ function showToast()
 </div>
 
 <div id="content">
-<div class="box_min">Go to the server: <a href="server.php">server.php</a> <a onclick="showToast()" href="utils/createServer.php">(generate new one)</a><br>Get not translated messages: <a href="utils/translator.php">translator.php</a></div>
+<div class="box_min">Go to the server: <a href="server.php">server.php</a> <a onclick="showToast()" href="utils/createServer.php">(generate new one)</a><br>
+	Create java client: <a href="utils/javaGenerator.php">javaGenerator.php</a><br>Get not translated messages: <a href="utils/translator.php">translator.php</a></div>
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
