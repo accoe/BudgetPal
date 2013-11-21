@@ -142,8 +142,10 @@ public class WebService {
 		$body .= 'this.getJsonFromUrl(url);';
 		$body .= 'this.status = new GetStatus(json); ';
 		if ($return == 'boolean'){
-
-
+			$body .= 'if (this.status.isError())';
+			$body .= '	return false;';
+			$body .= 'else';
+			$body .= '	return true;';
 		}
 		else{
 			$body .= 'if (this.status.isSet()){';

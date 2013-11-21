@@ -34,7 +34,7 @@ public class WebService {
         else return true;
     }
     public boolean Login(String user, String password) {
-        String url = "server.php?a=login&user=" + user + "&password=" + Utils.sha256(password);
+        String url = "server.php?a=login&user=" + user + "&password=" + password;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
@@ -146,18 +146,13 @@ public class WebService {
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean UpdateExpense(int expenseId, String name, double amount, int purchaseId) {
+    public boolean UpdateExpense(int expenseId, String name, double amount, int purchaseId = -1) {
         String url = "server.php?a=updateexpense&expenseId=" + expenseId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    
-    public boolean UpdateExpense(int expenseId, String name, double amount) {
-    	return UpdateExpense(expenseId, name, amount, -1);
-    }
-    
     public boolean DeleteExpense(int expenseId) {
         String url = "server.php?a=deleteexpense&expenseId=" + expenseId;
         this.getJsonFromUrl(url);
@@ -182,7 +177,7 @@ public class WebService {
         if (this.status.isError()) return false;
         else return true;
     }
-    public Activities GetRecentActivities(int budgetId, String order = "DESC", int limit = 20) {
+    public Activities GetRecentActivities(int budgetId, String order = DESC, int limit = 20) {
         String url = "server.php?a=getrecentactivities&budgetId=" + budgetId + "&order=" + order + "&limit=" + limit;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -192,8 +187,6 @@ public class WebService {
             return new Gson().fromJson(json, Activities.class);
         }
     }
-    
-    
     public double GetIncomesSum(int budgetId) {
         String url = "server.php?a=getincomessum&budgetId=" + budgetId;
         this.getJsonFromUrl(url);

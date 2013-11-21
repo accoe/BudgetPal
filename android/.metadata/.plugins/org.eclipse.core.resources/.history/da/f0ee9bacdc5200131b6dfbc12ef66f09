@@ -34,7 +34,7 @@ public class WebService {
         else return true;
     }
     public boolean Login(String user, String password) {
-        String url = "server.php?a=login&user=" + user + "&password=" + Utils.sha256(password);
+        String url = "server.php?a=login&user=" + user + "&password=" + password;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
@@ -155,7 +155,12 @@ public class WebService {
     }
     
     public boolean UpdateExpense(int expenseId, String name, double amount) {
-    	return UpdateExpense(expenseId, name, amount, -1);
+    	int purchaseId = -1;
+        String url = "server.php?a=updateexpense&expenseId=" + expenseId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
+        this.getJsonFromUrl(url);
+        this.status = new GetStatus(json);
+        if (this.status.isError()) return false;
+        else return true;
     }
     
     public boolean DeleteExpense(int expenseId) {

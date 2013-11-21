@@ -34,7 +34,7 @@ public class WebService {
         else return true;
     }
     public boolean Login(String user, String password) {
-        String url = "server.php?a=login&user=" + user + "&password=" + Utils.sha256(password);
+        String url = "server.php?a=login&user=" + user + "&password=" + password;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;

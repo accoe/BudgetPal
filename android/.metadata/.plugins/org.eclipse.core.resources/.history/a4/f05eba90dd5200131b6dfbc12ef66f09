@@ -1,0 +1,15 @@
+package json;
+
+public class Expense {
+	public int ID_Budzetu;
+	public String nazwa;
+	public String opis;
+
+	public int ID_Wydatku;
+	public int ID_Produktu;
+	public String nazwa;
+	"kwota": 5,
+	"data": "2013-11-11 22:26:11"
+	
+	
+}

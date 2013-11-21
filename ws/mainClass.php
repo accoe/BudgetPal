@@ -721,7 +721,7 @@ class mainClass
     /**
      * @desc Usuwa zdefiniowany wydatek
      * @param int
-     * @return array
+     * @return boolean
      * @example 12
      * @logged true
      */
@@ -865,7 +865,7 @@ class mainClass
     			$s->store_result();
     			$s->fetch();
     			if ($s->num_rows > 0)
-    				return array(round($suma,2));
+    				return round($suma,2);
     			else
     				return status('NO_EXPENSES_ADDED');
     		}
@@ -890,7 +890,7 @@ class mainClass
         	$incomes = $this->GetIncomesSum($budgetId);
         	$expenses = $this->GetExpensesSum($budgetId);
 			$bilans = $incomes - $expenses;
-    		return array(round($bilans,2));
+    		return round($bilans,2);
     	}
     	else
     		return status('NO_SUCH_BUDGET');
