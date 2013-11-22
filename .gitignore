@@ -5,4 +5,8 @@ ws/.project
 ws/.buildpath
 android/json/.settings/
 android/json/.project
+<<<<<<< HEAD
 android/json/.buildpath
+=======
+android/json/.classpath
+>>>>>>> 00f36cdf9a354d5b6a99153abd728108c49234f0

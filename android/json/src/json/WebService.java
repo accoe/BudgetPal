@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+
 import com.google.gson.Gson;
 public class WebService {
     GetStatus status;
@@ -26,28 +27,28 @@ public class WebService {
         this.json = json;
         return json;
     }
-    public boolean Register(String login, String password, String email) {
+    public boolean Register(String login, String password, String email) throws Exception {
         String url = "server.php?a=register&login=" + login + "&password=" + password + "&email=" + email;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean Login(String user, String password) {
+    public boolean Login(String user, String password) throws Exception {
         String url = "server.php?a=login&user=" + user + "&password=" + Utils.sha256(password);
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean Logout() {
+    public boolean Logout() throws Exception {
         String url = "server.php?a=logout";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public Budgets GetBudgets() {
+    public Budgets GetBudgets() throws Exception {
         String url = "server.php?a=getbudgets";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -57,28 +58,28 @@ public class WebService {
             return new Gson().fromJson(json, Budgets.class);
         }
     }
-    public boolean AddBudget(String name, String description) {
+    public boolean AddBudget(String name, String description) throws Exception {
         String url = "server.php?a=addbudget&name=" + name + "&description=" + description;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean UpdateBudget(int budgetId, String name, String description) {
+    public boolean UpdateBudget(int budgetId, String name, String description) throws Exception {
         String url = "server.php?a=updatebudget&budgetId=" + budgetId + "&name=" + name + "&description=" + description;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean DeleteBudget(int budgetId) {
+    public boolean DeleteBudget(int budgetId) throws Exception {
         String url = "server.php?a=deletebudget&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public ProductsCategories GetProductCategories() {
+    public ProductsCategories GetProductCategories() throws Exception {
         String url = "server.php?a=getproductcategories";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -88,14 +89,14 @@ public class WebService {
             return new Gson().fromJson(json, ProductsCategories.class);
         }
     }
-    public boolean AddProductCategory(String name) {
+    public boolean AddProductCategory(String name) throws Exception {
         String url = "server.php?a=addproductcategory&name=" + name;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public IncomeCategories GetIncomeCategories() {
+    public IncomeCategories GetIncomeCategories() throws Exception {
         String url = "server.php?a=getincomecategories";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -105,21 +106,21 @@ public class WebService {
             return new Gson().fromJson(json, IncomeCategories.class);
         }
     }
-    public boolean AddIncomeCategory(String name) {
+    public boolean AddIncomeCategory(String name) throws Exception {
         String url = "server.php?a=addincomecategory&name=" + name;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean AddProduct(int product_cat, String name) {
+    public boolean AddProduct(int product_cat, String name) throws Exception {
         String url = "server.php?a=addproduct&product_cat=" + product_cat + "&name=" + name;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public Products GetProducts() {
+    public Products GetProducts() throws Exception {
         String url = "server.php?a=getproducts";
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -129,7 +130,7 @@ public class WebService {
             return new Gson().fromJson(json, Products.class);
         }
     }
-    public Expenses GetExpenses(int budgetId) {
+    public Expenses GetExpenses(int budgetId) throws Exception {
         String url = "server.php?a=getexpenses&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -139,14 +140,19 @@ public class WebService {
             return new Gson().fromJson(json, Expenses.class);
         }
     }
-    public boolean AddExpense(int budgetId, String name, double amount, int purchaseId = -1) {
-        String url = "server.php?a=addexpense&budgetId=" + budgetId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
+    public boolean AddExpense(int budgetId, String name, double amount, int purchaseId) throws Exception {
+    	String url = "server.php?a=addexpense&budgetId=" + budgetId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public boolean UpdateExpense(int expenseId, String name, double amount, int purchaseId) {
+    
+    public boolean AddExpense(int budgetId, String name, double amount) throws Exception {
+        return AddExpense(budgetId, name, amount, -1);
+    }
+    
+    public boolean UpdateExpense(int expenseId, String name, double amount, int purchaseId) throws Exception {
         String url = "server.php?a=updateexpense&expenseId=" + expenseId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -154,18 +160,18 @@ public class WebService {
         else return true;
     }
     
-    public boolean UpdateExpense(int expenseId, String name, double amount) {
+    public boolean UpdateExpense(int expenseId, String name, double amount) throws Exception {
     	return UpdateExpense(expenseId, name, amount, -1);
     }
     
-    public boolean DeleteExpense(int expenseId) {
+    public boolean DeleteExpense(int expenseId) throws Exception {
         String url = "server.php?a=deleteexpense&expenseId=" + expenseId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public Incomes GetIncomes(int budgetId) {
+    public Incomes GetIncomes(int budgetId) throws Exception {
         String url = "server.php?a=getincomes&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -175,15 +181,16 @@ public class WebService {
             return new Gson().fromJson(json, Incomes.class);
         }
     }
-    public boolean AddIncome(int budgetId, String name, double amount, int incomeCategory) {
+    public boolean AddIncome(int budgetId, String name, double amount, int incomeCategory) throws Exception {
         String url = "server.php?a=addincome&budgetId=" + budgetId + "&name=" + name + "&amount=" + amount + "&incomeCategory=" + incomeCategory;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isError()) return false;
         else return true;
     }
-    public Activities GetRecentActivities(int budgetId, String order = "DESC", int limit = 20) {
-        String url = "server.php?a=getrecentactivities&budgetId=" + budgetId + "&order=" + order + "&limit=" + limit;
+    
+    public Activities GetRecentActivities(int budgetId, String order, int limit) throws Exception {
+        String url = "server.php?a=getrecentactivities&budgetId=" + budgetId + "&order=DESC" + order + "&limit=" + limit;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isSet()) {
@@ -191,10 +198,18 @@ public class WebService {
         } else {
             return new Gson().fromJson(json, Activities.class);
         }
+    } 
+    public Activities GetRecentActivities(int budgetId) throws Exception {
+        return GetRecentActivities(budgetId, "DESC", 20);
     }
     
-    
-    public double GetIncomesSum(int budgetId) {
+    public Activities GetRecentActivities(int budgetId, int limit) throws Exception {
+        return GetRecentActivities(budgetId, "DESC", limit);
+    }
+    public Activities GetRecentActivities(int budgetId, String order) throws Exception {
+        return GetRecentActivities(budgetId, order, 20);
+    }
+    public double GetIncomesSum(int budgetId) throws Exception {
         String url = "server.php?a=getincomessum&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -204,7 +219,7 @@ public class WebService {
             return new Gson().fromJson(json, double.class);
         }
     }
-    public double GetExpensesSum(int budgetId) {
+    public double GetExpensesSum(int budgetId) throws Exception {
         String url = "server.php?a=getexpensessum&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
@@ -214,7 +229,7 @@ public class WebService {
             return new Gson().fromJson(json, double.class);
         }
     }
-    public double GetBudgetBilans(int budgetId) {
+    public double GetBudgetBilans(int budgetId) throws Exception {
         String url = "server.php?a=getbudgetbilans&budgetId=" + budgetId;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);

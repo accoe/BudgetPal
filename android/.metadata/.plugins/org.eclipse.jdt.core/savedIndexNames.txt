@@ -1,17 +1,18 @@
-INDEX VERSION 1.126+/home/kris/Code/BudgetPal/android/.metadata/.plugins/org.eclipse.jdt.core
-1874780019.index
-4277384797.index
-969670755.index
-93804853.index
-3142107428.index
-3528766831.index
-761659056.index
-1211646091.index
-3020891780.index
-554412997.index
-1431831365.index
-1593792608.index
-3488658833.index
-622649695.index
-2441898237.index
-4215556225.index
+INDEX VERSION 1.126+C:\Users\Tomek\Documents\GitHub\BudgetPal\android\.metadata\.plugins\org.eclipse.jdt.core
+305854171.index
+257981700.index
+1818563445.index
+3133528496.index
+1115467115.index
+30765161.index
+3974580528.index
+1498219845.index
+163172794.index
+4155206848.index
+3065916431.index
+1904357262.index
+4108727661.index
+4173023868.index
+4041092966.index
+1995173708.index
+192362398.index
