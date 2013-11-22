@@ -126,7 +126,7 @@ public class WebService {
 			else 
 				die($params_num." ".count($example_val).'Number of parameters in method header and number of examples isn\'t equal');
 		}
-		$header .=  ')';
+		$header .=  ') throws Exception';
 		return $header;
 	}
 
