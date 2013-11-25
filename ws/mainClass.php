@@ -936,9 +936,11 @@ class mainClass
      * @logged true
      */
     public function GetNotifications($all)
-    {
-        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = true OR przeczytane = ?)")) {
-                $s->bind_param('i', $this->userId,!$all);
+    {   
+        $all = $all == 'true' ? 1 : 0; 
+        $all = $all ? 1 : 0;
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = 1 OR przeczytane <> ?)")) {
+                $s->bind_param('ii', $this->userId,$all);
                 $s->execute();
                 $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
                 $arr = array();
