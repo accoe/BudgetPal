@@ -193,13 +193,13 @@ class mainClass
     private function GetIncomeCategoryByName($name)
     {
     	if ($s = $this->mysqli->prepare("SELECT ID_KatPrzychodu FROM KategoriePrzychodow where nazwa = ?")) {
-    		$s->bind_param('i', $name);
+    		$s->bind_param('s', $name);
     		$s->execute();
     		$s->bind_result($ID_KatPrzychodu);
     		$s->store_result();
     		$s->fetch();
     		if ($s->num_rows > 0)
-    			return $ID_KatPrzychodu;
+    		    return $ID_KatPrzychodu;
     		else
     			return false;
     	}
@@ -283,7 +283,38 @@ class mainClass
 			return status('NO_SUCH_ORDER');
 	}
 
+
+	private function GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date)
+	{
+	    if ($s = $this->mysqli->prepare("SELECT ID_PlanowanegoDochodu FROM Produkty where ID_Budzetu = ? AND nazwa = ? AND ID_KatPrzychodu = ? AND kwota = ? AND data = ?")) {
+	        $s->bind_param('isids', $budgetId, $name, $categoryId, $amount, $date);
+	        $s->execute();
+	        $s->bind_result($ID_PlanowanegoDochodu);
+	        $s->store_result();
+	        $s->fetch();
+	        if ($s->num_rows > 0)
+	            return $ID_PlanowanegoDochodu;
+	        else
+	            return false;
+	    }
+	    return false;
+	}
    
+	private function GetRecentScheduledExpense($budgetId,$productName, $amount, $date)
+	{
+	    if ($s = $this->mysqli->prepare("SELECT ID_PlanowanegoWydatku FROM Produkty where ID_Budzetu = ? AND nazwa = ? AND kwota = ? AND data = ?")) {
+	        $s->bind_param('isds', $budgetId,$productName, $amount, $date);
+	        $s->execute();
+	        $s->bind_result($ID_PlanowanegoDochodu);
+	        $s->store_result();
+	        $s->fetch();
+	        if ($s->num_rows > 0)
+	            return $ID_PlanowanegoDochodu;
+	        else
+	            return false;
+	    }
+	    return false;
+	}
 
     /** 
      * @desc Funkcja rejestruje uzytkownika
@@ -899,15 +930,15 @@ class mainClass
     
     /**
      * @desc Pobiera powiadomienia
-     * @param void
+     * @param boolean
      * @return Notificatons
-     * @example void
+     * @example true
      * @logged true
      */
-    public function GetNotifications()
+    public function GetNotifications($all)
     {
-        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ?")) {
-                $s->bind_param('i', $this->userId);
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = true OR przeczytane = ?)")) {
+                $s->bind_param('i', $this->userId,!$all);
                 $s->execute();
                 $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
                 $arr = array();
@@ -922,10 +953,11 @@ class mainClass
                 return status('NO_NOTIFICATIONS');
     }
     
+    
     private function AddNotification($eventId, $eventType, $text, $date)
     {
         if ($s = $this->mysqli->prepare("INSERT INTO Powiadomienia (`ID_Uzytkownika`, `ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`) values (?, ?, ?, ?, ?, 0);")) {
-            $s->bind_param('iisss',$this->userId,$name, $eventId, $eventType, $text, $date);
+            $s->bind_param('iisss',$this->userId,$eventId,$eventType, $text, $date);
             $s->execute();
             $s->bind_result();
             return true;
@@ -933,6 +965,8 @@ class mainClass
         else
             return false;       
     }
+    
+    
     
     /**
      * @desc Dodaje zaplanowany wydatek
@@ -951,6 +985,8 @@ class mainClass
             $s->bind_param('iids',$budgetId,$productId, $amount, $date);
             $s->execute();
             $s->bind_result();
+            $scheduledExpenseId = $this->GetRecentScheduledExpense($budgetId,$productName, $amount, $date);
+            $this->AddNotification($scheduledExpenseId, "wydatek", "Dodano zaplanowany wydatek: ".$productName." o wartosci ".$amount."zl", $date);
             return status('SCHEDULED_EXPENSE_ADDED');
         }
         else
@@ -972,7 +1008,7 @@ class mainClass
                 $s->bind_param('i', $budgetId);
                 $s->execute();
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoWydatku,$produkt, $kategoria,$kwota,$data);
-                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $date);
                 while ( $s->fetch() ) {
                     $row = array();
                     $arr[] = $row;
@@ -1027,12 +1063,33 @@ class mainClass
             return status('NO_SUCH_BUDGET');
     }
     
+    /**
+     * @desc Dodaje zaplanowany przychod
+     * @param int,String, String, double, String
+     * @return boolean
+     * @example 1, pensja grudzien, pensja, 4500, 2013-12-10
+     * @logged true
+     */
+    public function AddScheduledIncome($budgetId, $name, $categoryName, $amount, $date)
+    {
+        if (!$this->GetIncomeCategoryByName($categoryName))
+            $categoryId = 1; // Ustaw 1 - czyli inna
+        else    
+            $categoryId = $this->GetIncomeCategoryByName($categoryName);
+        if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyDochod` (`ID_Budzetu`,`ID_KatPrzychodu`,`nazwa`,`kwota`,`data`) VALUES (?, ?, ?, ?, ?);")) {
+            $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
+            $s->execute();
+            $s->bind_result();
+            $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date);
+            $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
+            return status('SCHEDULED_INCOME_ADDED');
+        }
+        else
+            return status('SCHEDULED_INCOME_NOT_ADDED');
+    }
     
     
-    
-    
-    
-    
+
     //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow  
