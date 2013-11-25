@@ -221,9 +221,6 @@ class mainClass
     	return false;
     }
     
-
-    
-
     
 
     private function GetProductByName($name)
@@ -315,6 +312,23 @@ class mainClass
 	    }
 	    return false;
 	}
+	
+
+	private function DoesNotificationExist($notificationId)
+	{
+	    if ($s = $this->mysqli->prepare("SELECT ID_Powiadomienia FROM Powiadomienia where ID_Powiadomienia = ?")) {
+	        $s->bind_param('i', $notificationId);
+	        $s->execute();
+	        $s->store_result();
+	        if ($s->num_rows == 1)
+	            return true;
+	        else
+	            return false;
+	    }
+	    return false;
+	}
+	
+
 
     /** 
      * @desc Funkcja rejestruje uzytkownika
@@ -955,6 +969,54 @@ class mainClass
                 return status('NO_NOTIFICATIONS');
     }
     
+    /**
+     * @desc Oznacza powiadomienie jako przeczytane
+     * @param int
+     * @return void
+     * @example 1
+     * @logged true
+     */
+    public function MarkNotificationAsRead($notificationId)
+    {
+        if ($this->DoesNotificationExist($notificationId)){
+            if ($s = $this->mysqli->prepare("UPDATE Powiadomienia SET przeczytane = 1 where ID_Powiadomienia = ?")) {
+                $s->bind_param('i',$notificationId);
+                $s->execute();
+                return status('NOTIFICATION_MARKED');
+            }
+            else 
+                return status('NOTIFICATION_NOT_MARKED');
+        }
+        else
+            return status('NO_SUCH_NOTIFICATION');
+    }
+    
+    
+    /**
+     * @desc Sprawdza wszystkie powiadomienia - data równa lub mniejsza niz dzisiaj
+     * @param void
+     * @return Notificatons
+     * @example void
+     * @logged true
+     */
+    public function CheckNotifications()
+    {
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW())")) {
+                $s->bind_param('i', $this->userId);
+                $s->execute();
+                $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane);
+                    $arr[] = $row;
+                }
+                return array('count' =>  $s->num_rows,
+                             'notifications' => $arr);
+            }
+            else
+                return status('NO_NOTIFICATIONS');
+    }
+    
     
     private function AddNotification($eventId, $eventType, $text, $date)
     {
@@ -967,8 +1029,7 @@ class mainClass
         else
             return false;       
     }
-    
-    
+
     
     /**
      * @desc Dodaje zaplanowany wydatek
@@ -999,7 +1060,7 @@ class mainClass
     /**
      * @desc Pobiera zaplanowane wydatki
      * @param int
-     * @return Notificatons
+     * @return ScheduledExpenses
      * @example 1
      * @logged true
      */
@@ -1031,7 +1092,7 @@ class mainClass
     /**
      * @desc Pobiera zaplanowane przychody
      * @param int
-     * @return Notificatons
+     * @return ScheduledIncomes
      * @example 1
      * @logged true
      */
