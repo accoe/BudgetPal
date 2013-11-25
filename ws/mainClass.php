@@ -1006,13 +1006,13 @@ class mainClass
     public function GetScheduledExpenses($budgetId)
     {
         if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoWydatku`,P.nazwa, KP.nazwa,`kwota`,PW.`data` FROM `PlanowanyWydatek` PW join `Produkty` P on PW.`ID_Produktu` = P.`ID_Produktu` join `KategorieProduktow` KP on PW.`ID_KatProduktu` = KP.`ID_KatProduktu` WHERE `ID_Budzetu` = ?")) {
+            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoWydatku`,P.nazwa, KP.nazwa,`kwota`,PW.`data` FROM `PlanowanyWydatek` PW join `Produkty` P on PW.`ID_Produktu` = P.`ID_Produktu` join `KategorieProduktow` KP on P.`ID_KatProduktu` = KP.`ID_KatProduktu` WHERE `ID_Budzetu` = ?")) {
                 $s->bind_param('i', $budgetId);
                 $s->execute();
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoWydatku,$produkt, $kategoria,$kwota,$data);
-                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $date);
+                $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array();
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
                     $arr[] = $row;
                 }
                 if ($s->num_rows > 0)
@@ -1027,12 +1027,7 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
-    
-    
-    
-    
-    
-    
+
     /**
      * @desc Pobiera zaplanowane przychody
      * @param int
@@ -1047,9 +1042,9 @@ class mainClass
                 $s->bind_param('i', $budgetId);
                 $s->execute();
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
-                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array();
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
                     $arr[] = $row;
                 }
                 if ($s->num_rows > 0)
