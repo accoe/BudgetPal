@@ -143,7 +143,7 @@ class mainClass
     {
     	
     	if ($s = $this->mysqli->prepare("SELECT ID_Budzetu FROM Budzet where ID_Uzytkownika = ? AND ID_Budzetu = ?")) {
-    		$s->bind_param('is',$this->userId,$budgetId);
+    		$s->bind_param('ii',$this->userId,$budgetId);
     		$s->execute();
     		$s->store_result();
     		if ($s->num_rows > 0)
@@ -897,6 +897,101 @@ class mainClass
     }
     
     
+    /**
+     * @desc Pobiera powiadomienia
+     * @param void
+     * @return Notificatons
+     * @example void
+     * @logged true
+     */
+    public function GetNotifications()
+    {
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ?")) {
+                $s->bind_param('i', $this->userId);
+                $s->execute();
+                $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane);
+                    $arr[] = $row;
+                }
+                return array('count' =>  $s->num_rows,
+                             'notifications' => $arr);
+            }
+            else
+                return status('NO_NOTIFICATIONS');
+    }
+    
+    private function AddNotification($eventId, $eventType, $text, $date)
+    {
+        if ($s = $this->mysqli->prepare("INSERT INTO Powiadomienia (`ID_Uzytkownika`, `ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`) values (?, ?, ?, ?, ?, 0);")) {
+            $s->bind_param('iisss',$this->userId,$name, $eventId, $eventType, $text, $date);
+            $s->execute();
+            $s->bind_result();
+            return true;
+        }
+        else
+            return false;       
+    }
+    
+    /**
+     * @desc Pobiera zaplanowane wydatki
+     * @param int
+     * @return Notificatons
+     * @example 1
+     * @logged true
+     */
+    public function GetScheduledExpenses($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoWydatku`,P.nazwa, KP.nazwa,`kwota`,PW.`data` FROM `PlanowanyWydatek` PW join `Produkty` P on PW.`ID_Produktu` = P.`ID_Produktu` join `KategorieProduktow` KP on PW.`ID_KatProduktu` = KP.`ID_KatProduktu` WHERE `ID_Budzetu` = ?")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Budzetu,$ID_PlanowanegoWydatku,$produkt, $kategoria,$kwota,$data);
+                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                while ( $s->fetch() ) {
+                    $row = array();
+                    $arr[] = $row;
+                }
+                return array('count' =>  $s->num_rows,
+                        'scheduled_expenses' => $arr);
+            }
+            else
+                return status('NO_SCHEDULED_EXPANSES');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    /**
+     * @desc Pobiera zaplanowane przychody
+     * @param int
+     * @return Notificatons
+     * @example 1
+     * @logged true
+     */
+    public function GetScheduledIncomes($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE `ID_Budzetu` =  ?")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
+                $arr = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                while ( $s->fetch() ) {
+                    $row = array();
+                    $arr[] = $row;
+                }
+                return array('count' =>  $s->num_rows,
+                        'scheduled_incomes' => $arr);
+            }
+            else
+                return status('NO_SCHEDULED_INCOMES');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
     
     //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
