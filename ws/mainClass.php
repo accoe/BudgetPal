@@ -297,16 +297,16 @@ class mainClass
 	    return false;
 	}
    
-	private function GetRecentScheduledExpense($budgetId,$productName, $amount, $date)
+	private function GetRecentScheduledExpense($budgetId, $productId, $amount, $date)
 	{
-	    if ($s = $this->mysqli->prepare("SELECT ID_PlanowanegoWydatku FROM Produkty where ID_Budzetu = ? AND nazwa = ? AND kwota = ? AND data = ?")) {
-	        $s->bind_param('isds', $budgetId,$productName, $amount, $date);
+	    if ($s = $this->mysqli->prepare("SELECT ID_PlanowanegoWydatku FROM PlanowanyWydatek where ID_Budzetu = ? AND ID_Produktu = ? AND kwota = ? AND data = ?")) {
+	        $s->bind_param('iids', $budgetId, $productId, $amount, $date);
 	        $s->execute();
-	        $s->bind_result($ID_PlanowanegoDochodu);
+	        $s->bind_result($ID_PlanowanegoWydatku);
 	        $s->store_result();
 	        $s->fetch();
 	        if ($s->num_rows > 0)
-	            return $ID_PlanowanegoDochodu;
+	            return $ID_PlanowanegoWydatku;
 	        else
 	            return false;
 	    }
@@ -709,9 +709,7 @@ class mainClass
     	if (!$this->GetProductByName($name))
  	  		$this->AddProduct($name, 1);
 		
-    	$productId = $this->GetProductByName($name);
-               
-        
+    	$productId = $this->GetProductByName($name);              
         if (!$this->DoesBudgetExist($budgetId))
         	return status('NO_SUCH_BUDGET');
         else{
@@ -1001,7 +999,7 @@ class mainClass
      */
     public function CheckNotifications()
     {
-        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW())")) {
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW()) AND przeczytane = 0")) {
                 $s->bind_param('i', $this->userId);
                 $s->execute();
                 $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
@@ -1009,9 +1007,27 @@ class mainClass
                 while ( $s->fetch() ) {
                     $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane);
                     $arr[] = $row;
+                    
+                    // Wykonaj zaplanowane operacje
+                    switch ($typ) {
+                    	case 'wydatek':
+                    	    $this->AddScheduledExpenseToExpenses($ID_Zdarzenia);
+                    	    break;
+                    	     
+                	    case 'dochod':
+                	        $this->AddScheduledIncomeToIncomes($ID_Zdarzenia);
+                	        break;
+                    	default:
+                    	    ;
+                    	    break;
+                    }
+                    
                 }
-                return array('count' =>  $s->num_rows,
+                if ($s->num_rows > 0)
+                    return array('count' =>  $s->num_rows,
                              'notifications' => $arr);
+                else 
+                    return status('NO_UNREADED_NOTIFICATIONS');
             }
             else
                 return status('NO_NOTIFICATIONS');
@@ -1032,7 +1048,7 @@ class mainClass
 
     
     /**
-     * @desc Dodaje zaplanowany wydatek
+     * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatkow
      * @param int,String, double, String
      * @return boolean
      * @example 1, paliwo, 100, 2013-12-20
@@ -1042,19 +1058,53 @@ class mainClass
     {
         if (!$this->GetProductByName($productName))
     		$this->AddProduct($productName, 1);
-
         $productId = $this->GetProductByName($productName);
-        if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyWydatek` (`ID_Budzetu`,`ID_Produktu`,`kwota`,`data`) VALUES (?, ?, ?, ?);")) {
-            $s->bind_param('iids',$budgetId,$productId, $amount, $date);
-            $s->execute();
-            $s->bind_result();
-            $scheduledExpenseId = $this->GetRecentScheduledExpense($budgetId,$productName, $amount, $date);
-            $this->AddNotification($scheduledExpenseId, "wydatek", "Dodano zaplanowany wydatek: ".$productName." o wartosci ".$amount."zl", $date);
-            return status('SCHEDULED_EXPENSE_ADDED');
+        
+        if (!$this->GetRecentScheduledExpense($budgetId, $productId, $amount, $date)){
+            if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyWydatek` (`ID_Budzetu`,`ID_Produktu`,`kwota`,`data`) VALUES (?, ?, ?, ?);")) {
+                $s->bind_param('iids',$budgetId,$productId, $amount, $date);
+                $s->execute();
+                $s->bind_result();
+                $scheduledExpenseId = $this->GetRecentScheduledExpense($budgetId,$productId, $amount, $date);
+                $this->AddNotification($scheduledExpenseId, "wydatek", "Dodano zaplanowany wydatek: ".$productName." o wartosci ".$amount."zl", $date);
+                return status('SCHEDULED_EXPENSE_ADDED');
+            }
+            else
+                return status('SCHEDULED_EXPENSE_NOT_ADDED');
         }
         else
-            return status('SCHEDULED_EXPENSE_NOT_ADDED');
+            return status('SCHEDULED_EXPENSE_ALREADY_EXISTS');
     }
+    
+    /**
+     * @desc Dodaje zaplanowany wydatek do wydatkow
+     * @param int
+     * @return boolean
+     * @example 10
+     * @logged true
+     */
+    public function AddScheduledExpenseToExpenses($scheduledExpanseId)
+    {   
+        if ($s = $this->mysqli->prepare("SELECT ID_Budzetu,ID_Produktu,kwota,data FROM PlanowanyWydatek where ID_PlanowanegoWydatku = ?")) {
+            $s->bind_param('i', $scheduledExpanseId);
+            $s->execute();
+            $s->bind_result($ID_Budzetu,$ID_Produktu,$kwota,$data);
+            $s->store_result();
+            $s->fetch();
+            if ($s->num_rows > 0){
+            	if ($s = $this->mysqli->prepare("INSERT INTO Wydatki (ID_Budzetu,ID_Produktu,kwota,data) values (?, ?, ?, ?);")) {
+            		$s->bind_param('iids',$ID_Budzetu,$ID_Produktu,$kwota,$data);
+            		$s->execute();
+            		$s->bind_result();
+            		return status('EXPENSE_ADDED');
+            	}
+            }
+            else
+                return false;
+        }
+        return false;
+    }
+    
     
     
     /**
@@ -1074,7 +1124,7 @@ class mainClass
                 $arr = array();
                 while ( $s->fetch() ) {
                     $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
-                    $arr[] = $row;
+                    $arr[] = $row;                     
                 }
                 if ($s->num_rows > 0)
                     return array('count' =>  $s->num_rows,
@@ -1088,6 +1138,9 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
+    
+    
+    
 
     /**
      * @desc Pobiera zaplanowane przychody
@@ -1134,16 +1187,21 @@ class mainClass
             $categoryId = 1; // Ustaw 1 - czyli inna
         else    
             $categoryId = $this->GetIncomeCategoryByName($categoryName);
-        if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyDochod` (`ID_Budzetu`,`ID_KatPrzychodu`,`nazwa`,`kwota`,`data`) VALUES (?, ?, ?, ?, ?);")) {
-            $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
-            $s->execute();
-            $s->bind_result();
-            $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date);
-            $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
-            return status('SCHEDULED_INCOME_ADDED');
+        
+        if ($this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date)){
+            if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyDochod` (`ID_Budzetu`,`ID_KatPrzychodu`,`nazwa`,`kwota`,`data`) VALUES (?, ?, ?, ?, ?);")) {
+                $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
+                $s->execute();
+                $s->bind_result();
+                $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $cate, $categoryId, $amount, $date);
+                $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
+                return status('SCHEDULED_INCOME_ADDED');
+            }
+            else
+                return status('SCHEDULED_INCOME_NOT_ADDED');
         }
         else
-            return status('SCHEDULED_INCOME_NOT_ADDED');
+            return status('SCHEDULED_INCOME_ALREADY_EXISTS');
     }
     
     
@@ -1151,7 +1209,7 @@ class mainClass
     //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow  
-    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow - automatyczne powiadomienie 
+    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow
     //TODO dodawanie zleceń stałych 
     //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
 
