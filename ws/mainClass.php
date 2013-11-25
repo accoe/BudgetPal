@@ -568,14 +568,14 @@ class mainClass
     
     /**
      * @desc Dodaje produkt do listy produktow
-     * @param int,String
+     * @param String, int
      * @return boolean
-     * @example 1, jablko
+     * @example jablko, 1
      * @logged true
      */
-    public function AddProduct($product_cat, $name)
+    public function AddProduct($name, $product_cat = 1)
     {
-    	if (!$this->DoesProductCategoryExist($prodact_cat))
+    	if (!$this->DoesProductCategoryExist($product_cat))
     		return status('PRODUCT_CATEGORY_NOT_EXISTS');
     	
     	if ($this->GetProductByName($name))
@@ -614,7 +614,7 @@ class mainClass
     				'products' => $arr);
     	}
     	else
-    		return status('CANNOT_GET_PRODUCT_CATEGORIES');
+    		return status('CANNOT_GET_PRODUCTS');
     }
     
     /**
@@ -662,7 +662,7 @@ class mainClass
     	
     	// Jezeli dany produkt nie istnieje to dodajemy go do listy z kategoria produktow 'inny'
     	if (!$this->GetProductByName($name))
- 	  		$this->AddProduct(1, $name);
+ 	  		$this->AddProduct($name, 1);
 		
     	$productId = $this->GetProductByName($name);
                
@@ -935,6 +935,30 @@ class mainClass
     }
     
     /**
+     * @desc Dodaje zaplanowany wydatek
+     * @param int,String, double, String
+     * @return boolean
+     * @example 1, paliwo, 100, 2013-12-20
+     * @logged true
+     */
+    public function AddScheduledExpense($budgetId,$productName, $amount, $date)
+    {
+        if (!$this->GetProductByName($productName))
+    		$this->AddProduct($productName, 1);
+
+        $productId = $this->GetProductByName($productName);
+        if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyWydatek` (`ID_Budzetu`,`ID_Produktu`,`kwota`,`data`) VALUES (?, ?, ?, ?);")) {
+            $s->bind_param('iids',$budgetId,$productId, $amount, $date);
+            $s->execute();
+            $s->bind_result();
+            return status('SCHEDULED_EXPENSE_ADDED');
+        }
+        else
+            return status('SCHEDULED_EXPENSE_NOT_ADDED');
+    }
+    
+    
+    /**
      * @desc Pobiera zaplanowane wydatki
      * @param int
      * @return Notificatons
@@ -953,8 +977,11 @@ class mainClass
                     $row = array();
                     $arr[] = $row;
                 }
-                return array('count' =>  $s->num_rows,
-                        'scheduled_expenses' => $arr);
+                if ($s->num_rows > 0)
+                    return array('count' =>  $s->num_rows,
+                            'scheduled_expenses' => $arr);
+                else
+                    return status('NO_SCHEDULED_EXPANSES');
             }
             else
                 return status('NO_SCHEDULED_EXPANSES');
@@ -962,6 +989,10 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
+    
+    
+    
+    
     
     
     /**
@@ -983,8 +1014,11 @@ class mainClass
                     $row = array();
                     $arr[] = $row;
                 }
-                return array('count' =>  $s->num_rows,
-                        'scheduled_incomes' => $arr);
+                if ($s->num_rows > 0)
+                    return array('count' =>  $s->num_rows,
+                            'scheduled_incomes' => $arr);
+                else 
+                    return status('NO_SCHEDULED_INCOMES');
             }
             else
                 return status('NO_SCHEDULED_INCOMES');
@@ -992,6 +1026,12 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
+    
+    
+    
+    
+    
+    
     
     //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
     //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
