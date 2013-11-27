@@ -1018,7 +1018,51 @@ class mainClass
         else
             return false;       
     }
-
+    
+    private function GetNotAddedNotifications()
+    {
+        if ($y = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`,`dodane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW()) AND przeczytane = 0")) {
+            $y->bind_param('i', $this->userId);
+            $y->execute();
+            $y->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane,$dodane);
+            $arr = array();
+            while ( $y->fetch() ) {
+                $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane,'dodane' => $dodane);
+                $arr[] = $row;
+            }
+            if ($y->num_rows > 0)
+                return $arr;
+        }
+    }
+    
+    /**
+     * @desc Sprawdza wszystkie powiadomienia - data równa lub mniejsza niz dzisiaj
+     * @param void
+     * @return Notificatons
+     * @example void
+     * @logged true
+     */
+    public function CheckNotifications()
+    {
+        $data = $this->GetNotAddedNotifications();
+        foreach ($data as $value) {
+            foreach ($value as $v)
+                echo $v." ";
+            echo "<br>";
+            $dodane = ($value['dodane'] ? 1 : 0);
+            if (!$dodane){
+                if ($value['typ'] == "wydatek"){
+                    $this->AddScheduledExpenseToExpenses($value['ID_Zdarzenia']);
+                    $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                }
+                else if ($value['typ'] == "dochod"){
+                    $this->AddScheduledIncomeToIncomes($value['ID_Zdarzenia']);
+                    $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                }
+            }
+        }
+    }
+    
     
     /**
      * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatkow
@@ -1083,7 +1127,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera zaplanowane wydatki
+     * @desc Pobiera zaplanowane wydatki (z przyszłosci)
      * @param int
      * @return ScheduledExpenses
      * @example 1
@@ -1116,39 +1160,6 @@ class mainClass
     
     
     
-
-    /**
-     * @desc Pobiera zaplanowane przychody
-     * @param int
-     * @return ScheduledIncomes
-     * @example 1
-     * @logged true
-     */
-    public function GetScheduledIncomes($budgetId)
-    {
-        if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE `ID_Budzetu` =  ? AND DATE(PD.data) > DATE(NOW())")) {
-                $s->bind_param('i', $budgetId);
-                $s->execute();
-                $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
-                $arr = array();
-                while ( $s->fetch() ) {
-                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
-                    $arr[] = $row;
-                }
-                if ($s->num_rows > 0)
-                    return array('count' =>  $s->num_rows,
-                            'scheduled_incomes' => $arr);
-                else 
-                    return status('NO_SCHEDULED_INCOMES');
-            }
-            else
-                return status('NO_SCHEDULED_INCOMES');
-        }
-        else
-            return status('NO_SUCH_BUDGET');
-    }
-    
     /**
      * @desc Dodaje zaplanowany przychod
      * @param int,String, String, double, String
@@ -1168,7 +1179,7 @@ class mainClass
                 $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
                 $s->execute();
                 $s->bind_result();
-                $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $cate, $categoryId, $amount, $date);
+                $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date);
                 $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
                 return status('SCHEDULED_INCOME_ADDED');
             }
@@ -1208,52 +1219,40 @@ class mainClass
         return false;
     }
 
-    
-    
-    
-    private function GetNotAddedNotifications()
-    {
-        if ($y = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`,`dodane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW()) AND przeczytane = 0")) {
-            $y->bind_param('i', $this->userId);
-            $y->execute();
-            $y->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane,$dodane);
-            $arr = array();
-            while ( $y->fetch() ) {
-                $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane,'dodane' => $dodane);
-                $arr[] = $row;
-            }
-            if ($y->num_rows > 0)
-                return $arr;
-        }
-    }
-    
     /**
-     * @desc Sprawdza wszystkie powiadomienia - data równa lub mniejsza niz dzisiaj
-     * @param void
-     * @return Notificatons
-     * @example void
+     * @desc Pobiera zaplanowane przychody (z przyszłosci)
+     * @param int
+     * @return ScheduledIncomes
+     * @example 1
      * @logged true
      */
-    public function CheckNotifications()
+    public function GetScheduledIncomes($budgetId)
     {
-        $data = $this->GetNotAddedNotifications();
-        foreach ($data as $value) {
-                $dodane = ($value['dodane'] ? 1 : 0);
-                if (!$dodane){
-                    echo 'dodane'.!$dodane;
-                    if ($value['typ'] == "wydatek"){
-                        echo 'wydatek';
-                        $this->AddScheduledExpenseToExpenses($value['ID_Zdarzenia']);
-                        $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
-                    }
-                    else if ($value['typ'] == "dochod"){
-                        $this->AddScheduledIncomesToIncomes($value['ID_Zdarzenia']);
-                        $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
-                    }
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE `ID_Budzetu` =  ? AND DATE(PD.data) > DATE(NOW())")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                    $arr[] = $row;
                 }
+                if ($s->num_rows > 0)
+                    return array('count' =>  $s->num_rows,
+                            'scheduled_incomes' => $arr);
+                else
+                    return status('NO_SCHEDULED_INCOMES');
+            }
+            else
+                return status('NO_SCHEDULED_INCOMES');
         }
-    } 
+        else
+            return status('NO_SUCH_BUDGET');
+    }
     
+    
+
     
     
     /**
