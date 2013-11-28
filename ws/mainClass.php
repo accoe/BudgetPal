@@ -9,7 +9,7 @@ class mainClass
     var $DBUSER;
     var $DBPASS;
     var $userId;
-	
+	var $DEBUG;
     public function __construct($user, $password, $host, $database) 
     {
         $this->DBUSER = $user;
@@ -17,12 +17,18 @@ class mainClass
         $this->DBHOST = $host;
         $this->DBNAME = $database;
         $this->InitializeSession();
+        $this->DEBUG = true;
         if (isset($_SESSION['userId']))
         $this->userId = $_SESSION['userId'];
         else
             $this->userId = 0;
     }
-
+    
+    private function Debug($s){
+    	if ($this->DEBUG)
+    	    echo 'ERROR: '.$s->error;
+    } 
+    
     public function Connect()
     {
     	$this->mysqli = new mysqli($this->DBHOST, $this->DBUSER, $this->DBPASS, $this->DBNAME);
@@ -1056,7 +1062,7 @@ class mainClass
                 }
                 else if ($value['typ'] == "dochod"){
                     $this->AddScheduledIncomeToIncomes($value['ID_Zdarzenia']);
-                    $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                    //$this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
                     $added++;
                 }
             }
@@ -1203,14 +1209,14 @@ class mainClass
      */
     private function AddScheduledIncomeToIncomes($scheduledIncomeId)
     {
-        if ($x = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE ID_PlanowanegoDochodu = ?")) {
+        if ($x = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_KatPrzychodu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE ID_PlanowanegoDochodu = ?")) {
             $x->bind_param('i', $scheduledIncomeId);
             $x->execute();
-            $x->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
+            $x->bind_result($ID_Budzetu,$ID_KatPrzychodu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
             $x->store_result();
             $x->fetch();
-    
             if ($x->num_rows > 0){
+                echo 'test2';
                 if ($s = $this->mysqli->prepare("INSERT INTO Przychody (ID_Budzetu,ID_KatPrzychodu,kwota,nazwa,data) values (?, ?, ?, ?, ?);")) {
                     $s->bind_param('iidss',$ID_Budzetu,$ID_KatPrzychodu,$kwota,$nazwa, $data);
                     $s->execute();
@@ -1448,10 +1454,6 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
-    
-    
-    
-    
     
     
     /**
