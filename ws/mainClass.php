@@ -1256,62 +1256,7 @@ class mainClass
             return status('NO_SUCH_BUDGET');
     }
     
-    /**
-     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
-     * @param int, String
-     * @return PieChart
-     * @example 1, 2013-12-10
-     * @logged true
-     */
-    public function GetExpensesPieChart($budgetId,$date)
-    { 
-        $date = strtotime($date);
-        $month = date("n",$date);
-        $year = date("Y",$date);
-        if ($this->DoesBudgetExist($budgetId)){
-            $sum = $this->GetSumOfExpensesFromMonth($budgetId,$month,$year);
-            if ($sum > 0){
-                $arr = array();
-                foreach ($this->Categories() as $category => $val) { 
-                    $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$val);
-                    $arr[] = array('kategoria' => $category,
-                                    'suma' => $sum_cat,
-                                    'procent' => ($sum_cat/$sum));
-                }
-                return $arr;
-            }
-                return status('NO_EXPENSES_IN_MONTH');
-        }
-        else
-            return status('NO_SUCH_BUDGET');
-    }
-    
-
-    private function GetSumOfExpensesFromMonth($budgetId,$month,$year){
-        if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT SUM(  `kwota` ) AS suma 
-                                            FROM  `Wydatki` W
-                                            JOIN Produkty P ON P.`ID_Produktu` = W.`ID_Produktu` 
-                                            WHERE  `ID_Budzetu` = ?
-                                            AND MONTH( W.data ) = ?
-                                            AND YEAR( W.data ) = ?")){
-                $s->bind_param('iii', $budgetId,$month,$year);
-                $s->execute();
-                $s->bind_result($suma);
-                $s->store_result();
-                $s->fetch();
-                if (is_null($suma))
-                    return 0;
-                return $suma;
-            }
-            return 0;
-        }
-        else
-            return status('NO_SUCH_BUDGET');
-    }
-    
-    
-    private function Categories(){
+    private function ExpenseCategories(){
         $categories = array(
                 'jedzenie' => array( 2,19,20,21,22,23,53,54,55,56,57,84),
                 'rodzina i znajomi' => array( 37,59,61,62,59,96),
@@ -1329,19 +1274,42 @@ class mainClass
         return $categories;
     }
     
+    private function GetSumOfExpensesFromMonth($budgetId,$month,$year){
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT SUM(  `kwota` ) AS suma
+                                            FROM  `Wydatki` W
+                                            JOIN Produkty P ON P.`ID_Produktu` = W.`ID_Produktu`
+                                            WHERE  `ID_Budzetu` = ?
+                                            AND MONTH( W.data ) = ?
+                                            AND YEAR( W.data ) = ?")){
+                                                $s->bind_param('iii', $budgetId,$month,$year);
+                                                $s->execute();
+                                                $s->bind_result($suma);
+                                                $s->store_result();
+                                                $s->fetch();
+                                                if (is_null($suma))
+                                                    return 0;
+                                                return $suma;
+            }
+            return 0;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
     private function GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$category){
         $cat = "(";
         foreach ($category as $value) {
-        	$cat = $cat.$value.",";
+            $cat = $cat.$value.",";
         }
-        $cat = substr($cat,0,-1);  
-        $cat .= ")";   
+        $cat = substr($cat,0,-1);
+        $cat .= ")";
         $sql = "SELECT SUM(  `kwota` ) AS suma FROM  `Wydatki` W JOIN Produkty P ON P.`ID_Produktu` = W.`ID_Produktu`
                 WHERE  `ID_Budzetu` = ? AND MONTH( W.data ) = ? AND YEAR( W.data ) = ? and P.`ID_KatProduktu` in ";
         if ($this->DoesBudgetExist($budgetId)){
-            
+    
             if ($s = $this->mysqli->prepare($sql.$cat)){
-                
+    
                 $s->bind_param('iii', $budgetId,$month,$year);
                 $s->execute();
                 $s->bind_result($suma);
@@ -1356,6 +1324,133 @@ class mainClass
         else
             return status('NO_SUCH_BUDGET');
     }
+    
+ 
+    /**
+     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
+     * @param int, String
+     * @return PieChart
+     * @example 1, 2013-12-10
+     * @logged true
+     */
+    public function GetExpensesPieChart($budgetId,$date)
+    { 
+        $date = strtotime($date);
+        $month = date("n",$date);
+        $year = date("Y",$date);
+        if ($this->DoesBudgetExist($budgetId)){
+            $sum = $this->GetSumOfExpensesFromMonth($budgetId,$month,$year);
+            if ($sum > 0){
+                $arr = array();
+                foreach ($this->ExpenseCategories() as $category => $val) { 
+                    $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$val);
+                    $arr[] = array('kategoria' => $category,
+                                    'suma' => $sum_cat,
+                                    'procent' => ($sum_cat/$sum));
+                }
+                return $arr;
+            }
+                return status('NO_EXPENSES_IN_MONTH');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+
+
+    /// przychodt
+    
+    private function IncomeCategories(){
+        $categories = array(
+                'praca'=> array(2,4,11),
+                'rodzina i znajomi'=> array( 12,13),
+                'handel'=> array( 9,15),
+                'zlecenia'=> array( 4,10),
+                'inne'=> array( 1,3,5,6,7,8,14,16,17,18)
+        );
+        return $categories;
+    }
+    
+    private function GetSumOfIncomesFromMonth($budgetId,$month,$year){
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT SUM(  `kwota` ) AS suma FROM  `Przychody` P JOIN KategoriePrzychodow KP ON P.`ID_KatPrzychodu`=KP.`ID_KatPrzychodu`
+                                            WHERE  `ID_Budzetu` = ?
+                                            AND MONTH( P.data ) = ?
+                                            AND YEAR( P.data ) = ?")){
+                                                $s->bind_param('iii', $budgetId,$month,$year);
+                                                $s->execute();
+                                                $s->bind_result($suma);
+                                                $s->store_result();
+                                                $s->fetch();
+                                                if (is_null($suma))
+                                                    return 0;
+                                                return $suma;
+            }
+            return 0;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    private function GetSumOfIncomesFromMonthByCategory($budgetId,$month,$year,$category){
+        $cat = "(";
+        foreach ($category as $value) {
+            $cat = $cat.$value.",";
+        }
+        $cat = substr($cat,0,-1);
+        $cat .= ")";
+        $sql = "SELECT SUM(  `kwota` ) AS suma FROM  `Przychody` P JOIN KategoriePrzychodow KP ON P.`ID_KatPrzychodu`=KP.`ID_KatPrzychodu`
+                WHERE  `ID_Budzetu` = ? AND MONTH( W.data ) = ? AND YEAR( W.data ) = ? and P.`ID_KatProduktu` in ";
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare($sql.$cat)){
+                $s->bind_param('iii', $budgetId,$month,$year);
+                $s->execute();
+                $s->bind_result($suma);
+                $s->store_result();
+                $s->fetch();
+                if (is_null($suma))
+                    return 0;
+                return $suma;
+            }
+            return 0;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    /**
+     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla przchodow
+     * @param int, String
+     * @return PieChart
+     * @example 1, 2013-12-10
+     * @logged true
+     */
+    public function GetIncomesPieChart($budgetId,$date)
+    {
+        $date = strtotime($date);
+        $month = date("n",$date);
+        $year = date("Y",$date);
+        if ($this->DoesBudgetExist($budgetId)){
+            $sum = $this->GetSumOfIncomesFromMonth($budgetId,$month,$year);
+            if ($sum > 0){
+                $arr = array();
+                foreach ($this->IncomeCategories() as $category => $val) {
+                    $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$month,$year,$val);
+                    $arr[] = array('kategoria' => $category,
+                            'suma' => $sum_cat,
+                            'procent' => ($sum_cat/$sum));
+                }
+                return $arr;
+            }
+            return status('NO_INCOMES_IN_MONTH');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    
     
     
     
