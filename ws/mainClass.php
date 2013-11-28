@@ -1045,22 +1045,26 @@ class mainClass
     public function CheckNotifications()
     {
         $data = $this->GetNotAddedNotifications();
+        $added = 0;
         foreach ($data as $value) {
-            foreach ($value as $v)
-                echo $v." ";
-            echo "<br>";
             $dodane = ($value['dodane'] ? 1 : 0);
             if (!$dodane){
                 if ($value['typ'] == "wydatek"){
                     $this->AddScheduledExpenseToExpenses($value['ID_Zdarzenia']);
                     $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                    $added++;
                 }
                 else if ($value['typ'] == "dochod"){
                     $this->AddScheduledIncomeToIncomes($value['ID_Zdarzenia']);
                     $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                    $added++;
                 }
             }
-        }
+        }  
+        if ($added > 0)
+            return status('UPDATED');
+        else 
+            return status('NOT_UPDATED');      
     }
     
     
@@ -1127,7 +1131,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera zaplanowane wydatki (z przyszłosci)
+     * @desc Pobiera zaplanowane wydatki (z przyszlosci)
      * @param int
      * @return ScheduledExpenses
      * @example 1
@@ -1207,9 +1211,10 @@ class mainClass
             $x->fetch();
     
             if ($x->num_rows > 0){
-                if ($s = $this->mysqli->prepare("INSERT INTO Przychody (ID_Budzetu,ID_KatPrzychodu,kwota,nazwa,data) values (?, ?, ?, ?,?);")) {
-                    $s->bind_param('iids',$ID_Budzetu,$ID_Produktu,$kwota,$data);
+                if ($s = $this->mysqli->prepare("INSERT INTO Przychody (ID_Budzetu,ID_KatPrzychodu,kwota,nazwa,data) values (?, ?, ?, ?, ?);")) {
+                    $s->bind_param('iidss',$ID_Budzetu,$ID_KatPrzychodu,$kwota,$nazwa, $data);
                     $s->execute();
+                    $s->bind_result();
                     return true;
                 }
             }
@@ -1220,7 +1225,7 @@ class mainClass
     }
 
     /**
-     * @desc Pobiera zaplanowane przychody (z przyszłosci)
+     * @desc Pobiera zaplanowane przychody (z przyszlosci)
      * @param int
      * @return ScheduledIncomes
      * @example 1
@@ -1251,8 +1256,107 @@ class mainClass
             return status('NO_SUCH_BUDGET');
     }
     
+    /**
+     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
+     * @param int, String
+     * @return PieChart
+     * @example 1, 2013-12-10
+     * @logged true
+     */
+    public function GetExpensesPieChart($budgetId,$date)
+    { 
+        $date = strtotime($date);
+        $month = date("n",$date);
+        $year = date("Y",$date);
+        if ($this->DoesBudgetExist($budgetId)){
+            $sum = $this->GetSumOfExpensesFromMonth($budgetId,$month,$year);
+            if ($sum > 0){
+                $arr = array();
+                foreach ($this->Categories() as $category => $val) { 
+                    $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$val);
+                    $arr[] = array('kategoria' => $category,
+                                    'suma' => $sum_cat,
+                                    'procent' => ($sum_cat/$sum));
+                }
+                return $arr;
+            }
+                return status('NO_EXPENSES_IN_MONTH');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
     
 
+    private function GetSumOfExpensesFromMonth($budgetId,$month,$year){
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT SUM(  `kwota` ) AS suma 
+                                            FROM  `Wydatki` W
+                                            JOIN Produkty P ON P.`ID_Produktu` = W.`ID_Produktu` 
+                                            WHERE  `ID_Budzetu` = ?
+                                            AND MONTH( W.data ) = ?
+                                            AND YEAR( W.data ) = ?")){
+                $s->bind_param('iii', $budgetId,$month,$year);
+                $s->execute();
+                $s->bind_result($suma);
+                $s->store_result();
+                $s->fetch();
+                if (is_null($suma))
+                    return 0;
+                return $suma;
+            }
+            return 0;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    private function Categories(){
+        $categories = array(
+                'jedzenie' => array( 2,19,20,21,22,23,53,54,55,56,57,84),
+                'rodzina i znajomi' => array( 37,59,61,62,59,96),
+                'dom' => array( 17,18,35,36,51,60,64,69,72,73,74,90),
+                'oplaty' => array( 8,9,10,27,82,85,86,87),
+                'transport' => array( 15,30,31,42,98),
+                'podroze' => array( 13,14),
+                'rozrywka' => array(32,34,39,40,41,43,44,45,46,47,48,49,50,65,83,88),
+                'rtv i agd' => array( 25,26,28),
+                'zdrowie i uroda' => array( 5,12,33,68,70,71,93,94),
+                'odziez' => array(3,4),
+                'uslugi' => array( 80,81,92),
+                'inne' => array( 1,7,11,29,38,52,58,63,66,67,75,76,77,78,79,89,91,97)
+        );
+        return $categories;
+    }
+    
+    private function GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$category){
+        $cat = "(";
+        foreach ($category as $value) {
+        	$cat = $cat.$value.",";
+        }
+        $cat = substr($cat,0,-1);  
+        $cat .= ")";   
+        $sql = "SELECT SUM(  `kwota` ) AS suma FROM  `Wydatki` W JOIN Produkty P ON P.`ID_Produktu` = W.`ID_Produktu`
+                WHERE  `ID_Budzetu` = ? AND MONTH( W.data ) = ? AND YEAR( W.data ) = ? and P.`ID_KatProduktu` in ";
+        if ($this->DoesBudgetExist($budgetId)){
+            
+            if ($s = $this->mysqli->prepare($sql.$cat)){
+                
+                $s->bind_param('iii', $budgetId,$month,$year);
+                $s->execute();
+                $s->bind_result($suma);
+                $s->store_result();
+                $s->fetch();
+                if (is_null($suma))
+                    return 0;
+                return $suma;
+            }
+            return 0;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
     
     
     /**
