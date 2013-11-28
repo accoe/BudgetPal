@@ -1413,7 +1413,7 @@ class mainClass
         $cat = substr($cat,0,-1);
         $cat .= ")";
         $sql = "SELECT SUM(  `kwota` ) AS suma FROM  `Przychody` P JOIN KategoriePrzychodow KP ON P.`ID_KatPrzychodu`=KP.`ID_KatPrzychodu`
-                WHERE  `ID_Budzetu` = ? AND MONTH( W.data ) = ? AND YEAR( W.data ) = ? and P.`ID_KatProduktu` in ";
+                WHERE  `ID_Budzetu` = ? AND MONTH( P.data ) = ? AND YEAR( P.data ) = ? and P.`ID_KatPrzychodu` in ";
         if ($this->DoesBudgetExist($budgetId)){
             if ($s = $this->mysqli->prepare($sql.$cat)){
                 $s->bind_param('iii', $budgetId,$month,$year);
@@ -1421,6 +1421,7 @@ class mainClass
                 $s->bind_result($suma);
                 $s->store_result();
                 $s->fetch();
+              
                 if (is_null($suma))
                     return 0;
                 return $suma;
@@ -1462,6 +1463,60 @@ class mainClass
             return status('NO_SUCH_BUDGET');
     }
     
+    /**
+     * @desc Pobiera dane do wykresu z ustatnich Months miesiecy z przchodow z danej kategorii
+     * @param int, int, String
+     * @return BarChart
+     * @example 1, 6, inne
+     * @logged true
+     */
+    public function GetIncomesCategoryChart($budgetId,$months,$categoryName)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            $arr = array();
+            $categories = $this->IncomeCategories();
+            $category = $categories[$categoryName];
+            foreach ($this->getMonths($months) as $date) {
+                $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
+                $arr[] = array('kategoria' => $categoryName,
+                        'suma' => $sum_cat,
+                        'month' => $date['month'],
+                        'year' => $date['year']);
+            }
+            return $arr;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    private function getMonths($months){
+        $currYear = date("Y");
+        $currMonth = date("n");
+        if ($months > $currMonth){
+            $diff = floor($months / 12) + ($months % 12 > 0 ? 1 : 0);
+            $begYear = $currYear - $diff;
+            $begMonth = 12 * $diff + $currMonth - $months + 1;      
+        }
+        else
+        {
+        	$begYear = $currYear;
+        	$begMonth = $currMonth - $months + 1;
+        }
+        
+        $dates = array();
+        while ( $begMonth <=$currMonth && $begYear <= $currYear )
+        {
+        	$dates[] = array('year' => $begYear, 'month' => $begMonth);
+        	$begMonth++;
+            if ($begMonth == 13)
+            {
+            	$begMonth = 1;
+            	$begYear++;
+            }
+        }
+        return $dates;
+    }
     
     /**
      * @desc Do testowania
