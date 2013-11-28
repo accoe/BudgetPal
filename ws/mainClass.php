@@ -25,8 +25,14 @@ class mainClass
     }
     
     private function Debug($s){
-    	if ($this->DEBUG)
-    	    echo 'ERROR: '.$s->error;
+    	if ($this->DEBUG){
+    	    echo '<h3>DEBUG</h3>';
+    	    echo '<div style="border:2px solid blue;padding:10px;">';
+    	    echo 'ERROR: '.$s->error."<br/>";
+    	    echo 'AFFECTED ROWS: '.$s->affected_rows."<br/>";    
+    	    printf("ARGUMENTS: %d <br>",$s->param_count);
+    	    echo '</div>';
+    	}
     } 
     
     public function Connect()
@@ -1062,7 +1068,7 @@ class mainClass
                 }
                 else if ($value['typ'] == "dochod"){
                     $this->AddScheduledIncomeToIncomes($value['ID_Zdarzenia']);
-                    //$this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
+                    $this->MarkNotificationAsAdded($value['ID_Powiadomienia']);
                     $added++;
                 }
             }
@@ -1209,18 +1215,19 @@ class mainClass
      */
     private function AddScheduledIncomeToIncomes($scheduledIncomeId)
     {
-        if ($x = $this->mysqli->prepare("SELECT `ID_Budzetu`,`ID_KatPrzychodu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE ID_PlanowanegoDochodu = ?")) {
+        if ($x = $this->mysqli->prepare("SELECT `ID_Budzetu`,PD.`ID_KatPrzychodu`,`ID_PlanowanegoDochodu`,PD.nazwa, KP.nazwa,`kwota`,PD.`data` FROM `PlanowanyDochod` PD join `KategoriePrzychodow` KP on PD.`ID_KatPrzychodu` = KP.`ID_KatPrzychodu` WHERE ID_PlanowanegoDochodu = ?")) {
             $x->bind_param('i', $scheduledIncomeId);
             $x->execute();
             $x->bind_result($ID_Budzetu,$ID_KatPrzychodu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
             $x->store_result();
             $x->fetch();
+            $this->Debug($x);
             if ($x->num_rows > 0){
-                echo 'test2';
                 if ($s = $this->mysqli->prepare("INSERT INTO Przychody (ID_Budzetu,ID_KatPrzychodu,kwota,nazwa,data) values (?, ?, ?, ?, ?);")) {
                     $s->bind_param('iidss',$ID_Budzetu,$ID_KatPrzychodu,$kwota,$nazwa, $data);
                     $s->execute();
                     $s->bind_result();
+                    $this->Debug($s);
                     return true;
                 }
             }
