@@ -1370,8 +1370,31 @@ class mainClass
     }
     
 
-
-    /// przychodt
+    /**
+     * @desc Pobiera dane do wykresu z ustatnich $Months miesiecy z wydatkow z danej kategorii
+     * @param int, int, String
+     * @return BarChart
+     * @example 1, 6, inne
+     * @logged true
+     */
+    public function GetExpenseCategoryChart($budgetId,$months,$categoryName)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            $arr = array();
+            $categories = $this->ExpenseCategories();
+            $category = $categories[$categoryName];
+            foreach ($this->getMonths($months) as $date) {
+                $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
+                $arr[] = array('kategoria' => $categoryName,
+                        'suma' => $sum_cat,
+                        'month' => $date['month'],
+                        'year' => $date['year']);
+            }
+            return $arr;
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
     
     private function IncomeCategories(){
         $categories = array(
