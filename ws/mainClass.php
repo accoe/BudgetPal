@@ -1542,6 +1542,118 @@ class mainClass
     }
     
     /**
+     * @desc Pobiera listę limitow wydatkow z danego miesiaca
+     * @param int
+     * @return Limits
+     * @example 1
+     * @logged true
+     */
+    public function GetLimits($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT  `ID_Limitu` , KP.`nazwa` AS kategoria,  `limit` ,  `data` FROM  `Limity` L JOIN KategorieProduktow KP ON L.`ID_KatProduktu` = KP.`ID_KatProduktu` WHERE  `ID_Budzetu` =1 and YEAR(data)=YEAR(NOW()) AND MONTH(data)=MONTH(NOW())")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Limitu,$kategoria, $limit,$data);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Limitu' => $ID_Limitu, 'kategoria' => $kategoria, 'limit' =>  $limit, 'data' => $data);
+                    $arr[] = $row;
+                }
+                if ($s->num_rows > 0)
+                    return array('count' =>  $s->num_rows,
+                            'limits' => $arr);
+                else
+                    return status('NO_LIMITS');
+            }
+            else
+                return status('NO_LIMITS');
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    
+    
+    /**
+     * @desc Dodaje limit
+     * @param int,String, String, double, String
+     * @return boolean
+     * @example 1, pensja grudzien, pensja, 4500, 2013-12-10
+     * @logged true
+     */
+    public function AddLimit($budgetId, $name, $categoryName, $amount, $date)
+    {
+        if (!$this->GetIncomeCategoryByName($categoryName))
+            $categoryId = 1; // Ustaw 1 - czyli inna
+        else
+            $categoryId = $this->GetIncomeCategoryByName($categoryName);
+    
+        if (!$this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date)){
+            if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyDochod` (`ID_Budzetu`,`ID_KatPrzychodu`,`nazwa`,`kwota`,`data`) VALUES (?, ?, ?, ?, ?);")) {
+                $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
+                $s->execute();
+                $s->bind_result();
+                $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date);
+                $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
+                return status('SCHEDULED_INCOME_ADDED');
+            }
+            else
+                return status('SCHEDULED_INCOME_NOT_ADDED');
+        }
+        else
+            return status('SCHEDULED_INCOME_ALREADY_EXISTS');
+    }
+    
+   
+    /**
+     * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu 
+     * @param void
+     * @return Notificatons
+     * @example void
+     * @logged true
+     */
+    public function CheckLimits($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT  `limit`,sum(kwota) as suma, `limit` - SUM( kwota ) AS  'roznica', 1 - (SUM( kwota) / `limit`) as procent, KP.nazwa
+                        FROM Limity L
+                        JOIN Produkty P ON P.ID_KatProduktu = L.ID_KatProduktu
+                        JOIN Wydatki W ON W.ID_Produktu = P.ID_Produktu
+                        JOIN KategorieProduktow KP ON KP.ID_KatProduktu = P.ID_KatProduktu
+                        WHERE L.`ID_Budzetu` = ?
+                        AND YEAR(L.data) = YEAR(NOW( )) 
+                        AND MONTH(L.data) = MONTH(NOW( )) 
+                        AND YEAR( W.data) = YEAR(NOW( ) ) 
+                        AND MONTH(W.data) = MONTH(NOW( )) 
+                        GROUP BY P.`ID_KatProduktu` ")) 
+            {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($limit,$suma, $roznica, $procent, $nazwa);
+                $arr = array();
+                $warnings = 0;
+                while ( $s->fetch() ) {
+                    if ($procent <= 0.1 && $procent >=0){
+                        $this->AddNotification('', "limit", "Zbilizasz sie do limitu wydatkow w kategorii ".$nazwa.". Wydales juz ".$suma." z ", $limit." zł");
+                        $warnings++;
+                    }
+                    if ($procent <= 0){
+                        $this->AddNotification('', "limit", "Wlasnie przekroczyles limit wydatkow w kategorii ".$nazwa.". Wydales ".$suma." z zaplanowanych", $limit." zł");      
+                        $warnings++;
+                    }                  
+                }
+                if ($warnings > 0)
+                    return status('NEW_NOTIFICATIONS_ADDED');
+                else
+                    return status('NO_NEW_NOTIFICATIONS');
+            }
+        }
+        else
+            return status('NO_SUCH_BUDGET');
+    }
+    
+    /**
      * @desc Do testowania
      * @param int
      * @return void
