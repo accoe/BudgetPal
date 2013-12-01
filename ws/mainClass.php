@@ -1033,7 +1033,7 @@ class mainClass
     
     private function GetNotAddedNotifications()
     {
-        if ($y = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`,`dodane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW()) AND przeczytane = 0")) {
+        if ($y = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane`,`dodane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND DATE(data) <= DATE(NOW()) AND przeczytane = 0 and dodane = 0")) {
             $y->bind_param('i', $this->userId);
             $y->execute();
             $y->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane,$dodane);
@@ -1541,6 +1541,43 @@ class mainClass
         return $dates;
     }
     
+    
+    private function GetCurrnetLimits($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT  ID_Limitu,`limit`,sum(kwota) as suma, `limit` - SUM( kwota ) AS  'roznica', 1 - (SUM( kwota) / `limit`) as procent, KP.nazwa
+                        FROM Limity L
+                        JOIN Produkty P ON P.ID_KatProduktu = L.ID_KatProduktu
+                        JOIN Wydatki W ON W.ID_Produktu = P.ID_Produktu
+                        JOIN KategorieProduktow KP ON KP.ID_KatProduktu = P.ID_KatProduktu
+                        WHERE L.`ID_Budzetu` = ?
+                        AND YEAR(L.data) = YEAR(NOW( )) 
+                        AND MONTH(L.data) = MONTH(NOW( )) 
+                        AND YEAR( W.data) = YEAR(NOW( ) ) 
+                        AND MONTH(W.data) = MONTH(NOW( )) 
+                        GROUP BY P.`ID_KatProduktu`")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Limitu,$limit,$suma, $roznica, $procent, $nazwa);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Limitu' => $ID_Limitu, 'limit' => $limit, 'suma' =>  $suma, 'roznica' => $roznica, 'procent' => $procent, 'nazwa' => $nazwa);
+                    $arr[] = $row;
+                }
+                if ($s->num_rows > 0)
+                    return $arr;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+    
+    
+    
     /**
      * @desc Pobiera listę limitow wydatkow z danego miesiaca
      * @param int
@@ -1550,27 +1587,12 @@ class mainClass
      */
     public function GetLimits($budgetId)
     {
-        if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT  `ID_Limitu` , KP.`nazwa` AS kategoria,  `limit` ,  `data` FROM  `Limity` L JOIN KategorieProduktow KP ON L.`ID_KatProduktu` = KP.`ID_KatProduktu` WHERE  `ID_Budzetu` =1 and YEAR(data)=YEAR(NOW()) AND MONTH(data)=MONTH(NOW())")) {
-                $s->bind_param('i', $budgetId);
-                $s->execute();
-                $s->bind_result($ID_Limitu,$kategoria, $limit,$data);
-                $arr = array();
-                while ( $s->fetch() ) {
-                    $row = array('ID_Limitu' => $ID_Limitu, 'kategoria' => $kategoria, 'limit' =>  $limit, 'data' => $data);
-                    $arr[] = $row;
-                }
-                if ($s->num_rows > 0)
-                    return array('count' =>  $s->num_rows,
-                            'limits' => $arr);
-                else
-                    return status('NO_LIMITS');
-            }
-            else
-                return status('NO_LIMITS');
+        $limits = $this->GetCurrnetLimits($budgetId);
+        if ($limit != false)
+        {
+            return array('count' => count($limits), 'limits' => $limits);        
         }
-        else
-            return status('NO_SUCH_BUDGET');
+        else return status('NO_LIMITS');
     }
     
     
@@ -1608,49 +1630,42 @@ class mainClass
    
     /**
      * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu 
-     * @param void
-     * @return Notificatons
-     * @example void
+     * @param int 
+     * @return boolean
+     * @example 1
      * @logged true
      */
     public function CheckLimits($budgetId)
     {
-        if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT  `limit`,sum(kwota) as suma, `limit` - SUM( kwota ) AS  'roznica', 1 - (SUM( kwota) / `limit`) as procent, KP.nazwa
-                        FROM Limity L
-                        JOIN Produkty P ON P.ID_KatProduktu = L.ID_KatProduktu
-                        JOIN Wydatki W ON W.ID_Produktu = P.ID_Produktu
-                        JOIN KategorieProduktow KP ON KP.ID_KatProduktu = P.ID_KatProduktu
-                        WHERE L.`ID_Budzetu` = ?
-                        AND YEAR(L.data) = YEAR(NOW( )) 
-                        AND MONTH(L.data) = MONTH(NOW( )) 
-                        AND YEAR( W.data) = YEAR(NOW( ) ) 
-                        AND MONTH(W.data) = MONTH(NOW( )) 
-                        GROUP BY P.`ID_KatProduktu` ")) 
-            {
-                $s->bind_param('i', $budgetId);
-                $s->execute();
-                $s->bind_result($limit,$suma, $roznica, $procent, $nazwa);
-                $arr = array();
-                $warnings = 0;
-                while ( $s->fetch() ) {
-                    if ($procent <= 0.1 && $procent >=0){
-                        $this->AddNotification('', "limit", "Zbilizasz sie do limitu wydatkow w kategorii ".$nazwa.". Wydales juz ".$suma." z ", $limit." zł");
-                        $warnings++;
-                    }
-                    if ($procent <= 0){
-                        $this->AddNotification('', "limit", "Wlasnie przekroczyles limit wydatkow w kategorii ".$nazwa.". Wydales ".$suma." z zaplanowanych", $limit." zł");      
-                        $warnings++;
-                    }                  
-                }
-                if ($warnings > 0)
-                    return status('NEW_NOTIFICATIONS_ADDED');
-                else
-                    return status('NO_NEW_NOTIFICATIONS');
-            }
+        $limits = $this->GetCurrnetLimits($budgetId);
+        $data = $this->GetNotAddedNotifications();
+        $previuoslyAdded = array();
+        foreach ($data as $d) {
+        	if ($d['typ'] == 'limit')
+        	    $previuoslyAdded[] = $d['ID_Zdarzenia'];
         }
-        else
-            return status('NO_SUCH_BUDGET');
+        $warnings = 0;
+        if ($limits != false)
+        {
+            foreach ($limits as $limit) {
+                $procent = $limit['procent'];
+                if ($procent <= 0.1 && $procent >=0)
+                    $msg = "Zbilizasz sie do limitu wydatkow w kategorii ".$limit['nazwa'].". Wydales juz ".$limit['suma']." z ". $limit['limit']." zł";
+                if ($procent <= 0)
+                    $msg = "Wlasnie przekroczyles limit wydatkow w kategorii ".$limit['nazwa'].". Wydales ".$limit['suma']." z zaplanowanych ". $limit['limit']." zł";
+
+                if (isset($msg) && !in_array($limit['ID_Limitu'],$previuoslyAdded)){
+                    $this->AddNotification($limit['ID_Limitu'], "limit",$msg,date("Y-m-d"));
+                    $warnings++;
+                }
+                    
+            }
+            if ($warnings > 0)
+                return status('NEW_NOTIFICATIONS_ADDED');
+            else
+                return status('NO_NEW_NOTIFICATIONS');
+        }
+        return status('NO_LIMITS');
     }
     
     /**
