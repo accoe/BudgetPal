@@ -1599,32 +1599,25 @@ class mainClass
     
     /**
      * @desc Dodaje limit
-     * @param int,String, String, double, String
+     * @param int,int, double
      * @return boolean
-     * @example 1, pensja grudzien, pensja, 4500, 2013-12-10
+     * @example 1, 4, 1000
      * @logged true
      */
-    public function AddLimit($budgetId, $name, $categoryName, $amount, $date)
+    public function AddLimit($budgetId, $categoryId, $limit)
     {
-        if (!$this->GetIncomeCategoryByName($categoryName))
-            $categoryId = 1; // Ustaw 1 - czyli inna
-        else
-            $categoryId = $this->GetIncomeCategoryByName($categoryName);
-    
-        if (!$this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date)){
-            if ($s = $this->mysqli->prepare("INSERT INTO `PlanowanyDochod` (`ID_Budzetu`,`ID_KatPrzychodu`,`nazwa`,`kwota`,`data`) VALUES (?, ?, ?, ?, ?);")) {
-                $s->bind_param('iisds',$budgetId,$categoryId,$name, $amount, $date);
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("INSERT INTO `Limity`(`ID_Budzetu`, `ID_KatProduktu`, `limit`, `data`) VALUES (?,?,?,NOW());")) {
+                $s->bind_param('iid',$budgetId,$categoryId,$limit);
                 $s->execute();
-                $s->bind_result();
-                $scheduledIncomeId = $this->GetRecentScheduledIncome($budgetId, $name, $categoryId, $amount, $date);
-                $this->AddNotification($scheduledIncomeId, "dochod", "Dodano zaplanowany dochod: ".$name." o wartosci ".$amount."zl", $date);
-                return status('SCHEDULED_INCOME_ADDED');
+                $s->bind_result();    
+                return status('LIMIT_ADDED');
             }
             else
-                return status('SCHEDULED_INCOME_NOT_ADDED');
+                return status('LIMIT_NOT_ADDED');
         }
         else
-            return status('SCHEDULED_INCOME_ALREADY_EXISTS');
+            return status('NO_SUCH_BUDGET');
     }
     
    
