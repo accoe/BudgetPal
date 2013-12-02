@@ -86,7 +86,7 @@ class mainClass
     private function InitializeSession() 
     {
         $session_name = 'myBudgetPal';
-        ini_set('session.use_only_cookies', 1);
+        ini_set('session.use_only_cookies', 0);
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"]);
         session_name($session_name);
@@ -368,10 +368,10 @@ class mainClass
     }
 
 	/** 
-	  * @desc Zaloguj uzytkownika
+	  * @desc Zaloguj uzytkownika (haslo <b>password</b>)
 	  * @param String, String
 	  * @return boolean
-	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
+	  * @example test, 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
 	  * @logged false
 	  */
     public function Login($user, $password)

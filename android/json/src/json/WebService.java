@@ -3,8 +3,11 @@ package json;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 public class WebService {
@@ -12,9 +15,35 @@ public class WebService {
     URLConnection connection;
     String json;
     String wsPath = "http://mybudgetpal.com/ws/";
+    ArrayList<String> cookies;
+    
+    
+    public WebService(){
+    	cookies = new ArrayList<String>();
+    }
+
+    
+    private void getCookies(String url) throws Exception{
+    	connection = new URL(wsPath + url).openConnection();
+		cookies.addAll(0, connection.getHeaderFields().get("Set-Cookie"));	
+    }
+    
+    private void setCookies(String url) throws Exception{
+    	URL myUrl = new URL(wsPath + url);
+    	connection = myUrl.openConnection();
+    	for (String cookie : cookies)
+    	    connection.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+    	connection.connect();
+    }
+    
     private String getJsonFromUrl(String url) throws IOException {
+    	
         try {
-            connection = new URL(wsPath + url).openConnection();
+            if (cookies.isEmpty())
+            	getCookies(url);
+            else
+            	setCookies(url);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -27,6 +56,8 @@ public class WebService {
         this.json = json;
         return json;
     }
+    
+    
     public boolean Register(String login, String password, String email) throws Exception {
         String url = "server.php?a=register&login=" + login + "&password=" + password + "&email=" + email;
         this.getJsonFromUrl(url);
@@ -34,6 +65,7 @@ public class WebService {
         if (this.status.isError()) return false;
         else return true;
     }
+    
     public boolean Login(String user, String password) throws Exception {
         String url = "server.php?a=login&user=" + user + "&password=" + Utils.sha256(password);
         this.getJsonFromUrl(url);
