@@ -1,4 +1,5 @@
 package json;
+import charts.*;
 
 public class Main {
 
@@ -17,6 +18,23 @@ public class Main {
 			e.printStackTrace();
 		} 
 		
+		// Wykresy
+		Chart chart = new Chart(ws);
+		
+		// Kołowe
+		//chart.ExpensesPieChart(1,2013,12);
+		//chart.IncomesPieChart(1,2013,11);
+		
+		// Liniowe / słupkowe
+		chart.properties.type = "Bar";
+		String[] in_cat = {"praca","inne"};
+		String[] ex_cat = {"jedzenie","inne"};
+		chart.properties.sizeX = 600;
+		chart.IncomesCategoryChart(1, 6, in_cat);
+		chart.ExpenseCategoryChart(1, 6, ex_cat);
+		chart.SaveChartToFile("/home/kris/chart");
+		
+		/*
 		try {
 
 			Budgets budgets = ws.GetBudgets();
@@ -49,17 +67,8 @@ public class Main {
 			e.printStackTrace();
 		} 
 		
-		
-	
-		
-		// Pobranie bilansu
-		try {
-			System.out.println("Bilans: " + ws.GetBudgetBilans(1));
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		
+		*/
+
 	}
 
 }

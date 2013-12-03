@@ -981,7 +981,7 @@ class mainClass
     /**
      * @desc Oznacza powiadomienie jako przeczytane
      * @param int
-     * @return void
+     * @return boolean
      * @example 1
      * @logged true
      */
@@ -1342,7 +1342,7 @@ class mainClass
     /**
      * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
      * @param int, String
-     * @return PieChart
+     * @return PieCharts
      * @example 1, 2013-12-10
      * @logged true
      */
@@ -1361,7 +1361,7 @@ class mainClass
                                     'suma' => $sum_cat,
                                     'procent' => ($sum_cat/$sum));
                 }
-                return $arr;
+                return array('count' => count($this->ExpenseCategories()), 'PieChart' =>$arr);
             }
                 return status('NO_EXPENSES_IN_MONTH');
         }
@@ -1373,7 +1373,7 @@ class mainClass
     /**
      * @desc Pobiera dane do wykresu z ustatnich $Months miesiecy z wydatkow z danej kategorii
      * @param int, int, String
-     * @return BarChart
+     * @return BarCharts
      * @example 1, 6, inne
      * @logged true
      */
@@ -1390,7 +1390,7 @@ class mainClass
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
-            return $arr;
+            return array('count' => count($this->getMonths($months)), 'BarChart' =>$arr);
         }
         else
             return status('NO_SUCH_BUDGET');
@@ -1459,7 +1459,7 @@ class mainClass
     /**
      * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla przchodow
      * @param int, String
-     * @return PieChart
+     * @return PieCharts
      * @example 1, 2013-12-10
      * @logged true
      */
@@ -1478,7 +1478,7 @@ class mainClass
                             'suma' => $sum_cat,
                             'procent' => ($sum_cat/$sum));
                 }
-                return $arr;
+               return array('count' => count($this->IncomeCategories()), 'PieChart' =>$arr);
             }
             return status('NO_INCOMES_IN_MONTH');
         }
@@ -1489,7 +1489,7 @@ class mainClass
     /**
      * @desc Pobiera dane do wykresu z ustatnich Months miesiecy z przchodow z danej kategorii
      * @param int, int, String
-     * @return BarChart
+     * @return BarCharts
      * @example 1, 6, inne
      * @logged true
      */
@@ -1506,7 +1506,7 @@ class mainClass
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
-            return $arr;
+            return array('count' => count($this->getMonths($months)), 'BarChart' =>$arr);
         }
         else
             return status('NO_SUCH_BUDGET');
