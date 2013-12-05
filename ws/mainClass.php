@@ -279,8 +279,10 @@ class mainClass
     	return $sql . " ORDER BY ".$columns." DESC";
     }
     
-    private function Limit($sql, $limit){
-    	return $sql . " LIMIT ".$limit;
+    private function Limit($sql, $limit,$offset){
+        if (empty($offset))
+            $offset = 0;
+    	return $sql . " LIMIT $offset,$limit";
     }
     
 	private function OrderBy($sql, $columns, $mode)
@@ -841,22 +843,24 @@ class mainClass
     
     /**
      * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
-     * @param int, String, int
+     * @param int, String, int, int
      * @return Activities
-     * @example 1, DESC, 20
+     * @example 1, DESC, 20, 3
      * @logged true
      */
-    public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20)
+    public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20, $offset = 0)
     {	
     	if (empty($order))
     		$order = "DESC";
     	if (empty($limit))
-    		$limit = 20;    	 	
+    		$limit = 20;    
+        if (empty($offset))
+            $offset = 0;	 	
     	
    		$sql = $this->OrderBy('(SELECT "przychod" AS  "rodzaj",ID_Przychodu as ID_Zdarzenia, nazwa, kwota, data FROM Przychody WHERE ID_Budzetu = ?) UNION
     (SELECT  "wydatek" AS  "rodzaj",`ID_Wydatku` as ID_Zdarzenia, nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu = ?)'
     	, "data", $order);   		
-		$sql = $this->Limit($sql,$limit);
+		$sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare($sql)) {
     			$s->bind_param('ii', $budgetId,$budgetId);
