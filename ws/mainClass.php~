@@ -40,6 +40,10 @@ class mainClass
     	$this->mysqli = new mysqli($this->DBHOST, $this->DBUSER, $this->DBPASS, $this->DBNAME);
     	$this->mysqli->connect_error;
         $this->mysqli->set_charset("utf8");
+        if (isset($_GET['pp'])){
+            $this->mysqli->query("SET collation_connection = utf8_polish_ci");
+            print_r($this->mysqli->get_charset());
+        }
     }
     
     public function Close()

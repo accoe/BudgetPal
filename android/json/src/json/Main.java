@@ -27,6 +27,8 @@ public class Main {
 		
 		// Liniowe / słupkowe
 		chart.properties.type = "Bar";
+		chart.properties.horizontal = true;
+		chart.properties.type = "dfa";
 		String[] in_cat = {"praca","inne"};
 		String[] ex_cat = {"jedzenie","inne"};
 		//chart.properties.sizeX = 600;

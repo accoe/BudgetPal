@@ -167,7 +167,7 @@ public class Chart {
 			}
 			data_row = "data : [" + data_row + "]";
 			data += "{fillColor : \"" + colors[i % colors.length]
-					+ "\",strokeColor : \"rgba(151,187,205,1)\"," + data_row
+					+ "\"," + data_row
 					+ "}" + (i == Bars.size() - 1 ? "" : ",");
 		}
 		String legend = "var canvas = document.getElementById('legend'); var context = canvas.getContext('2d');";

@@ -33,9 +33,9 @@ public class ChartsProperties {
 
 	public String Horizontal() {
 		if (this.horizontal)
-			return "<div style=\"border:1px solid #232323;\">";
+			return "<div>";
 		else
-			return "<div style=\"border:1px solid #232323;width:" + sizeX + "px;\">";
+			return "<div style=\"width:" + sizeX + "px;\">";
 
 	}
 
