@@ -363,47 +363,59 @@ public class WebService {
     		return new Gson().fromJson(json, ScheduledIncomes.class);
     	}
    	}
-    public PieChart GetExpensesPieChart(int budgetId, String date) throws Exception {
-    	String url = "server.php?a=getexpensespiechart&budgetId="+budgetId+"&date="+date;
-    	this.getJsonFromUrl(url);
-    	this.status = new GetStatus(json); 
-    	if (this.status.isSet()) {	
-    		return null;
-    	}
-    	else {	
-    		return new Gson().fromJson(json, PieChart.class);
-    	}
-   	}
-    public BarChart GetExpenseCategoryChart(int budgetId, int months, String categoryName) throws Exception {
-    	String url = "server.php?a=getexpensecategorychart&budgetId="+budgetId+"&months="+months+"&categoryName="+categoryName;
-    	this.getJsonFromUrl(url);this.status = new GetStatus(json); 
-    	if (this.status.isSet()) {	
-    		return null;
-    	}
-    	else {	
-    		return new Gson().fromJson(json, BarChart.class);
-    	}
-    }
-    public PieChart GetIncomesPieChart(int budgetId, String date) throws Exception {
-    	String url = "server.php?a=getincomespiechart&budgetId="+budgetId+"&date="+date;
-    	this.getJsonFromUrl(url);this.status = new GetStatus(json); 
-    	if (this.status.isSet()) {	
-    		return null;
-    	}
-    	else {	
-    		return new Gson().fromJson(json, PieChart.class);
-    	}
-    }
-    public BarChart GetIncomesCategoryChart(int budgetId, int months, String categoryName) throws Exception {
-    	String url = "server.php?a=getincomescategorychart&budgetId="+budgetId+"&months="+months+"&categoryName="+categoryName;
-    	this.getJsonFromUrl(url);
-    	this.status = new GetStatus(json); 
-    	if (this.status.isSet()) {	
-    		return null;
-    	} else {	
-    		return new Gson().fromJson(json, BarChart.class);
-    	}
-    }
+	public PieCharts GetExpensesPieChart(int budgetId, String date)
+			throws Exception {
+		String url = "server.php?a=getexpensespiechart&budgetId=" + budgetId
+				+ "&date=" + date;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(json);
+		if (this.status.isSet()) {
+			return null;
+		} else {
+			return new Gson().fromJson(json, PieCharts.class);
+		}
+	}
+
+	public PieCharts GetIncomesPieChart(int budgetId, String date)
+			throws Exception {
+		String url = "server.php?a=getincomespiechart&budgetId=" + budgetId
+				+ "&date=" + date;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(json);
+		if (this.status.isSet()) {
+			return null;
+		} else {
+			return new Gson().fromJson(json, PieCharts.class);
+		}
+	}
+
+	public BarCharts GetExpenseCategoryChart(int budgetId, int months,
+			String categoryName) throws Exception {
+		String url = "server.php?a=getexpensecategorychart&budgetId="
+				+ budgetId + "&months=" + months + "&categoryName="
+				+ categoryName;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(json);
+		if (this.status.isSet()) {
+			return null;
+		} else {
+			return new Gson().fromJson(json, BarCharts.class);
+		}
+	}
+
+	public BarCharts GetIncomesCategoryChart(int budgetId, int months,
+			String categoryName) throws Exception {
+		String url = "server.php?a=getincomescategorychart&budgetId="
+				+ budgetId + "&months=" + months + "&categoryName="
+				+ categoryName;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(json);
+		if (this.status.isSet()) {
+			return null;
+		} else {
+			return new Gson().fromJson(json, BarCharts.class);
+		}
+	}
     public Limits GetLimits(int budgetId) throws Exception {
     	String url = "server.php?a=getlimits&budgetId="+budgetId;
     	this.getJsonFromUrl(url);

@@ -54,6 +54,10 @@
             android:name="com.mbp1.DodajPrzychod"
             android:label="@string/title_activity_dodaj_przychod" >
         </activity>
+        <activity
+            android:name="com.mbp1.BarChart"
+            android:label="@string/title_activity_bar_chart" >
+        </activity>
     </application>
 
 </manifest>

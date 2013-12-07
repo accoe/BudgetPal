@@ -14,5 +14,6 @@
     <string name="title_activity_stats">My Budget Pal</string>
     <string name="title_activity_dodaj_wydatek">My Budget Pal</string>
     <string name="title_activity_dodaj_przychod">My Budget Pal</string>
+    <string name="title_activity_bar_chart">My Budget Pal</string>
 
 </resources>
