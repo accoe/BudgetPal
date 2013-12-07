@@ -147,7 +147,8 @@ public class Budzet extends Activity {
         case R.id.menu_stats: {
         	Bundle bundle = new Bundle();
     		bundle.putInt("budzetID",BudzetID);
-    		Intent seeStats = new Intent(Budzet.this, Stats.class);
+    		bundle.putString("budzetNazwa", BudzetNazwa);
+    		Intent seeStats = new Intent(Budzet.this, BarChart.class);
     		seeStats.putExtras(bundle);
     		startActivity(seeStats);
             return true;
