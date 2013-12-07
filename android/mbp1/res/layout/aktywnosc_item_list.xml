@@ -1,0 +1,33 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <TwoLineListItem 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="3dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp">
+		<TextView
+	        android:id="@+id/textAktywnoscNazwa"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+		<TextView
+	        android:id="@+id/textAktywnoscData"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/textAktywnoscNazwa"
+	        android:layout_alignParentLeft="true"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+		<TextView
+	        android:id="@+id/textAktywnoscKwota"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/textAktywnoscNazwa"
+	        android:layout_alignParentRight="true"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+    </TwoLineListItem>
+</LinearLayout>
