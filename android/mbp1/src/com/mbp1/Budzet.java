@@ -148,7 +148,7 @@ public class Budzet extends Activity {
         	Bundle bundle = new Bundle();
     		bundle.putInt("budzetID",BudzetID);
     		bundle.putString("budzetNazwa", BudzetNazwa);
-    		Intent seeStats = new Intent(Budzet.this, BarChart.class);
+    		Intent seeStats = new Intent(Budzet.this, Stats.class);
     		seeStats.putExtras(bundle);
     		startActivity(seeStats);
             return true;

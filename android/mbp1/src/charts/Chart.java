@@ -2,6 +2,8 @@ package charts;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,55 +83,20 @@ public class Chart {
 		}
 		return this.html;
 	}
-	
+
 	private void CreateData(json.PieCharts Pie) {
 		String data = "";
-		String legend = "var canvas = document.getElementById('legend'); var context = canvas.getContext('2d');";
+		String legend = "";
 		int added = 0;
-		int s = 20;
-		int p = 10;
-		int fs = 13;
-		int row = 0;
-		int col = 0;
+		NumberFormat formatter = new DecimalFormat("#0.00");
 		for (int i = 0; i < Pie.count; i++) {
 			if (Pie.PieChart.get(i).suma > 0) {
 				String color = colors[added % colors.length];
 				data += "{value: " + Pie.PieChart.get(i).suma + ", color: \""
 						+ color + "\"}" + (i == Pie.count - 1 ? "" : ",");
-				legend += "context.fillStyle = \"" + color + "\";";
-
-				int y = p + row * (s + p);
-				int x = p;
-				if (this.properties.horizontal) {
-
-					if (y > this.properties.labelSizeY) {
-						this.properties.labelSizeX *= 2;
-						x += 140;
-						row = 0;
-						y = p + row * (s + p);
-					}
-				} else {
-					if (row > 4) {
-						col++;
-						row = 0;
-					}
-					x = p + col * 150;
-					y = p + row * (s + p);
-
-					this.properties.labelSizeX = 150 * (col + 1);
-					if (this.properties.sizeX < this.properties.labelSizeX)
-						this.properties.sizeX = this.properties.labelSizeX;
-					this.properties.labelSizeY = y + p + s;
-				}
-				
-				legend += "context.fillRect(" + x + "," + y + "," + s + "," + s
-						+ ");";
-				legend += "context.fillStyle = \"black\";";
-				legend += "context.font = \"" + fs + "px Arial\";";
-				legend += "context.fillText(\"" + Pie.PieChart.get(i).kategoria
-						+ "\", " + (1.5 * p + s + x) + ", " + (y + fs + 1)
-						+ ");";
-				row++;
+				legend += "<div style=\"width:160px;display:inline-block;\">";
+				legend += "<font color=\""+color+"\">&#9632; </font>"+Pie.PieChart.get(i).kategoria+" <font size=\"-1em\">("+formatter.format(Pie.PieChart.get(i).suma)+" z&#322;)</font>";
+				legend += "</div>";
 				added++;
 			}
 		}
@@ -142,12 +109,6 @@ public class Chart {
 			this.properties.type = "Bar";
 		String data = "";
 		String labels = "";
-		int s = 20;
-		int p = 10;
-		int fs = 13;
-		int row = 0;
-		int col = 0;
-
 		List<String> categories = new ArrayList<String>();
 
 		for (int i = 0; i < Bars.size(); i++) {
@@ -170,40 +131,11 @@ public class Chart {
 					+ "\"," + data_row
 					+ "}" + (i == Bars.size() - 1 ? "" : ",");
 		}
-		String legend = "var canvas = document.getElementById('legend'); var context = canvas.getContext('2d');";
+		String legend = "";
 		for (int i = 0; i < categories.size(); i++) {
-			int y = p + row * (s + p);
-			int x = p;
-			if (this.properties.horizontal) {
-
-				if (y > this.properties.labelSizeY) {
-					this.properties.labelSizeX *= 2;
-					x += 140;
-					row = 0;
-					y = p + row * (s + p);
-				}
-			} else {
-				if (row > 4) {
-					col++;
-					row = 0;
-				}
-				x = p + col * 150;
-				y = p + row * (s + p);
-				
-				this.properties.labelSizeX = 150 * (col + 1);
-				if (this.properties.sizeX < this.properties.labelSizeX)
-					this.properties.sizeX = this.properties.labelSizeX;
-				this.properties.labelSizeY = y + p + s;
-			}
-			legend += "context.fillStyle = \"" + colors[i % colors.length]
-					+ "\";";
-			legend += "context.fillRect(" + x + "," + y + "," + s + "," + s
-					+ ");";
-			legend += "context.fillStyle = \"black\";";
-			legend += "context.font = \"" + fs + "px Arial\";";
-			legend += "context.fillText(\"" + categories.get(i) + "\", "
-					+ (1.5 * p + s + x) + ", " + (y + fs + 1) + ");";
-			row++;
+			legend += "<div style=\"width:100px;display:inline-block;\">";
+			legend += "<font color=\""+colors[i % colors.length]+"\">&#9632; </font>"+categories.get(i);
+			legend += "</div>";
 		}
 		this.legend = legend;
 		labels = "labels : [" + labels + "],";
@@ -227,16 +159,10 @@ public class Chart {
 				+ "		</style>"
 				+ "	</head>"
 				+ "	<body>"
-				+ this.properties.Horizontal()
 				+ "		<canvas id=\"canvas\" height=\""
 				+ this.properties.sizeY
 				+ "\" width=\""
 				+ this.properties.sizeX
-				+ "\"></canvas>"
-				+ "	<canvas id=\"legend\" height=\""
-				+ this.properties.labelSizeY
-				+ "\" width=\""
-				+ this.properties.labelSizeX
 				+ "\"></canvas>"
 				+ "	<script>"
 				+ "		var Data = "
@@ -245,12 +171,23 @@ public class Chart {
 				+ "	var my = new Chart(document.getElementById(\"canvas\").getContext(\"2d\"))."
 				+ properties.type
 				+ "(Data);"
-				+ this.legend
 				+ "	</script>"
-				+ "</div></body></html>";
+				+ "<div style=\"width:"+this.properties.sizeX+"px;\">" //usun jak chcesz miec legende w innym webview
+				+ this.legend
+				+ "</div>"
+				+ "</body></html>";
 
 	}
 
+	public String getChart(){
+		return this.html;
+	}
+	
+	public String getLegend(){
+		return this.legend;
+	}
+	
+	
 	public void SaveChartToFile(String filename) {
 		try {
 			PrintWriter out = new PrintWriter(filename + ".html");
