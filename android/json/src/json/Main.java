@@ -20,20 +20,19 @@ public class Main {
 		
 		// Wykresy
 		Chart chart = new Chart(ws);
-		chart.properties.setSize(500,200);
+		chart.properties.setSize(400,200);
 		// Kołowe
-		//chart.ExpensesPieChart(1,2013,12);
+		chart.ExpensesPieChart(1,2013,12);
 		//chart.IncomesPieChart(1,2013,11);
 		
 		// Liniowe / słupkowe
 		chart.properties.type = "Bar";
-		chart.properties.horizontal = true;
 		chart.properties.type = "dfa";
 		String[] in_cat = {"praca","inne"};
 		String[] ex_cat = {"jedzenie","inne"};
 		//chart.properties.sizeX = 600;
 		//chart.IncomesCategoryChart(1, 6, in_cat);
-		chart.ExpenseCategoryChart(1, 6, ex_cat);
+		//chart.ExpenseCategoryChart(1, 6, ex_cat);
 		chart.SaveChartToFile("/home/kris/chart");
 		
 		/*
@@ -59,9 +58,9 @@ public class Main {
 					System.out.println(budgets.budgets.get(i));
 			else
 				if (ws.status.isOk())
-					System.out.println("Hurra! Dzia�a");
+					System.out.println("Hurra! Dziala");
 				if (ws.status.isError())
-					System.out.println("No nie jaki� b��d");
+					System.out.println("No nie jakis blad");
 				if (ws.status.isInfo())
 					System.out.println("Informacja");
 			

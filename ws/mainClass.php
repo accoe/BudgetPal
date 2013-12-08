@@ -693,7 +693,7 @@ class mainClass
 	    		$s->bind_result($ID_Wydatku,$ID_Produktu, $nazwa, $kwota, $data);
 	    		$arr = array();
 	            	while ( $s->fetch() ) {
-	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => $kwota, 'data' => $data);
+	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data' => $data);
 	                    $arr[] = $row;
 	                }
 	                return array('count' =>  $s->num_rows,
@@ -804,7 +804,7 @@ class mainClass
     	    			$s->bind_result($ID_Przychodu, $nazwa, $kwota, $data);
     	    			$arr = array();
     	    			while ( $s->fetch() ) {
-    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
     	    				$arr[] = $row;
     	    			}
     	    			return array('count' =>  $s->num_rows,
@@ -868,7 +868,7 @@ class mainClass
     			$s->bind_result($rodzaj,$ID_Zdarzenia, $nazwa, $kwota, $data);
     			$arr = array();
     			while ( $s->fetch() ) {
-    				$row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+    				$row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
     				$arr[] = $row;
     			}
     			return array('count' =>  $s->num_rows,
@@ -1363,7 +1363,7 @@ class mainClass
                 foreach ($this->ExpenseCategories() as $category => $val) { 
                     $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$val);
                     $arr[] = array('kategoria' => $category,
-                                    'suma' => $sum_cat,
+                                    'suma' => round($sum_cat,2),
                                     'procent' => ($sum_cat/$sum));
                 }
                 return array('count' => count($this->ExpenseCategories()), 'PieChart' =>$arr);
@@ -1391,7 +1391,7 @@ class mainClass
             foreach ($this->getMonths($months) as $date) {
                 $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
                 $arr[] = array('kategoria' => $categoryName,
-                        'suma' => $sum_cat,
+                        'suma' => round($sum_cat,2),
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
@@ -1425,7 +1425,7 @@ class mainClass
                                                 $s->fetch();
                                                 if (is_null($suma))
                                                     return 0;
-                                                return $suma;
+                                                return round($suma,2);
             }
             return 0;
         }
@@ -1452,7 +1452,7 @@ class mainClass
               
                 if (is_null($suma))
                     return 0;
-                return $suma;
+                return round($suma,2);
             }
             return 0;
         }
@@ -1480,7 +1480,7 @@ class mainClass
                 foreach ($this->IncomeCategories() as $category => $val) {
                     $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$month,$year,$val);
                     $arr[] = array('kategoria' => $category,
-                            'suma' => $sum_cat,
+                            'suma' => round($sum_cat,2),
                             'procent' => ($sum_cat/$sum));
                 }
                return array('count' => count($this->IncomeCategories()), 'PieChart' =>$arr);
@@ -1507,7 +1507,7 @@ class mainClass
             foreach ($this->getMonths($months) as $date) {
                 $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
                 $arr[] = array('kategoria' => $categoryName,
-                        'suma' => $sum_cat,
+                        'suma' => round($sum_cat,2),
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
