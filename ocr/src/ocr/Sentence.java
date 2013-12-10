@@ -27,6 +27,13 @@ public class Sentence {
 			word.ReplaceLastIf(replacement, conditon);
 	}
 	
+	
+	// Zamien litere na replacement jezli conditon znajduje sie miedzy spolgloskami
+	public void ReplaceBetweenConsonantsIf(char replacement, char conditon){
+		for (Word word : words)
+			word.ReplaceBetweenConsonantsIf(replacement, conditon);
+	}
+	
 	@Override
 	public String toString(){
 		String output = "";

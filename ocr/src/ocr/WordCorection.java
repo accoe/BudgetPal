@@ -75,9 +75,10 @@ public class WordCorection {
 	
 	private boolean CorrectUsingRules(String word){
 		// Zamien wszystkie litery h na końcu wyrazu na literę a
-		Sentence sentence = new Sentence(word);
+		Sentence sentence = new Sentence(word.toLowerCase());
 		
 		sentence.ReplaceLastIf('a', 'h');
+		sentence.ReplaceBetweenConsonantsIf('a', 'm');
 		
 		return SetCorrected(sentence.toString());
 	}
@@ -93,8 +94,7 @@ public class WordCorection {
 			return this.corrected;
 		
 		if (CorrectUsingRules(word))
-			return this.corrected;
-		
+			return this.corrected;		
 		
 		return this.corrected;
 	}
