@@ -345,10 +345,10 @@ class mainClass
 
 
     /** 
-     * @desc Funkcja rejestruje uzytkownika
+     * @desc Funkcja rejestruje nowego u&#380;ytkownika w systemie. Sprawdza, czy dany login i mail nie s&#261; wykorzystywane przez innego u&#380;ytkownika.
      * @param String, String, String
      * @return boolean
-     * @example krystek, trunde, krystek@example.com
+     * @example krystek, trudne, krystek@example.com
      * @logged false
      */
     public function Register($login, $password, $email) 
@@ -371,7 +371,7 @@ class mainClass
     }
 
 	/** 
-	  * @desc Zaloguj uzytkownika (haslo <b>password</b>)
+	  * @desc Funkcja umo&#380;lia zalogowanie u&#380;ytkownika do systemu. W przypadku podania b&#322;&#281;nych danych wy&#347;wietla odpowiednie informacje. <br/>(haslo <b>password</b>)
 	  * @param String, String
 	  * @return boolean
 	  * @example test, 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
@@ -403,7 +403,7 @@ class mainClass
 
 
     /** 
-      * @desc Wylogowuje uztykownika
+      * @desc Funkcja wylogowuje u&#380;ytkownika, ko&#324;czy sesj&#281; i usuwa ciasteczka
       * @param void
       * @return boolean
       * @example void
@@ -419,7 +419,7 @@ class mainClass
     }
 
     /** 
-      * @desc Zwraca liste budzetow nalezacych do uzytkownika
+      * @desc Metoda zwraca list&#281; bud&#380;et&#243;w nale&#380;&#261;cych do u&#380;ytkownika, zwraca nazw&#281;, opis oraz dat&#281; utworzenia bud&#380;etu.
       * @param void
       * @return Budgets
       * @example void
@@ -445,7 +445,7 @@ class mainClass
    
     
     /** 
-      * @desc Dodaje budzet 
+      * @desc Metoda pozwalaj&#261;ca na dodanie nowego bud&#380;etu do listy bud&#380;et&#243;w u&#380;ytkownika. 
       * @param String, String
       * @return boolean
       * @example testowy, Testowy opis budzetu
@@ -468,7 +468,7 @@ class mainClass
     }
     
     /**
-     * @desc Modyfikuje zdefiniowany budzet
+     * @desc Modyfikuje zdefiniowany bud&#380;et nale&#380;&#261;cy do u&#380;ytkownika
      * @param int, String, String
      * @return boolean
      * @example 14, Nowa nazwa, zmieniony opis
@@ -479,7 +479,7 @@ class mainClass
     	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	{
-    		// Pobierz stare wartości
+    		// Pobierz stare warto&#347;ci
     		if ($s = $this->mysqli->prepare("SELECT nazwa, opis FROM Budzet where where ID_Uzytkownika = ? ID_Budzetu = ?")) {
     			$s->bind_param('ii',$this->userId, $budgetId);
     			$s->execute();
@@ -503,7 +503,7 @@ class mainClass
     }
     
     /** 
-      * @desc Usuwa zdefiniowany budzet
+      * @desc Usuwa bud&#380;et zdefiniowany przez u&#380;ytkownika - dane o wydatkach i dochodach przypisanych do bud&#380;etu pozostaj&#261; 
       * @param int
       * @return boolean
       * @example 14
@@ -527,7 +527,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę kategorii produktów
+     * @desc Pobiera list&#281; kategorii produkt&#243;w/wydatk&#243;w
      * @param void
      * @return ProductsCategories
      * @example void
@@ -552,7 +552,7 @@ class mainClass
 
 
     /** 
-      * @desc Dodaje kategorie do listy kategorii produktow
+      * @desc Dodaje kategori&#281; do listy kategorii produkt&#243;w, je&#380;eli kategoria z podan&#261; nazw&#261; ju&#380; istnieje wy&#347;wietla odpowiedni komunikat.
       * @param String
       * @return boolean
       * @example owoce
@@ -575,7 +575,7 @@ class mainClass
     }
 
     /**
-     * @desc Pobiera listę kategorii przychodow
+     * @desc Pobiera list&#281; kategorii przychod&#243;w.
      * @param void
      * @return IncomeCategories
      * @example void
@@ -600,7 +600,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje kategorie do listy kategorii przychodow
+     * @desc Dodaje kategori&#281; do listy kategorii przychod&#243;w, je&#380;eli kategoria z podan&#261; nazw&#261; ju&#380; istnieje wy&#347;wietla odpowiedni komunikat.
      * @param String
      * @return boolean
      * @example pensja
@@ -626,7 +626,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje produkt do listy produktow
+     * @desc Dodaje produkt do listy produkt&#243;w, je&#380;eli nie podano kategorii do kt&#243;rej nale&#380;y produkt to automatycznie dodaje do kategorii 'inne'.
      * @param String, int
      * @return boolean
      * @example jablko, 1
@@ -653,7 +653,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę produktów
+     * @desc Pobiera list&#281; produkt&#243;w dost&#281;pnych w bazie danych wraz z nazw&#261; kategorii do kt&#243;rej nale&#380;y produkt.
      * @param void
      * @return Products
      * @example void
@@ -677,7 +677,7 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera listę wydatków ze wskazanego budzetu
+     * @desc Pobiera list&#281; wydatk&#243;w ze wskazanego bud&#380;etu
      * @param int
      * @return Expenses
      * @example 1
@@ -708,7 +708,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje nowy wydatek
+     * @desc Dodaje nowy wydatek do bud&#380;etu wskazanego przez u&#380;ytkownika. Je&#380;eli dodawany jest produkt, kt&#243;ry nie istnieje jeszcze w bazie danych to najpierw dodawany jest nowy produkt z kategorii inne. 
      * @param int, String, double, int
      * @return boolean
      * @example 3, jablko, 1.3, 1
@@ -789,7 +789,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę dochodow ze wskazanego budzetu
+     * @desc Pobiera list&#281; dochod&#243;w ze wskazanego budzetu
      * @param int
      * @return Incomes
      * @example 1
@@ -819,10 +819,10 @@ class mainClass
     
     
     /**
-     * @desc Dodaje nowy przychod
+     * @desc Dodaje nowy doch&#243;d do listy dochod&#243;w
      * @param int, String, double, int
      * @return boolean
-     * @example 3, Wypłata listopad, 1600, 1
+     * @example 3, Wyp&#322;ata listopad, 1600, 1
      * @logged true
      */
     public function AddIncome($budgetId,$name,$amount,$incomeCategory)
@@ -842,7 +842,7 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
+     * @desc Pobiera list&#281; ostatnich operacji ze wskazanego bud&#380;etu - lista zawiera zar&#243;wno wydatki jak i dochody. Metoda daje mo&#380;liwo&#347;&#263; okre&#347;lenia limitu, offsetu oraz sposobu sortowania element&#243;w.
      * @param int, String, int, int
      * @return Activities
      * @example 1, DESC, 20, 3
@@ -883,7 +883,7 @@ class mainClass
    
     
     /**
-     * @desc Pobiera sume przychodow
+     * @desc Pobiera sum&#281; dochod&#243;w ze wskazanego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -908,7 +908,7 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera sume wydatkow
+     * @desc Pobiera sum&#281; wydatk&#243;w ze wskazanego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -936,7 +936,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera bilans danego budzetu
+     * @desc Pobiera bilans danego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -957,7 +957,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera powiadomienia
+     * @desc Pobiera powiadomienia u&#380;ytkownika. Metoda daje mo&#380;liwo&#347;&#263; wyboru mi&#281;dzy wy&#347;wietlaniem wszystkich powiadomie&#324; i wy&#347;wietlaniem tych nieprzeczytanych.
      * @param boolean
      * @return Notificatons
      * @example true
@@ -984,7 +984,7 @@ class mainClass
     }
     
     /**
-     * @desc Oznacza powiadomienie jako przeczytane
+     * @desc Metoda pozwala na oznaczenie powiadomienia jako przeczytane.
      * @param int
      * @return boolean
      * @example 1
@@ -1053,7 +1053,7 @@ class mainClass
     }
     
     /**
-     * @desc Sprawdza wszystkie powiadomienia - data równa lub mniejsza niz dzisiaj
+     * @desc Sprawdza wszystkie powiadomienia - data r&#243;wna lub mniejsza ni&#380; dzisiaj. W przpadku, gdy powiadomienia dotycz&#261; zaplanowanych wydatk&#243;w/dochod&#243;w to dodaje r&#243;wnie&#380; zdarzenie do bud&#380;etu.
      * @param void
      * @return Notificatons
      * @example void
@@ -1086,7 +1086,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatkow
+     * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatk&#243;w w danym bud&#380;ecie.
      * @param int,String, double, String
      * @return boolean
      * @example 1, paliwo, 100, 2013-12-20
@@ -1115,7 +1115,7 @@ class mainClass
     }
     
     /**
-     * @desc Dodaje zaplanowany wydatek do wydatkow
+     * @desc Dodaje zaplanowany wydatek do wydatk&#243;w
      * @param int
      * @return boolean
      * @example 10
@@ -1182,7 +1182,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje zaplanowany przychod
+     * @desc Dodaje zaplanowany doch&#243;w do listy zaplanowanych dochod&#243;w w danym bud&#380;ecie
      * @param int,String, String, double, String
      * @return boolean
      * @example 1, pensja grudzien, pensja, 4500, 2013-12-10
@@ -1212,7 +1212,7 @@ class mainClass
     }
     
     /**
-     * @desc Dodaje zaplanowany przychod do przychodow
+     * @desc Dodaje zaplanowany doch&#243;d do dochod&#243;w
      * @param int
      * @return boolean
      * @example 10
@@ -1243,7 +1243,7 @@ class mainClass
     }
 
     /**
-     * @desc Pobiera zaplanowane przychody (z przyszlosci)
+     * @desc Pobiera zaplanowane dochody (z przyszlosci)
      * @param int
      * @return ScheduledIncomes
      * @example 1
@@ -1345,7 +1345,7 @@ class mainClass
     
  
     /**
-     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
+     * @desc Pobiera dane dotycz&#261;ce wydatk&#243;w przeznaczone dla wykresu ko&#322;owego. Wykres zawiera dane ze wskazanego miesi&#261;ca. 
      * @param int, String
      * @return PieCharts
      * @example 1, 2013-12-10
@@ -1376,7 +1376,7 @@ class mainClass
     
 
     /**
-     * @desc Pobiera dane do wykresu z ustatnich $Months miesiecy z wydatkow z danej kategorii
+     * @desc Metoda pobiera dane dotycz&#261;ce wydak&#243;w z ostatnich miesi&#281;cy ze wskazanej kategorii. Wydatki dotycz&#261; wskazanej liczby miesi&#281;cy.
      * @param int, int, String
      * @return BarCharts
      * @example 1, 6, inne
@@ -1462,7 +1462,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla przchodow
+     * @desc Pobiera dane dotycz&#261;ce dochod&#243;w przeznaczone dla wykresu ko&#322;owego. Wykres zawiera dane ze wskazanego miesi&#261;ca.
      * @param int, String
      * @return PieCharts
      * @example 1, 2013-12-10
@@ -1492,7 +1492,7 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera dane do wykresu z ustatnich Months miesiecy z przchodow z danej kategorii
+     * @desc Metoda pobiera dane dotycz&#261;ce dochod&#243;w z ostatnich miesi&#281;cy ze wskazanej kategorii. Dochody dotycz&#261; wskazanej liczby miesi&#281;cy.
      * @param int, int, String
      * @return BarCharts
      * @example 1, 6, inne
@@ -1584,7 +1584,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę limitow wydatkow z danego miesiaca
+     * @desc Pobiera list&#281; limit&#243;w wydatk&#243;w z bie&#380;&#261;cego miesi&#261;ca.
      * @param int
      * @return Limits
      * @example 1
@@ -1603,7 +1603,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje limit
+     * @desc Dodaje limit do wskazanego bud&#380;etu. Limit okre&#347;la kwot&#281; przy kt&#243;rej u&#380;ytkownik otrzyma stosowne powiadomienie o przekroczeniu limitu wydatk&#243;w w danej kategorii.
      * @param int,int, double
      * @return boolean
      * @example 1, 4, 1000
@@ -1627,7 +1627,7 @@ class mainClass
     
    
     /**
-     * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu 
+     * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu, b&#261;d&#378; zbli&#380;eniu si&#281; do limitu (po przekroczeniu 90% kwoty limitu). 
      * @param int 
      * @return boolean
      * @example 1
@@ -1648,9 +1648,9 @@ class mainClass
             foreach ($limits as $limit) {
                 $procent = $limit['procent'];
                 if ($procent <= 0.1 && $procent >=0)
-                    $msg = "Zbilizasz sie do limitu wydatkow w kategorii ".$limit['nazwa'].". Wydales juz ".$limit['suma']." z ". $limit['limit']." zł";
+                    $msg = "Zbilizasz sie do limitu wydatkow w kategorii ".$limit['nazwa'].". Wydales juz ".$limit['suma']." z ". $limit['limit']." z&#322;";
                 if ($procent <= 0)
-                    $msg = "Wlasnie przekroczyles limit wydatkow w kategorii ".$limit['nazwa'].". Wydales ".$limit['suma']." z zaplanowanych ". $limit['limit']." zł";
+                    $msg = "Wlasnie przekroczyles limit wydatkow w kategorii ".$limit['nazwa'].". Wydales ".$limit['suma']." z zaplanowanych ". $limit['limit']." z&#322;";
 
                 if (isset($msg) && !in_array($limit['ID_Limitu'],$previuoslyAdded)){
                     $this->AddNotification($limit['ID_Limitu'], "limit",$msg,date("Y-m-d"));
@@ -1665,32 +1665,5 @@ class mainClass
         }
         return status('NO_LIMITS');
     }
-    
-    /**
-     * @desc Do testowania
-     * @param int
-     * @return void
-     * @example 2
-     * @logged true
-     */
-    public function Test($id)
-    {
-    	$this->AddScheduledExpenseToExpenses($id);
-        
-    }
-    
-    //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow  
-    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow
-    //TODO dodawanie zleceń stałych 
-    //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
-
-    // W drugiej kolejnosci
-    //TODO usuwanie i edycja wydatkow z budzetu
-    //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
-    //TODO zmiana danych uzytkownika
-    //TODO modyfikowanie i usuwanie przychodow
-
 }
 ?>
