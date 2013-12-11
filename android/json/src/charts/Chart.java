@@ -17,8 +17,11 @@ public class Chart {
 			"#C0392B", "#ECF0F1", "#8E44AD", "#9B59B6", "#BDC3C7 " };
 	private String data;
 	private String legend;
-
+	public boolean notEmpty;
+		
+	
 	public Chart(json.WebService ws) {
+		this.notEmpty = true;
 		this.ws = ws;
 		this.properties = new ChartsProperties();
 		this.html = "";
@@ -86,6 +89,10 @@ public class Chart {
 		String data = "";
 		String legend = "";
 		int added = 0;
+		
+		if (Pie == null)
+			this.notEmpty = false;
+		else
 		for (int i = 0; i < Pie.count; i++) {
 			if (Pie.PieChart.get(i).suma > 0) {
 				String color = colors[added % colors.length];
@@ -108,6 +115,9 @@ public class Chart {
 		String labels = "";
 		List<String> categories = new ArrayList<String>();
 
+		if (Bars == null)
+			this.notEmpty = false;
+		else
 		for (int i = 0; i < Bars.size(); i++) {
 			String data_row = "";
 			for (int j = 0; j < Bars.get(i).count; j++) {

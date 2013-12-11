@@ -22,7 +22,10 @@ public class Main {
 		Chart chart = new Chart(ws);
 		chart.properties.setSize(400,200);
 		// Kołowe
-		chart.ExpensesPieChart(1,2013,12);
+		if (chart.notEmpty)
+			chart.ExpensesPieChart(1,2013,12);
+		else
+			System.out.println("Nie ma danych");
 		//chart.IncomesPieChart(1,2013,11);
 		
 		// Liniowe / słupkowe
