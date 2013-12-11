@@ -85,13 +85,14 @@ public class Stats extends Activity {
 					}
 					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
 							+ " " + wybranyRok);
-					chart1 = chart.ExpensesPieChart(BudzetID, wybranyRok, wybranyMiesiac);
+					chart1 = chart.ExpensesPieChart(BudzetID, wybranyRok,
+							wybranyMiesiac);
 					przegladarka.loadData(chart1, "text/html", "UTF-8");
 
 					b2.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							//b1.setClickable(true);
+							// b1.setClickable(true);
 							b1.setVisibility(View.VISIBLE);
 							--wybranyMiesiac;
 							if (wybranyMiesiac < 1) {
@@ -103,7 +104,15 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.ExpensesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							przegladarka.loadData(chart1, "text/html", "UTF-8");
+							if (chart1 != null) {
+								chart1 = chart.ExpensesPieChart(BudzetID,
+										wybranyRok, wybranyMiesiac);
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychodow.",
+										"text/html", "UTF-8");
+							}
 						}
 					});
 
@@ -123,7 +132,15 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.ExpensesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							przegladarka.loadData(chart1, "text/html", "UTF-8");
+							if (chart1 != null) {
+								chart1 = chart.ExpensesPieChart(BudzetID,
+										wybranyRok, wybranyMiesiac);
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychodow.",
+										"text/html", "UTF-8");
+							}
 						}
 					});
 
@@ -133,7 +150,8 @@ public class Stats extends Activity {
 					}
 					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
 							+ " " + wybranyRok);
-					chart1 = chart.IncomesPieChart(BudzetID, wybranyRok, wybranyMiesiac);
+					chart1 = chart.IncomesPieChart(BudzetID, wybranyRok,
+							wybranyMiesiac);
 					przegladarka.loadData(chart1, "text/html", "UTF-8");
 
 					b2.setOnClickListener(new OnClickListener() {
@@ -150,7 +168,15 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.IncomesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							przegladarka.loadData(chart1, "text/html", "UTF-8");
+							if (chart1 != null) {
+								chart1 = chart.IncomesPieChart(BudzetID,
+										wybranyRok, wybranyMiesiac);
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychodow.",
+										"text/html", "UTF-8");
+							}
 						}
 					});
 
@@ -170,7 +196,15 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.IncomesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							przegladarka.loadData(chart1, "text/html", "UTF-8");
+							if (chart1 != null) {
+								chart1 = chart.IncomesPieChart(BudzetID,
+										wybranyRok, wybranyMiesiac);
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychodow.",
+										"text/html", "UTF-8");
+							}
 						}
 					});
 				}
