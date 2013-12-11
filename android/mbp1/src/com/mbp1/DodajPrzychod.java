@@ -3,6 +3,7 @@ package com.mbp1;
 import java.net.URLEncoder;
 
 import json.Singleton;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -57,7 +58,28 @@ public class DodajPrzychod extends Activity {
         			e.printStackTrace();
         			} 
         		}
-        	});		
+        	});	
+        
+        Button btnOCR = (Button)this.findViewById(R.id.buttonSkorzystajZOCR);
+        btnOCR.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+	            Intent intent = DodajPrzychod.this.getPackageManager().getLaunchIntentForPackage("edu.sfsu.cs.orange.ocr");
+	            if (intent != null)
+	            {
+	                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	                startActivity(intent);
+	            }
+	            else
+	            {
+	                intent = new Intent(Intent.ACTION_VIEW);
+	                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	                intent.setData(Uri.parse("market://details?id="+"edu.sfsu.cs.orange.ocr"));
+	                startActivity(intent);
+	            }
+			}
+    	});
 	}
 
 	@Override

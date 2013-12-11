@@ -7,6 +7,7 @@ import java.util.List;
 
 import json.Activities;
 import json.Singleton;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
