@@ -21,7 +21,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class Stats extends Activity {
 
@@ -31,142 +30,157 @@ public class Stats extends Activity {
 	String chart1;
 	String chart2;
 	int rok = Calendar.getInstance().get(Calendar.YEAR);
-	int miesiac = Calendar.getInstance().get(Calendar.MONTH)+1;
+	int miesiac = Calendar.getInstance().get(Calendar.MONTH) + 1;
 	int wybranyMiesiac = miesiac;
 	int wybranyRok = rok;
-	
+
 	@SuppressLint({ "SetJavaScriptEnabled", "NewApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_stats);
-		
-		BudzetID = getIntent().getExtras().getInt("budzetID"); 
+
+		BudzetID = getIntent().getExtras().getInt("budzetID");
 		BudzetNazwa = getIntent().getExtras().getString("budzetNazwa");
-		final String[] nazwyMiesiecy = {"styczeñ","luty","marzec","kwiecieñ","maj","czerwiec",
-				"lipiec","sierpieñ","wrzesieñ","paŸdziernik","listopad","grudzieñ"};
-		
+		final String[] nazwyMiesiecy = { "styczeñ", "luty", "marzec",
+				"kwiecieñ", "maj", "czerwiec", "lipiec", "sierpieñ",
+				"wrzesieñ", "paŸdziernik", "listopad", "grudzieñ" };
+
 		przegladarka = (WebView) findViewById(R.id.webView);
 		przegladarka.getSettings().setJavaScriptEnabled(true);
-		
+
 		final TextView nazwaMiesiaca = (TextView) findViewById(R.id.textStatsMiesiac);
 		final Button b1 = (Button) findViewById(R.id.button1);
 		final Button b2 = (Button) findViewById(R.id.button2);
 		b1.setText(Html.fromHtml("&raquo;"));
 		b2.setText(Html.fromHtml("&laquo;"));
-		
+
 		final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
 		List<String> list = new ArrayList<String>();
 		list.add("wydatki");
 		list.add("przychody");
 		ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_spinner_item, list);
-			dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(dataAdapter);	
-		
+		dataAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(dataAdapter);
+
 		// Wykresy
 		final Chart chart = new Chart(Singleton.getInstance().ws);
-		chart.properties.setSize(270,270);
+		chart.properties.setSize(270, 270);
 		// Ko³owe
-		
-		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-		
+
+		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1] + " "
+				+ wybranyRok);
+
 		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view,
-                    int position, long id) {
-                if (String.valueOf(spinner.getSelectedItem()).equals("wydatki")) {
-                	nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        			chart1 = chart.ExpensesPieChart(BudzetID,rok,miesiac);
-        			przegladarka.loadData(chart1, "text/html", "UTF-8");
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (String.valueOf(spinner.getSelectedItem()).equals("wydatki")) {
+					Log.e("MIESIAC", wybranyMiesiac + " " + wybranyRok + "/"
+							+ miesiac + " " + rok);
+					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+						b1.setVisibility(View.GONE);
+					}
+					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+							+ " " + wybranyRok);
+					chart1 = chart.ExpensesPieChart(BudzetID, wybranyRok, wybranyMiesiac);
+					przegladarka.loadData(chart1, "text/html", "UTF-8");
 
-        			b2.setOnClickListener(new OnClickListener() {
-        	        	@Override
-        	        	public void onClick(View v) {
-        	        		wybranyMiesiac--;
-        	        		if (wybranyMiesiac < 1) {
-        	        			wybranyRok--; wybranyMiesiac = 12;}
-        	        		Log.e("b1",wybranyMiesiac+"");
-        	        		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        	        		if (wybranyMiesiac == miesiac+1 && wybranyRok == rok) {
-        	        			Toast.makeText(Stats.this, "B³êdne polecenie", Toast.LENGTH_SHORT).show();
-        	        			b2.setEnabled(false);
-        	        		}
-        	        		chart1 = chart.ExpensesPieChart(BudzetID,wybranyRok,wybranyMiesiac);
-        	    			przegladarka.loadData(chart1, "text/html", "UTF-8");
-        	        	}
-        	        });
-        		
-        			b1.setOnClickListener(new OnClickListener() {
-        	        	@Override
-        	        	public void onClick(View v) {
-        	        		wybranyMiesiac++;
-        	        		if (wybranyMiesiac > 12) {
-        	        			wybranyRok++; wybranyMiesiac = 1;} 
-        	        		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        	        		if (wybranyMiesiac == miesiac+1 && wybranyRok == rok) {
-        	        			Toast.makeText(Stats.this, "B³êdne polecenie", Toast.LENGTH_SHORT).show();
-        	        			b1.setEnabled(false);
-        	        		}
-        	        		else {
-        		        		String chart2 = chart.ExpensesPieChart(BudzetID,wybranyRok,wybranyMiesiac);
-        		    			przegladarka.loadData(chart2, "text/html", "UTF-8");
-        	    			}
-        	        	}
-        	        });	
-        			
-        		}
-        		else {
-        			nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        			chart1 = chart.IncomesPieChart(BudzetID,rok,miesiac);
-        			przegladarka.loadData(chart1, "text/html", "UTF-8");
+					b2.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							//b1.setClickable(true);
+							b1.setVisibility(View.VISIBLE);
+							--wybranyMiesiac;
+							if (wybranyMiesiac < 1) {
+								wybranyRok--;
+								wybranyMiesiac = 12;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.ExpensesPieChart(BudzetID,
+									wybranyRok, wybranyMiesiac);
+							przegladarka.loadData(chart1, "text/html", "UTF-8");
+						}
+					});
 
-        			b2.setOnClickListener(new OnClickListener() {
-        	        	@Override
-        	        	public void onClick(View v) {
-        	        		wybranyMiesiac--;
-        	        		if (wybranyMiesiac < 1) {
-        	        			wybranyRok--; wybranyMiesiac = 12;}
-        	        		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        	        		if (wybranyMiesiac == miesiac+1 && wybranyRok == rok) {
-        	        			Toast.makeText(Stats.this, "B³êdne polecenie", Toast.LENGTH_SHORT).show();
-        	        			b2.setEnabled(false);
-        	        		}
-        	        		chart1 = chart.IncomesPieChart(BudzetID,wybranyRok,wybranyMiesiac);
-        	    			przegladarka.loadData(chart1, "text/html", "UTF-8");
-        	        	}
-        	        });
-        		
-        			b1.setOnClickListener(new OnClickListener() {
-        	        	@Override
-        	        	public void onClick(View v) {
-        	        		wybranyMiesiac++;
-        	        		if (wybranyMiesiac > 12) {
-        	        			wybranyRok++; wybranyMiesiac = 1;} 
-        	        		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac-1]+" "+wybranyRok);
-        	        		if (wybranyMiesiac == miesiac+1 && wybranyRok == rok) {
-        	        			Toast.makeText(Stats.this, "B³êdne polecenie", Toast.LENGTH_SHORT).show();
-        	        			b1.setEnabled(false);
-        	        		}
-        	        		else {
-        		        		String chart2 = chart.IncomesPieChart(BudzetID,wybranyRok,wybranyMiesiac);
-        		    			przegladarka.loadData(chart2, "text/html", "UTF-8");
-        	    			}
-        	        	}
-        			});
-        		}
-            }
- 
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
-		
-	}
-	
-	public int przesun(int co, int oIle) {
-		co += oIle;
-		return co;
+					b1.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							wybranyMiesiac++;
+							if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+								b1.setVisibility(View.GONE);
+							}
+							if (wybranyMiesiac > 12) {
+								wybranyRok++;
+								wybranyMiesiac = 1;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.ExpensesPieChart(BudzetID,
+									wybranyRok, wybranyMiesiac);
+							przegladarka.loadData(chart1, "text/html", "UTF-8");
+						}
+					});
+
+				} else {
+					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+						b1.setVisibility(View.GONE);
+					}
+					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+							+ " " + wybranyRok);
+					chart1 = chart.IncomesPieChart(BudzetID, wybranyRok, wybranyMiesiac);
+					przegladarka.loadData(chart1, "text/html", "UTF-8");
+
+					b2.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							b1.setVisibility(View.VISIBLE);
+							--wybranyMiesiac;
+							if (wybranyMiesiac < 1) {
+								wybranyRok--;
+								wybranyMiesiac = 12;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesPieChart(BudzetID,
+									wybranyRok, wybranyMiesiac);
+							przegladarka.loadData(chart1, "text/html", "UTF-8");
+						}
+					});
+
+					b1.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							wybranyMiesiac++;
+							if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+								b1.setVisibility(View.GONE);
+							}
+							if (wybranyMiesiac > 12) {
+								wybranyRok++;
+								wybranyMiesiac = 1;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesPieChart(BudzetID,
+									wybranyRok, wybranyMiesiac);
+							przegladarka.loadData(chart1, "text/html", "UTF-8");
+						}
+					});
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+
 	}
 
 	@Override
