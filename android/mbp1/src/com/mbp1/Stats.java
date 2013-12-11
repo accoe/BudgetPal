@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.text.Html;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -78,8 +77,8 @@ public class Stats extends Activity {
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (String.valueOf(spinner.getSelectedItem()).equals("wydatki")) {
-					Log.e("MIESIAC", wybranyMiesiac + " " + wybranyRok + "/"
-							+ miesiac + " " + rok);
+
+					// wydatki
 					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
 						b1.setVisibility(View.GONE);
 					}
@@ -87,12 +86,17 @@ public class Stats extends Activity {
 							+ " " + wybranyRok);
 					chart1 = chart.ExpensesPieChart(BudzetID, wybranyRok,
 							wybranyMiesiac);
-					przegladarka.loadData(chart1, "text/html", "UTF-8");
+					if (chart.notEmpty) {
+						przegladarka.loadData(chart1, "text/html", "UTF-8");
+					} else {
+						przegladarka.loadData("Brak wydatk&#243;w.", "text/html",
+								"UTF-8");
+					}
 
+					// wydatki - miesiac wstecz
 					b2.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							// b1.setClickable(true);
 							b1.setVisibility(View.VISIBLE);
 							--wybranyMiesiac;
 							if (wybranyMiesiac < 1) {
@@ -104,18 +108,17 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.ExpensesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							if (chart1 != null) {
-								chart1 = chart.ExpensesPieChart(BudzetID,
-										wybranyRok, wybranyMiesiac);
+							if (chart.notEmpty) {
 								przegladarka.loadData(chart1, "text/html",
 										"UTF-8");
 							} else {
-								przegladarka.loadData("Brak przychodow.",
+								przegladarka.loadData("Brak wydatk&#243;w.",
 										"text/html", "UTF-8");
 							}
 						}
 					});
 
+					// wydatki - miesiac do przodu
 					b1.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -132,19 +135,17 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.ExpensesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							if (chart1 != null) {
-								chart1 = chart.ExpensesPieChart(BudzetID,
-										wybranyRok, wybranyMiesiac);
+							if (chart.notEmpty) {
 								przegladarka.loadData(chart1, "text/html",
 										"UTF-8");
 							} else {
-								przegladarka.loadData("Brak przychodow.",
+								przegladarka.loadData("Brak wydatk&#243;ow.",
 										"text/html", "UTF-8");
 							}
 						}
 					});
-
 				} else {
+					// przychody
 					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
 						b1.setVisibility(View.GONE);
 					}
@@ -152,8 +153,14 @@ public class Stats extends Activity {
 							+ " " + wybranyRok);
 					chart1 = chart.IncomesPieChart(BudzetID, wybranyRok,
 							wybranyMiesiac);
-					przegladarka.loadData(chart1, "text/html", "UTF-8");
+					if (chart.notEmpty) {
+						przegladarka.loadData(chart1, "text/html", "UTF-8");
+					} else {
+						przegladarka.loadData("Brak przychod&#243;w.", "text/html",
+								"UTF-8");
+					}
 
+					// przychody - miesiac wstecz
 					b2.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -168,18 +175,17 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.IncomesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							if (chart1 != null) {
-								chart1 = chart.IncomesPieChart(BudzetID,
-										wybranyRok, wybranyMiesiac);
+							if (chart.notEmpty) {
 								przegladarka.loadData(chart1, "text/html",
 										"UTF-8");
 							} else {
-								przegladarka.loadData("Brak przychodow.",
+								przegladarka.loadData("Brak przychod&#243;w.",
 										"text/html", "UTF-8");
 							}
 						}
 					});
 
+					// przychody - miesiac do przodu
 					b1.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
@@ -196,13 +202,11 @@ public class Stats extends Activity {
 											+ " " + wybranyRok);
 							chart1 = chart.IncomesPieChart(BudzetID,
 									wybranyRok, wybranyMiesiac);
-							if (chart1 != null) {
-								chart1 = chart.IncomesPieChart(BudzetID,
-										wybranyRok, wybranyMiesiac);
+							if (chart.notEmpty) {
 								przegladarka.loadData(chart1, "text/html",
 										"UTF-8");
 							} else {
-								przegladarka.loadData("Brak przychodow.",
+								przegladarka.loadData("Brak przychod&#243;w.",
 										"text/html", "UTF-8");
 							}
 						}
