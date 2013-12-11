@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="138dp"
+        android:layout_marginTop="90dp"
         android:text="Logowanie"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -22,8 +22,9 @@
         android:id="@+id/editTextLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/textLogowanie"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_marginTop="30dp"
         android:ems="10"
         android:shadowDy="2" />
 
@@ -33,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextLogin"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:ems="10"
         android:inputType="textPassword"
         android:shadowDy="2" />
@@ -42,7 +43,7 @@
         android:id="@+id/buttonLogIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/editTextPassword"
+        android:layout_below="@+id/checkBoxZapamietajHaslo"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
         android:text="Zaloguj" />
@@ -55,5 +56,13 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="Załóż konto" />
+
+    <CheckBox
+        android:id="@+id/checkBoxZapamietajHaslo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editTextLogin"
+        android:layout_below="@+id/editTextPassword"
+        android:text="Zapamiętaj hasło" />
 
 </RelativeLayout>
