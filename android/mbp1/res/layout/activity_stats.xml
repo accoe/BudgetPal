@@ -13,13 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/button1" />
+        android:layout_below="@+id/textStatsMiesiac" />
 
     <Spinner
         android:id="@+id/spinner1"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/webView"
         android:layout_marginTop="10dp"
         android:layout_toLeftOf="@+id/button1"
         android:layout_toRightOf="@+id/button2" />
@@ -40,5 +39,16 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="10dp"
         android:text="Button" />
+
+    <TextView
+        android:id="@+id/textStatsMiesiac"
+        android:layout_below="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:layout_marginTop="6dp"
+        android:text="Medium Text"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>
