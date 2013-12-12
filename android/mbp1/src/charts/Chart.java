@@ -2,8 +2,6 @@ package charts;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +17,10 @@ public class Chart {
 			"#C0392B", "#ECF0F1", "#8E44AD", "#9B59B6", "#BDC3C7 " };
 	private String data;
 	private String legend;
+	public boolean notEmpty;
 
 	public Chart(json.WebService ws) {
+		this.notEmpty = true;
 		this.ws = ws;
 		this.properties = new ChartsProperties();
 		this.html = "";
@@ -88,16 +88,25 @@ public class Chart {
 		String data = "";
 		String legend = "";
 		int added = 0;
-		NumberFormat formatter = new DecimalFormat("#0.00");
-		for (int i = 0; i < Pie.count; i++) {
-			if (Pie.PieChart.get(i).suma > 0) {
-				String color = colors[added % colors.length];
-				data += "{value: " + Pie.PieChart.get(i).suma + ", color: \""
-						+ color + "\"}" + (i == Pie.count - 1 ? "" : ",");
-				legend += "<div style=\"width:160px;display:inline-block;\">";
-				legend += "<font color=\""+color+"\">&#9632; </font>"+Pie.PieChart.get(i).kategoria+" <font size=\"-1em\">("+formatter.format(Pie.PieChart.get(i).suma)+" z&#322;)</font>";
-				legend += "</div>";
-				added++;
+
+		if (Pie == null)
+			this.notEmpty = false;
+		else {
+			this.notEmpty = true;
+			for (int i = 0; i < Pie.count; i++) {
+				if (Pie.PieChart.get(i).suma > 0) {
+					String color = colors[added % colors.length];
+					data += "{value: " + Pie.PieChart.get(i).suma
+							+ ", color: \"" + color + "\"}"
+							+ (i == Pie.count - 1 ? "" : ",");
+					legend += "<div style=\"width:160px;display:inline-block;\">";
+					legend += "<font color=\"" + color + "\">&#9632; </font>"
+							+ Pie.PieChart.get(i).kategoria
+							+ " <font size=\"-1em\">("
+							+ Pie.PieChart.get(i).suma + " PLN)</font>";
+					legend += "</div>";
+					added++;
+				}
 			}
 		}
 		this.legend = legend;
@@ -111,37 +120,42 @@ public class Chart {
 		String labels = "";
 		List<String> categories = new ArrayList<String>();
 
-		for (int i = 0; i < Bars.size(); i++) {
-			String data_row = "";
-			for (int j = 0; j < Bars.get(i).count; j++) {
-				String category = Bars.get(i).BarChart.get(j).kategoria;
-				if (categories.indexOf(category) == -1)
-					categories.add(category);
-				double suma = Bars.get(i).BarChart.get(j).suma;
-				if (i == 0) {
-					String etykieta = Bars.get(i).BarChart.get(j).month + " "
-							+ Bars.get(i).BarChart.get(j).year;
-					labels += "\"" + etykieta + "\""
-							+ (j == Bars.get(i).count - 1 ? "" : ",");
+		if (Bars == null)
+			this.notEmpty = false;
+		else {
+			this.notEmpty = true;
+			for (int i = 0; i < Bars.size(); i++) {
+				String data_row = "";
+				for (int j = 0; j < Bars.get(i).count; j++) {
+					String category = Bars.get(i).BarChart.get(j).kategoria;
+					if (categories.indexOf(category) == -1)
+						categories.add(category);
+					double suma = Bars.get(i).BarChart.get(j).suma;
+					if (i == 0) {
+						String etykieta = Bars.get(i).BarChart.get(j).month
+								+ " " + Bars.get(i).BarChart.get(j).year;
+						labels += "\"" + etykieta + "\""
+								+ (j == Bars.get(i).count - 1 ? "" : ",");
+					}
+					data_row += suma + (j == Bars.get(i).count - 1 ? "" : ",");
 				}
-				data_row += suma + (j == Bars.get(i).count - 1 ? "" : ",");
+				data_row = "data : [" + data_row + "]";
+				data += "{fillColor : \"" + colors[i % colors.length] + "\","
+						+ data_row + "}" + (i == Bars.size() - 1 ? "" : ",");
 			}
-			data_row = "data : [" + data_row + "]";
-			data += "{fillColor : \"" + colors[i % colors.length]
-					+ "\"," + data_row
-					+ "}" + (i == Bars.size() - 1 ? "" : ",");
 		}
 		String legend = "";
 		for (int i = 0; i < categories.size(); i++) {
 			legend += "<div style=\"width:100px;display:inline-block;\">";
-			legend += "<font color=\""+colors[i % colors.length]+"\">&#9632; </font>"+categories.get(i);
+			legend += "<font color=\"" + colors[i % colors.length]
+					+ "\">&#9632; </font>" + categories.get(i);
 			legend += "</div>";
 		}
 		this.legend = legend;
 		labels = "labels : [" + labels + "],";
 		data = "datasets : [" + data + "]";
 		this.data = "{" + labels + data + "}";
-		
+
 	}
 
 	private void CreateChart() {
@@ -172,22 +186,26 @@ public class Chart {
 				+ properties.type
 				+ "(Data);"
 				+ "	</script>"
-				+ "<div style=\"width:"+this.properties.sizeX+"px;\">" //usun jak chcesz miec legende w innym webview
-				+ this.legend
-				+ "</div>"
-				+ "</body></html>";
+				+ "<div style=\"width:" + this.properties.sizeX + "px;\">" // usun
+																			// jak
+																			// chcesz
+																			// miec
+																			// legende
+																			// w
+																			// innym
+																			// webview
+				+ this.legend + "</div>" + "</body></html>";
 
 	}
 
-	public String getChart(){
+	public String getChart() {
 		return this.html;
 	}
-	
-	public String getLegend(){
+
+	public String getLegend() {
 		return this.legend;
 	}
-	
-	
+
 	public void SaveChartToFile(String filename) {
 		try {
 			PrintWriter out = new PrintWriter(filename + ".html");
