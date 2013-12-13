@@ -5,12 +5,17 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.ActionBar.Tab;
+
 import json.Activities;
 import json.Singleton;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -23,7 +28,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Budzet extends Activity {
+public class Budzet extends SherlockActivity implements ActionBar.TabListener {
 	
 	List<String> listaRodzajowAktywnosci;
 	List<Integer> listaIDAktywnosci;
@@ -34,11 +39,28 @@ public class Budzet extends Activity {
 	ListView listActiv;
 	String BudzetNazwa;
 	int skip = 3;
+	private TextView mSelected;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_budzet);
+		
+		mSelected = (TextView)findViewById(R.id.text);
+
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            ActionBar.Tab tab1 = getSupportActionBar().newTab();
+            tab1.setText("Bud¿ety");
+            tab1.setTabListener(this);
+            ActionBar.Tab tab2 = getSupportActionBar().newTab();
+            getSupportActionBar().addTab(tab1);
+            tab2.setText("Przychody");
+            tab2.setTabListener(this);
+            ActionBar.Tab tab3 = getSupportActionBar().newTab();
+            getSupportActionBar().addTab(tab2);
+            tab3.setText("Rozchody");
+            tab3.setTabListener(this);
+            getSupportActionBar().addTab(tab3);
 		
 		BudzetID = getIntent().getExtras().getInt("budzetID"); 
 		BudzetNazwa = getIntent().getExtras().getString("budzetNazwa");
@@ -115,6 +137,22 @@ public class Budzet extends Activity {
         });
 	}
 
+	@Override 
+	 public void onTabReselected(Tab tab, FragmentTransaction transaction) {
+	    }
+	@Override 
+	    public void onTabSelected(Tab tab, FragmentTransaction transaction) {
+	        mSelected.setText("Selected: " + tab.getText());
+	        if (tab.getText().toString().equals("Bud¿ety")) {
+       		Intent seeBudget = new Intent(Budzet.this, Budzety.class);
+       		startActivity(seeBudget);
+	        }
+	    }
+	@Override 
+	    public void onTabUnselected(Tab tab, FragmentTransaction transaction) {
+	    }
+	
+	/*
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater menuInflater = getMenuInflater();
@@ -214,5 +252,6 @@ public class Budzet extends Activity {
         default:
             return super.onOptionsItemSelected(item);
         }
-    }    
+    }   
+    */ 
 }

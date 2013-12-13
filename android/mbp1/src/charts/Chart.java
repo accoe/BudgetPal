@@ -11,10 +11,9 @@ public class Chart {
 	private json.WebService ws;
 	private String html;
 	public ChartsProperties properties;
-	private String[] colors = { "#2C3E50", "#D35400", "#27AE60", "#bdc3c7",
-			"#95A5A6", "#2980B9", "#E67E22", "#1ABC9C", "#7F8C8D", "#34495E",
-			"#F1C40F", "#2ECC71", "#3498DB", "#E74C3C", "#F39C12", "#16A085",
-			"#C0392B", "#ECF0F1", "#8E44AD", "#9B59B6", "#BDC3C7 " };
+	private String[] colors = { "#D2315D", "#F7C808", "#E98813", "#22B5BF",
+			"#8767A6", "#88C134", "#389090", "#F47E7D", "#B5D045", "#81C0C5",
+			"#E0C7A8" };
 	private String data;
 	private String legend;
 	public boolean notEmpty;

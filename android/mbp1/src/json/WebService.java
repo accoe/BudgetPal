@@ -175,6 +175,16 @@ public class WebService {
             return new Gson().fromJson(json, Expenses.class);
         }
     }
+    public Expenses GetExpenses(int budgetId, int limit) throws Exception {
+        String url = "server.php?a=getexpenses&budgetId=" + budgetId + "&limit=" + limit;
+        this.getJsonFromUrl(url);
+        this.status = new GetStatus(json);
+        if (this.status.isSet()) {
+            return null;
+        } else {
+            return new Gson().fromJson(json, Expenses.class);
+        }
+    }
     public boolean AddExpense(int budgetId, String name, double amount, int purchaseId) throws Exception {
     	String url = "server.php?a=addexpense&budgetId=" + budgetId + "&name=" + name + "&amount=" + amount + "&purchaseId=" + purchaseId;
         this.getJsonFromUrl(url);
@@ -204,6 +214,16 @@ public class WebService {
     }
     public Incomes GetIncomes(int budgetId) throws Exception {
         String url = "server.php?a=getincomes&budgetId=" + budgetId;
+        this.getJsonFromUrl(url);
+        this.status = new GetStatus(json);
+        if (this.status.isSet()) {
+            return null;
+        } else {
+            return new Gson().fromJson(json, Incomes.class);
+        }
+    }
+    public Incomes GetIncomes(int budgetId, int limit) throws Exception {
+        String url = "server.php?a=getincomes&budgetId=" + budgetId + "&limit=" + limit;
         this.getJsonFromUrl(url);
         this.status = new GetStatus(json);
         if (this.status.isSet()) {

@@ -139,7 +139,7 @@ public class Stats extends Activity {
 								przegladarka.loadData(chart1, "text/html",
 										"UTF-8");
 							} else {
-								przegladarka.loadData("Brak wydatk&#243;ow.",
+								przegladarka.loadData("Brak wydatk&#243;w.",
 										"text/html", "UTF-8");
 							}
 						}

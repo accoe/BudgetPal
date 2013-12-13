@@ -3,8 +3,11 @@ package com.mbp1;
 import json.Singleton;
 import com.mbp1.R;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,33 +41,47 @@ public class MainActivity extends Activity {
 		boxLogin.setText(name);
 		boxPassword.setText(password);
 		checkBox = (CheckBox) findViewById(R.id.checkBoxZapamietajHaslo);
-		;
+		checkBox.setChecked(true);
 
 		Button btnLogin = (Button) this.findViewById(R.id.buttonLogIn);
 		btnLogin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// Logowanie
-				final String login = boxLogin.getText().toString();
-				final String haslo = boxPassword.getText().toString();
-				Singleton.initInstance();
-				try {
-					if (Singleton.getInstance().ws.Login(login, haslo)) {
-						Toast.makeText(MainActivity.this, "Zalogowano",
-								Toast.LENGTH_LONG).show();
-						Intent myIntent = new Intent(MainActivity.this,
-								Budzety.class);
-						MainActivity.this.startActivity(myIntent);
-						MainActivity.this.finish();
-					} else
-						Toast.makeText(MainActivity.this,
-								"B³êdny login lub has³o!", Toast.LENGTH_LONG)
-								.show();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				if (isOnline()) {
+					// Logowanie
+					final String login = boxLogin.getText().toString();
+					final String haslo = boxPassword.getText().toString();
+					Singleton.initInstance();
+					try {
+						if (Singleton.getInstance().ws.Login(login, haslo)) {
+							Toast.makeText(MainActivity.this, "Zalogowano",
+									Toast.LENGTH_LONG).show();
+							Intent myIntent = new Intent(MainActivity.this,
+									Portfel.class);
+							MainActivity.this.startActivity(myIntent);
+							MainActivity.this.finish();
+						} else
+							Toast.makeText(MainActivity.this,
+									"B³êdny login lub has³o!",
+									Toast.LENGTH_LONG).show();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else
+					Toast.makeText(MainActivity.this,
+							"Brak po³¹czenia z internetem.", Toast.LENGTH_LONG)
+							.show();
 			}
 		});
+	}
+
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+			return true;
+		}
+		return false;
 	}
 
 	protected void onStop() {
@@ -75,11 +92,9 @@ public class MainActivity extends Activity {
 			settings.edit().putString(LOGIN, boxLogin.getText().toString())
 					.putString(PASSWORD, boxPassword.getText().toString())
 					.commit();
-		}
-		else {
+		} else {
 			SharedPreferences settings = getSharedPreferences(DANE_LOGOWANIA, 0);
-			settings.edit().putString(LOGIN, "")
-					.putString(PASSWORD, "")
+			settings.edit().putString(LOGIN, "").putString(PASSWORD, "")
 					.commit();
 		}
 	}
