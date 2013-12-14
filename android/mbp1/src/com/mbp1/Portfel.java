@@ -20,9 +20,11 @@ import json.Budgets;
 import json.Expenses;
 import json.Incomes;
 import json.Singleton;
+import android.net.Uri;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.view.ContextMenu;
@@ -41,7 +43,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 
-	Menu item;
+	Menu appMenu;
 	List<String> listaNazw;
 	List<String> listaDat;
 	List<Double> listaKwot;
@@ -68,6 +70,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 	NumberFormat formatter;
 	TextView bilansBudzetu;
 	public static final String DANE_BUDZETU = "DANE_BUDZETU";
+	int currentTab = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -466,25 +469,45 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 						Toast.LENGTH_LONG).show();
 				budzetID = listaID.get(i);
 				budzetNazwa = listaNazw.get(i);
+			} else if (item.getTitle().equals("Dodaj nowy...")) {
+				Intent myIntent = new Intent(Portfel.this, DodajBudzet.class);
+				this.startActivity(myIntent);
 			}
 		}
-
 		return false;
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		appMenu = menu;
 		menu.add(0, 7, 0, "Powiadomienia").setIcon(R.drawable.ic_powiadomienie)
 				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		SubMenu sub = menu.addSubMenu("Menu");
-		sub.add(1, 5, 1, "Zmieñ bud¿et");
+		sub.add(1, 4, 1, "Limity");
+		try {
+			Budgets budgets = Singleton.getInstance().ws.GetBudgets();
+			if (budgets != null)
+				sub.add(1, 5, 1, "Zmieñ bud¿et");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		sub.add(1, 4, 1, "O aplikacji");
 		sub.add(1, 3, 1, "Wyloguj");
 		sub.getItem().setShowAsAction(
 				MenuItem.SHOW_AS_ACTION_ALWAYS
 						| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-		menu.add(2, 6, 2, "Dodaj").setIcon(R.drawable.ic_dodaj)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		if (currentTab == 1) {
+			menu.add(2, 6, 2, "Dodaj wydatek").setIcon(R.drawable.ic_dodaj)
+					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		}
+		if (currentTab == 2) {
+			menu.add(2, 6, 2, "Dodaj przychód").setIcon(R.drawable.ic_dodaj)
+					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		}
+		if (currentTab == 3) {
+			menu.add(2, 6, 2, "Zmieñ typ wykresu").setIcon(R.drawable.ic_stats)
+					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		}
 		return true;
 	}
 
@@ -516,8 +539,18 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 			return true;
 		}
 		if (item.getItemId() == 6) {
-			Intent myIntent = new Intent(Portfel.this, DodajBudzet.class);
-			Portfel.this.startActivity(myIntent);
+			Intent intent = Portfel.this.getPackageManager()
+					.getLaunchIntentForPackage("edu.sfsu.cs.orange.ocr");
+			if (intent != null) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
+			} else {
+				intent = new Intent(Intent.ACTION_VIEW);
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				intent.setData(Uri.parse("market://details?id="
+						+ "edu.sfsu.cs.orange.ocr"));
+				startActivity(intent);
+			}
 			return false;
 		}
 		return true;
@@ -540,6 +573,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 					listaNazw.add(budgets.budgets.get(i).nazwa);
 					listaID.add(budgets.budgets.get(i).ID_Budzetu);
 				}
+				menu.add(-1, v.getId(), 0, "Dodaj nowy...");
 			} else {
 				Toast.makeText(Portfel.this, "Brak bud¿etów", Toast.LENGTH_LONG)
 						.show();
@@ -558,20 +592,29 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 		switch (tab.getPosition()) {
 		case 1: {
 			wczytajWydatki();
+			changeMenu(1);
 			break;
 		}
 		case 2: {
 			wczytajPrzychody();
+			changeMenu(2);
 			break;
 		}
 		case 3: {
 			wczytajStats();
+			changeMenu(3);
 			break;
 		}
 		case 0: {
 			break;
 		}
 		}
+	}
+
+	public void changeMenu(int change) {
+		currentTab = change;
+		appMenu.clear();
+		onCreateOptionsMenu(appMenu);
 	}
 
 	@Override
