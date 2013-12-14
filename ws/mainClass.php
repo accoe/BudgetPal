@@ -1746,7 +1746,7 @@ class mainClass
     	    }
             $title = "Raport z ostatnich ".$months." miesięcy";
             return array('title' => $title,
-                         'months' => $arr,
+                         'months' => array_reverse($arr),
                          'expenses_sum' => round($expenses_sum,2),
                          'incomes_sum' => round($incomes_sum,2),
                          'general_balance' => round($incomes_sum-$expenses_sum,2)
