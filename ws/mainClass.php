@@ -914,6 +914,7 @@ class mainClass
     			$s->bind_result($rodzaj,$ID_Zdarzenia, $nazwa, $kwota, $data);
     			$arr = array();
     			while ( $s->fetch() ) {
+                    $data = $this->PrettyDates($data);
     				$row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
     				$arr[] = $row;
     			}
@@ -1730,10 +1731,12 @@ class mainClass
     	    $expenses_sum = 0;
     	    $incomes_sum = 0;
     	    foreach ($this->getMonths($months) as $date) {
-    	        $expenses = $this->GetSumOfIncomesFromMonth($budgetId,$month,$year);
-    	        $incomes   = $this->GetSumOfExpensesFromMonth($budgetId,$month,$year);
+    	        $expenses = $this->GetSumOfExpensesFromMonth($budgetId,$date['month'], $date['year']);
+    	        $incomes   = $this->GetSumOfIncomesFromMonth($budgetId,$date['month'], $date['year']);
     	        $balance = $incomes - $expenses;
-    	        $activities = $this->GetActivitiesFromMonth($budgetId, $month, $year);
+    	        $activities = $this->GetActivitiesFromMonth($budgetId, $date['month'], $date['year']);
+                $expenses_sum += $expenses;
+                $incomes_sum += $incomes;
     	        $arr[] = array('activities' => $activities,
     	                'balance' => round($balance,2),
     	                'expenses' => round($expenses,2),
@@ -1744,15 +1747,77 @@ class mainClass
             $title = "Raport z ostatnich ".$months." miesięcy";
             return array('title' => $title,
                          'months' => $arr,
-                         'expenses_sum' => $expenses_sum,
-                         'incomes_sum' => $incomes_sum,
-                         'general_balance' => $incomes_sum-$expenses_sum
+                         'expenses_sum' => round($expenses_sum,2),
+                         'incomes_sum' => round($incomes_sum,2),
+                         'general_balance' => round($incomes_sum-$expenses_sum,2)
             );
     	}
     	else
     		return status('NO_SUCH_BUDGET');
     }
     
-    
+    private function PrettyDates($date){
+        $format = "";
+        $start  = date('Y-m-d H:i:s',strtotime($date)); 
+        $end    = date('Y-m-d H:i:s'); 
+        $d_start    = new DateTime($start); 
+        $d_end      = new DateTime($end); 
+        $diff = $d_start->diff($d_end); 
+
+        $lat = $diff->format('%y'); 
+        $mies = $diff->format('%m'); 
+        $dni = $diff->format('%d'); 
+        $godz = $diff->format('%h'); 
+        $min = $diff->format('%i'); 
+        $sek = $diff->format('%s'); 
+
+        if ($lat > 0){
+            if ($lat == 1)
+                $format = "rok temu";
+            else
+                $format = $lat." lat temu";
+        }
+        else{
+            if ($mies > 0){
+                if ($mies == 1)
+                    $format = "miesiąc temu";
+                else 
+                    $format = $mies." miesiące temu";
+            }
+            else{
+                if ($dni > 0){
+                    if ($dni == 1)
+                        $format = "wczoraj";
+                    if ($dni == 2)
+                        $format = "przedwczoraj";
+                    else 
+                        $format = $dni." dni temu";
+                }
+                else {
+                    if ($godz > 0){
+                        if ($godz == 1)
+                            $format = "godzinę temu";
+                        else
+                            $format = $godz." godzin temu";
+                    }   
+                    else {
+                        if ($min > 0){
+                            if ($min == 1)
+                                $format = "minutę temu";
+                            else 
+                                $format = $min." minut temu";
+                        }
+                        else
+                        {
+                            if ($sek > 0)
+                                $format = "mniej niż minutę temu";
+
+                        }}}}}
+        if (empty($format))
+            return $date;
+        return $format;
+    }
+
+
 }
 ?>

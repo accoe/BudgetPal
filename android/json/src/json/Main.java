@@ -17,8 +17,32 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+
 		
+		try {
+
+			Report report= ws.GetReport(1, 6);
+			if (report != null){
+				System.out.println("Tytul: "+report.title);
+				System.out.println("Bilans: ("+report.incomes_sum+"-"+report.expenses_sum+")="+report.general_balance);
+				for (int i=0;i< report.months.size(); i++){
+					
+					System.out.println("--------------"+report.months.get(i).month+"-"+report.months.get(i).year+"---------------");
+					for (int j=0;j<report.months.get(i).activities.size();j++)
+						System.out.println(report.months.get(i).activities.get(j).data+"  "+report.months.get(i).activities.get(j).nazwa+"\t"+report.months.get(i).activities.get(j).kwota+" "+report.months.get(i).activities.get(j).rodzaj);
+					System.out.println("--------------SUMA: "+report.months.get(i).balance+" ---------");
+					System.out.println();
+				}
+			}
+			else
+				System.out.println(ws.status);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+
 		// Wykresy
+		/*
 		Chart chart = new Chart(ws);
 		chart.properties.setSize(400,200);
 		// Kołowe
@@ -37,7 +61,7 @@ public class Main {
 		chart.IncomesCategoryChart(1, 6, in_cat);
 		//chart.ExpenseCategoryChart(1, 6, ex_cat);
 		chart.SaveChartToFile("/home/kris/chart");
-		
+		*/
 		/*
 		try {
 

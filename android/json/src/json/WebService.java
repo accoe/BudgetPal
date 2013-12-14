@@ -391,4 +391,16 @@ public class WebService {
 		}
 	}
 
+	public Report GetReport(int budgetId, int months) throws Exception {
+		String url = "server.php?a=getreport&budgetId=" + budgetId + "&months="
+				+ months;
+		this.getJsonFromUrl(url);
+		this.status = new GetStatus(json);
+		if (this.status.isSet()) {
+			return null;
+		} else {
+			return new Gson().fromJson(json, Report.class);
+		}
+	}
+
 }
