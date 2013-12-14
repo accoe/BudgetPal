@@ -34,7 +34,7 @@ public class Main {
 		String[] in_cat = {"praca","inne"};
 		String[] ex_cat = {"jedzenie","inne"};
 		//chart.properties.sizeX = 600;
-		//chart.IncomesCategoryChart(1, 6, in_cat);
+		chart.IncomesCategoryChart(1, 6, in_cat);
 		//chart.ExpenseCategoryChart(1, 6, ex_cat);
 		chart.SaveChartToFile("/home/kris/chart");
 		

@@ -10,6 +10,7 @@ class mainClass
     var $DBPASS;
     var $userId;
 	var $DEBUG;
+	
     public function __construct($user, $password, $host, $database) 
     {
         $this->DBUSER = $user;
@@ -678,16 +679,26 @@ class mainClass
     
     /**
      * @desc Pobiera list&#281; wydatk&#243;w ze wskazanego bud&#380;etu
-     * @param int
+     * @param int, String, int, int
      * @return Expenses
-     * @example 1
+     * @example 1, DESC, 10, 0
      * @logged true
      */
-    public function GetExpenses($budgetId)
+    public function GetExpenses($budgetId,$order = 'DESC', $limit = 10, $offset = 0)
     {
+        if (empty($order))
+            $order = "DESC";
+        if (empty($limit))
+            $limit = 20;    
+        if (empty($offset))
+            $offset = 0;        
+        
+        $sql = $this->OrderBy('SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
+                    FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?'
+        , "W.data", $order);          
+        $sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
-	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
-	    			FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?")) {
+	    	if ($s = $this->mysqli->prepare($sql)) {
 	    		$s->bind_param('i', $budgetId);
 	    		$s->execute();
 	    		$s->bind_result($ID_Wydatku,$ID_Produktu, $nazwa, $kwota, $data);
@@ -790,15 +801,25 @@ class mainClass
     
     /**
      * @desc Pobiera list&#281; dochod&#243;w ze wskazanego budzetu
-     * @param int
+     * @param int, String, int, int 
      * @return Incomes
-     * @example 1
+     * @example 1, DESC, 10, 0
      * @logged true
      */
-    public function GetIncomes($budgetId)
+    public function GetIncomes($budgetId,$order = 'DESC', $limit = 10, $offset = 0)
     {
+        if (empty($order))
+            $order = "DESC";
+        if (empty($limit))
+            $limit = 20;    
+        if (empty($offset))
+            $offset = 0;        
+        
+        $sql = $this->OrderBy('SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?'
+        , "data", $order);          
+        $sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
-    		if ($s = $this->mysqli->prepare("SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?")) {
+    		if ($s = $this->mysqli->prepare($sql)) {
     	    			$s->bind_param('i', $budgetId);
     	    			$s->execute();
     	    			$s->bind_result($ID_Przychodu, $nazwa, $kwota, $data);
@@ -841,6 +862,31 @@ class mainClass
     	}
     }
     
+    
+
+    private function GetActivitiesFromMonth($budgetId, $month, $year)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare('(SELECT "przychod" AS  "rodzaj",ID_Przychodu as ID_Zdarzenia, nazwa, kwota, data FROM Przychody WHERE ID_Budzetu = ? and month(data) = ? and year(data) = ?) UNION
+    (SELECT  "wydatek" AS  "rodzaj",`ID_Wydatku` as ID_Zdarzenia, nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu = ? and month(W.data) = ? and year(W.data) = ?)')) {
+                $s->bind_param('iiiiii', $budgetId, $month, $year,$budgetId, $month, $year);
+                $s->execute();
+                $s->bind_result($rodzaj,$ID_Zdarzenia, $nazwa, $kwota, $data);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
+                    $arr[] = $row;
+                }
+                return $arr;
+            }
+            else
+                return null;
+        }
+        else
+            return null;
+    }
+    
+
     /**
      * @desc Pobiera list&#281; ostatnich operacji ze wskazanego bud&#380;etu - lista zawiera zar&#243;wno wydatki jak i dochody. Metoda daje mo&#380;liwo&#347;&#263; okre&#347;lenia limitu, offsetu oraz sposobu sortowania element&#243;w.
      * @param int, String, int, int
@@ -1665,5 +1711,48 @@ class mainClass
         }
         return status('NO_LIMITS');
     }
+    
+    
+    
+    
+    
+    /**
+     * @desc Metoda pobiera raport wydatków i dochodów z ostatnich miesięcy
+     * @param int, int
+     * @return Report
+     * @example 1, 6
+     * @logged true
+     */
+    public function GetReport($budgetId,$months)
+    {
+    	if ($this->DoesBudgetExist($budgetId)){
+    	    $arr = array();
+    	    $expenses_sum = 0;
+    	    $incomes_sum = 0;
+    	    foreach ($this->getMonths($months) as $date) {
+    	        $expenses = $this->GetSumOfIncomesFromMonth($budgetId,$month,$year);
+    	        $incomes   = $this->GetSumOfExpensesFromMonth($budgetId,$month,$year);
+    	        $balance = $incomes - $expenses;
+    	        $activities = $this->GetActivitiesFromMonth($budgetId, $month, $year);
+    	        $arr[] = array('activities' => $activities,
+    	                'balance' => round($balance,2),
+    	                'expenses' => round($expenses,2),
+    	                'incomes' => round($incomes,2),
+    	                'month' => $date['month'],
+    	                'year' => $date['year']);
+    	    }
+            $title = "Raport z ostatnich ".$months." miesięcy";
+            return array('title' => $title,
+                         'months' => $arr,
+                         'expenses_sum' => $expenses_sum,
+                         'incomes_sum' => $incomes_sum,
+                         'general_balance' => $incomes_sum-$expenses_sum
+            );
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
+    }
+    
+    
 }
 ?>
