@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
 		checkBox.setChecked(true);
 
 		Button btnLogin = (Button) this.findViewById(R.id.buttonLogIn);
+		Button btnRegister = (Button) this.findViewById(R.id.btnZalozKonto);
 
 		try {
 			btnLogin.setOnClickListener(new OnClickListener() {
@@ -85,6 +86,22 @@ public class MainActivity extends Activity {
 								Toast.LENGTH_LONG).show();
 				}
 			});
+
+			btnRegister.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (isOnline()) {
+						// Rejestracja
+						Intent myIntent = new Intent(MainActivity.this,
+								ZalozKonto.class);
+						MainActivity.this.startActivity(myIntent);
+					} else
+						Toast.makeText(MainActivity.this,
+								"Brak po³¹czenia z internetem.",
+								Toast.LENGTH_LONG).show();
+				}
+			});
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -89,5 +89,4 @@ public class DodajPierwszyBudzet extends SherlockActivity {
 		}
 		return true;
 	}
-
 }

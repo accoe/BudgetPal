@@ -80,6 +80,14 @@
             android:name="com.mbp1.About"
             android:label="@string/title_activity_about" >
         </activity>
+        <activity
+            android:name="com.mbp1.ZalozKonto"
+            android:label="@string/title_activity_zaloz_konto" >
+        </activity>
+        <activity
+            android:name="com.mbp1.FAQ"
+            android:label="@string/title_activity_faq" >
+        </activity>
     </application>
 
 </manifest>

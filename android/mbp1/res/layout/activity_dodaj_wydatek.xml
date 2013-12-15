@@ -80,7 +80,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/calc5"
         android:layout_alignBottom="@+id/calc5"
-        android:layout_alignLeft="@+id/calc7"
+        android:layout_toLeftOf="@+id/calc8"
         android:text="4" />
 
     <Button
@@ -147,8 +147,9 @@
         android:id="@+id/calc7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/calc8"
         android:layout_alignBaseline="@+id/calc8"
+        android:layout_alignBottom="@+id/calc8"
+        android:layout_toLeftOf="@+id/calc8"
         android:text="7" />
 
 </RelativeLayout>

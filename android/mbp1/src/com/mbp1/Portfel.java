@@ -107,7 +107,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 		list = new ArrayList<String>();
 		formatter = new DecimalFormat("#0.00");
 		bilansBudzetu = (TextView) findViewById(R.id.textBilans);
-		b1 = (Button) findViewById(R.id.calc7);
+		b1 = (Button) findViewById(R.id.btnZalozKonto);
 		b2 = (Button) findViewById(R.id.calc8);
 		spinner = (Spinner) findViewById(R.id.spinner1);
 		przegladarka = (WebView) findViewById(R.id.webView);
@@ -429,13 +429,11 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				ListActivity adapter = new ListActivity(Portfel.this,
 						listaNazw, listaKwot, listaDat, listaRodzajow);
 				listBudgets.setAdapter(adapter);
-				registerForContextMenu(listBudgets);
 			} else {
 				Toast.makeText(Portfel.this,
 						"Brak aktywnoœci dla tego bud¿etu", Toast.LENGTH_LONG)
 						.show();
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
