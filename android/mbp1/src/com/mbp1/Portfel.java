@@ -148,7 +148,6 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				ListActivity adapter = new ListActivity(Portfel.this,
 						listaNazw, listaKwot, listaDat, listaRodzajow);
 				listBudgets.setAdapter(adapter);
-				registerForContextMenu(listBudgets);
 			} else {
 				Toast.makeText(Portfel.this, "Nie masz ¿adnych wydatków",
 						Toast.LENGTH_LONG).show();
@@ -185,7 +184,6 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				ListActivity adapter = new ListActivity(Portfel.this,
 						listaNazw, listaKwot, listaDat, listaRodzajow);
 				listBudgets.setAdapter(adapter);
-				registerForContextMenu(listBudgets);
 			} else {
 				Toast.makeText(Portfel.this, "Nie masz ¿adnych przychodów",
 						Toast.LENGTH_LONG).show();
@@ -497,7 +495,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				MenuItem.SHOW_AS_ACTION_ALWAYS
 						| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		if (currentTab == 1) {
-			menu.add(2, 6, 2, "Dodaj wydatek").setIcon(R.drawable.ic_dodaj)
+			menu.add(2, 8, 2, "Dodaj wydatek").setIcon(R.drawable.ic_dodaj)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		}
 		if (currentTab == 2) {
@@ -520,9 +518,9 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 					android.R.id.content));
 			return false;
 		}
-		if (item.getItemId() == 4) {
+		else if (item.getItemId() == 4) {
 		}
-		if (item.getItemId() == 3) {
+		else if (item.getItemId() == 3) {
 			try {
 				if (Singleton.getInstance().ws.Logout() == true) {
 					Toast.makeText(Portfel.this, "Wylogowano",
@@ -538,7 +536,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 			}
 			return true;
 		}
-		if (item.getItemId() == 6) {
+		else if (item.getItemId() == 6) {
 			Intent intent = Portfel.this.getPackageManager()
 					.getLaunchIntentForPackage("edu.sfsu.cs.orange.ocr");
 			if (intent != null) {
@@ -551,6 +549,12 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 						+ "edu.sfsu.cs.orange.ocr"));
 				startActivity(intent);
 			}
+			return false;
+		}
+		else if (item.getItemId() == 8) {
+			Intent myIntent = new Intent(Portfel.this,
+					Tab1.class);
+			Portfel.this.startActivity(myIntent);
 			return false;
 		}
 		return true;
