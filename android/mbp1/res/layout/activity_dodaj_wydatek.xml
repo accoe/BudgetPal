@@ -23,10 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/autoCompleteDodajWydatekNazwa"
+        android:layout_alignParentRight="true"
         android:layout_below="@+id/autoCompleteDodajWydatekNazwa"
-		android:hint="Kwota"
         android:layout_centerVertical="true"
         android:ems="10"
+        android:hint="Kwota"
         android:inputType="numberDecimal" />
 
     <Button
@@ -149,14 +150,5 @@
         android:layout_toLeftOf="@+id/calc8"
         android:layout_alignBaseline="@+id/calc8"
         android:text="7" />
-
-    <TextView
-        android:id="@+id/titleDodajWydatek"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignBaseline="@+id/editDodajWydatekKwota"
-        android:text="zł"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

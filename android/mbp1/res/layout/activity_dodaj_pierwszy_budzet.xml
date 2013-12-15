@@ -15,6 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/editNazwaBudzetu"
+        android:hint="Opis"
         android:lines="4"
         android:ems="10"
         android:inputType="textMultiLine" />
@@ -32,6 +33,8 @@
         android:id="@+id/textDNBPierwszy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignLeft="@+id/textDNBWitaj"
         android:layout_below="@+id/textDNBWitaj" />
 
@@ -42,8 +45,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/textDNBPierwszy"
+        android:hint="Nazwa budżetu"
         android:ems="10" >
-
         <requestFocus />
     </EditText>
 

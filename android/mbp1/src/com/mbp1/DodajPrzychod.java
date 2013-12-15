@@ -29,8 +29,6 @@ public class DodajPrzychod extends Activity {
 		BudzetID = getIntent().getExtras().getInt("budzetID");
 		BudzetNazwa = getIntent().getExtras().getString("budzetNazwa");
 		
-		TextView title = (TextView)this.findViewById(R.id.titleDodajWydatek);
-		title.setText("Dodaj przychód");
 		
 		
 		final AutoCompleteTextView boxName = (AutoCompleteTextView)this.findViewById(R.id.autoCompleteDodajWydatekNazwa);

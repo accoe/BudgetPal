@@ -496,12 +496,10 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 		if (currentTab == 1) {
 			menu.add(2, 8, 2, "Dodaj wydatek").setIcon(R.drawable.ic_dodaj)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		}
-		if (currentTab == 2) {
+		} else if (currentTab == 2) {
 			menu.add(2, 6, 2, "Dodaj przychód").setIcon(R.drawable.ic_dodaj)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		}
-		if (currentTab == 3) {
+		} else if (currentTab == 3) {
 			menu.add(2, 6, 2, "Zmieñ typ wykresu").setIcon(R.drawable.ic_stats)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		}
@@ -557,6 +555,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
 		menu.setHeaderTitle("Wybierz bud¿et");
 		menu.clear();
 		listaNazw.clear();
@@ -603,7 +602,12 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 			break;
 		}
 		case 0: {
-			break;
+			try {
+				wczytajAktywnosc();
+				changeMenu(0);
+				break;
+			} catch (Exception e) {
+			}
 		}
 		}
 	}

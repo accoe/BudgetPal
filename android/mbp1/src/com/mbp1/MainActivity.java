@@ -45,44 +45,49 @@ public class MainActivity extends Activity {
 		checkBox.setChecked(true);
 
 		Button btnLogin = (Button) this.findViewById(R.id.buttonLogIn);
-		btnLogin.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (isOnline()) {
-					// Logowanie
-					final String login = boxLogin.getText().toString();
-					final String haslo = boxPassword.getText().toString();
-					Singleton.initInstance();
-					try {
-						if (Singleton.getInstance().ws.Login(login, haslo)) {
-							Toast.makeText(MainActivity.this, "Zalogowano",
-									Toast.LENGTH_LONG).show();
-							Budgets budgets = Singleton.getInstance().ws
-									.GetBudgets();
-							if (budgets != null) {
-								Intent myIntent = new Intent(MainActivity.this,
-										Portfel.class);
-								MainActivity.this.startActivity(myIntent);
-							}
-							else {
-								Intent myIntent = new Intent(MainActivity.this,
-										DodajPierwszyBudzet.class);
-								MainActivity.this.startActivity(myIntent);								
-							}
-							MainActivity.this.finish();
-						} else
-							Toast.makeText(MainActivity.this,
-									"B³êdny login lub has³o!",
-									Toast.LENGTH_LONG).show();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else
-					Toast.makeText(MainActivity.this,
-							"Brak po³¹czenia z internetem.", Toast.LENGTH_LONG)
-							.show();
-			}
-		});
+
+		try {
+			btnLogin.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (isOnline()) {
+						// Logowanie
+						final String login = boxLogin.getText().toString();
+						final String haslo = boxPassword.getText().toString();
+						Singleton.initInstance();
+						try {
+							if (Singleton.getInstance().ws.Login(login, haslo)) {
+								Toast.makeText(MainActivity.this, "Zalogowano",
+										Toast.LENGTH_LONG).show();
+								Budgets budgets = Singleton.getInstance().ws
+										.GetBudgets();
+								if (budgets != null) {
+									Intent myIntent = new Intent(
+											MainActivity.this, Portfel.class);
+									MainActivity.this.startActivity(myIntent);
+								} else {
+									Intent myIntent = new Intent(
+											MainActivity.this,
+											DodajPierwszyBudzet.class);
+									MainActivity.this.startActivity(myIntent);
+								}
+								MainActivity.this.finish();
+							} else
+								Toast.makeText(MainActivity.this,
+										"B³êdny login lub has³o!",
+										Toast.LENGTH_LONG).show();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else
+						Toast.makeText(MainActivity.this,
+								"Brak po³¹czenia z internetem.",
+								Toast.LENGTH_LONG).show();
+				}
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isOnline() {

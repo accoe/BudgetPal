@@ -1,5 +1,7 @@
 package com.mbp1;
 
+import java.net.URLEncoder;
+
 import json.Singleton;
 
 import com.actionbarsherlock.app.SherlockActivity;
@@ -24,13 +26,11 @@ public class DodajPierwszyBudzet extends SherlockActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_dodaj_pierwszy_budzet);
 		TextView wstep = (TextView) findViewById(R.id.textDNBPierwszy);
 		wstep.setText(Html
-				.fromHtml("Wygl¹da na to, ¿e nie masz jeszcze utworzonego ¿adnego bud¿etu.<hr>Dodaj go teraz i zacznij planowaæ swoje wydatki!"));
+				.fromHtml("Wygl¹da na to, ¿e nie masz jeszcze utworzonego ¿adnego bud¿etu.<br /><hr />Dodaj go teraz i zacznij planowaæ swoje wydatki!"));
 		boxName = (EditText) findViewById(R.id.editNazwaBudzetu);
 		boxDescription = (EditText) findViewById(R.id.editOpisBudzetu);
 		Button btn = (Button) findViewById(R.id.buttonDNB);
@@ -38,8 +38,11 @@ public class DodajPierwszyBudzet extends SherlockActivity {
 			@Override
 			public void onClick(View v) {
 				try {
-					Singleton.getInstance().ws.AddBudget(boxName.getText()
-							.toString(), boxDescription.getText().toString());
+					String name = URLEncoder.encode(boxName.getText()
+							.toString(), "UTF-8");
+					String description = URLEncoder.encode(boxName.getText()
+							.toString(), "UTF-8");
+					Singleton.getInstance().ws.AddBudget(name, description);
 					Intent myIntent = new Intent(DodajPierwszyBudzet.this,
 							Portfel.class);
 					DodajPierwszyBudzet.this.startActivity(myIntent);

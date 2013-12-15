@@ -222,28 +222,31 @@ public class Tab1 extends SherlockActivity {
 				}
 			}
 		});
-
-		Button btnAdd = (Button) this.findViewById(R.id.buttonDodajWydatek);
-		btnAdd.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				try {
-					String name = URLEncoder.encode(boxName.getText()
-							.toString(), "UTF-8");
-					String nameDec = boxName.getText().toString();
-					String high = boxHigh.getText().toString();
-					double highDec = Double.parseDouble(high);
-					Singleton.getInstance().ws.AddExpense(BudzetID, name,
-							highDec);
-					Toast.makeText(Tab1.this, "Dodano wydatek: " + nameDec,
-							Toast.LENGTH_LONG).show();
-					Intent seeStats = new Intent(Tab1.this, Portfel.class);
-					startActivity(seeStats);
-				} catch (Exception e) {
-					e.printStackTrace();
+		try {
+			Button btnAdd = (Button) this.findViewById(R.id.buttonDodajWydatek);
+			btnAdd.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					try {
+						String name = URLEncoder.encode(boxName.getText()
+								.toString(), "UTF-8");
+						String nameDec = boxName.getText().toString();
+						String high = boxHigh.getText().toString();
+						double highDec = Double.parseDouble(high);
+						Singleton.getInstance().ws.AddExpense(BudzetID, name,
+								highDec);
+						Toast.makeText(Tab1.this, "Dodano wydatek: " + nameDec,
+								Toast.LENGTH_LONG).show();
+						Intent seeStats = new Intent(Tab1.this, Portfel.class);
+						startActivity(seeStats);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
-			}
-		});
+			});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		Button btnOCR = (Button) this.findViewById(R.id.buttonSkorzystajZOCR);
 
