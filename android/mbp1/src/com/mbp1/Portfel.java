@@ -108,8 +108,8 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 		list = new ArrayList<String>();
 		formatter = new DecimalFormat("#0.00");
 		bilansBudzetu = (TextView) findViewById(R.id.textBilans);
-		b1 = (Button) findViewById(R.id.button1);
-		b2 = (Button) findViewById(R.id.button2);
+		b1 = (Button) findViewById(R.id.calc7);
+		b2 = (Button) findViewById(R.id.calc8);
 		spinner = (Spinner) findViewById(R.id.spinner1);
 		przegladarka = (WebView) findViewById(R.id.webView);
 		list = new ArrayList<String>();

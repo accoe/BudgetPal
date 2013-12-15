@@ -9,21 +9,9 @@
     tools:context=".DodajWydatek" >
 
     <TextView
-        android:id="@+id/titleDodajWydatek"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="Dodaj wydatek"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
         android:id="@+id/textDodajWydatekNazwa"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/titleDodajWydatek"
-        android:layout_below="@+id/titleDodajWydatek"
-        android:layout_marginTop="14dp"
         android:text="Nazwa wydatku"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -39,9 +27,9 @@
 
     <EditText
         android:id="@+id/editDodajWydatekNazwa"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-       	android:layout_alignLeft="@+id/textDodajWydatekNazwa"
+        android:layout_alignLeft="@+id/textDodajWydatekNazwa"
         android:layout_below="@+id/textDodajWydatekNazwa"
         android:ems="10" >
 
@@ -59,14 +47,6 @@
         android:inputType="numberDecimal" />
 
     <Button
-        android:id="@+id/buttonDodajWydatek"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/editDodajWydatekKwota"
-        android:layout_marginTop="25dp"
-        android:text="Dodaj" />
-
-    <Button
         android:id="@+id/buttonSkorzystajZOCR"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -74,5 +54,126 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="Skorzystaj z OCR" />
+
+    <Button
+        android:id="@+id/buttonDodajWydatek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/buttonSkorzystajZOCR"
+        android:layout_alignBottom="@+id/buttonSkorzystajZOCR"
+        android:layout_toLeftOf="@+id/buttonSkorzystajZOCR"
+        android:text="Dodaj" />
+
+    <Button
+        android:id="@+id/calc8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/editDodajWydatekKwota"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:text="8" />
+
+    <Button
+        android:id="@+id/calc9"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc8"
+        android:layout_alignBottom="@+id/calc8"
+        android:layout_toRightOf="@+id/calc8"
+        android:text="9" />
+
+    <Button
+        android:id="@+id/calc5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/calc8"
+        android:layout_below="@+id/calc8"
+        android:text="5" />
+
+    <Button
+        android:id="@+id/calc4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc5"
+        android:layout_alignBottom="@+id/calc5"
+        android:layout_alignLeft="@+id/calc7"
+        android:text="4" />
+
+    <Button
+        android:id="@+id/calc6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc5"
+        android:layout_alignBottom="@+id/calc5"
+        android:layout_alignLeft="@+id/calc9"
+        android:text="6" />
+
+    <Button
+        android:id="@+id/calc2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/calc5"
+        android:layout_below="@+id/calc5"
+        android:text="2" />
+
+    <Button
+        android:id="@+id/calc3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc2"
+        android:layout_alignBottom="@+id/calc2"
+        android:layout_alignLeft="@+id/calc6"
+        android:text="3" />
+
+    <Button
+        android:id="@+id/calc0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/calc2"
+        android:layout_below="@+id/calc2"
+        android:text="0" />
+
+    <Button
+        android:id="@+id/calcback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc0"
+        android:layout_alignBottom="@+id/calc0"
+        android:layout_alignLeft="@+id/calc3"
+        android:text="z" />
+
+    <Button
+        android:id="@+id/calc1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/calc00"
+        android:layout_alignLeft="@+id/calc4"
+        android:text="1" />
+
+    <Button
+        android:id="@+id/calc00"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/calc0"
+        android:layout_alignBottom="@+id/calc0"
+        android:layout_alignLeft="@+id/calc1"
+        android:text="." />
+
+    <Button
+        android:id="@+id/calc7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/calc8"
+        android:layout_alignBaseline="@+id/calc8"
+        android:text="7" />
+
+    <TextView
+        android:id="@+id/titleDodajWydatek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/editDodajWydatekKwota"
+        android:text="zł"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

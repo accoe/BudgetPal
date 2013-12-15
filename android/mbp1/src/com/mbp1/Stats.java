@@ -49,8 +49,8 @@ public class Stats extends Activity {
 		przegladarka.getSettings().setJavaScriptEnabled(true);
 
 		final TextView nazwaMiesiaca = (TextView) findViewById(R.id.textStatsMiesiac);
-		final Button b1 = (Button) findViewById(R.id.button1);
-		final Button b2 = (Button) findViewById(R.id.button2);
+		final Button b1 = (Button) findViewById(R.id.calc7);
+		final Button b2 = (Button) findViewById(R.id.calc8);
 		b1.setText(Html.fromHtml("&raquo;"));
 		b2.setText(Html.fromHtml("&laquo;"));
 
