@@ -15,41 +15,48 @@ public class ListAdapter extends BaseAdapter {
 	private List<String> list1;
 	private List<String> list2;
 	private static LayoutInflater inflater = null;
-	
-	public ListAdapter(Activity a, List<String> listaNazwBudzetow, List<String> listaOpisowBudzetow) {
+
+	public ListAdapter(Activity a, List<String> listaNazwBudzetow,
+			List<String> listaOpisowBudzetow) {
 		this.activity = a;
 		this.list1 = listaNazwBudzetow;
 		this.list2 = listaOpisowBudzetow;
-		ListAdapter.inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		ListAdapter.inflater = (LayoutInflater) activity
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
+
 	public Object getItem(int position) {
 		return position;
 	}
+
 	public long getItemId(int position) {
 		return position;
 	}
+
 	public static class ViewHolder {
 		public TextView text1;
 		public TextView text2;
 	}
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View vi = convertView;
 		ViewHolder holder;
 		if (convertView == null) {
-			vi = inflater.inflate(R.layout.two_items_list,null);
+			vi = inflater.inflate(R.layout.two_items_list, null);
 			holder = new ViewHolder();
-			holder.text1=(TextView)vi.findViewById(R.id.textWybierzBudzet);
-			holder.text2=(TextView)vi.findViewById(R.id.textEdytujBudzetNazwa);
+			holder.text1 = (TextView) vi.findViewById(R.id.textWybierzBudzet);
+			holder.text2 = (TextView) vi
+					.findViewById(R.id.textEdytujBudzetNazwa);
 			vi.setTag(holder);
-		}
-		else 
-			holder = (ViewHolder)vi.getTag();
-		
+		} else
+			holder = (ViewHolder) vi.getTag();
+
 		holder.text1.setText(this.list1.get(position));
 		holder.text2.setText(this.list2.get(position));
-		
+
 		return vi;
 	}
+
 	public int getCount() {
 		return list1.size();
 	}

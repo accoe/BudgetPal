@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,10 +32,8 @@ public class DodajPrzychod extends Activity {
 		TextView title = (TextView)this.findViewById(R.id.titleDodajWydatek);
 		title.setText("Dodaj przychód");
 		
-		TextView nazwa = (TextView)this.findViewById(R.id.textDodajWydatekNazwa);
-		nazwa.setText("Nazwa przychodu");
 		
-		final EditText boxName = (EditText)this.findViewById(R.id.editDodajWydatekNazwa);
+		final AutoCompleteTextView boxName = (AutoCompleteTextView)this.findViewById(R.id.autoCompleteDodajWydatekNazwa);
 		final EditText boxHigh = (EditText)this.findViewById(R.id.editDodajWydatekKwota);
 		
         Button btnAdd = (Button)this.findViewById(R.id.buttonDodajWydatek);

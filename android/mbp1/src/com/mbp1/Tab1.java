@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
+import json.Products;
 import json.Singleton;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -23,6 +26,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -86,12 +91,31 @@ public class Tab1 extends SherlockActivity {
 		}
 
 		super.onCreate(savedInstanceState);
+		setTheme(android.R.style.Theme);
 		setContentView(R.layout.activity_dodaj_wydatek);
 
-		final EditText boxName = (EditText) this
-				.findViewById(R.id.editDodajWydatekNazwa);
+		final AutoCompleteTextView boxName = (AutoCompleteTextView) this
+				.findViewById(R.id.autoCompleteDodajWydatekNazwa);
 		final EditText boxHigh = (EditText) this
 				.findViewById(R.id.editDodajWydatekKwota);
+
+		List<String> listaProduktow = new ArrayList<String>();
+
+		try {
+			Products products = Singleton.getInstance().ws.GetProducts();
+			if (products != null) {
+				for (int i = 0; i < products.count; i++) {
+					listaProduktow.add(products.products.get(i).nazwa);
+				}
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+						android.R.layout.simple_dropdown_item_1line,
+						listaProduktow);
+				boxName.setThreshold(1);
+				boxName.setAdapter(adapter);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		Button calc9 = (Button) this.findViewById(R.id.calc9);
 		calc9.setOnClickListener(new OnClickListener() {
@@ -187,12 +211,15 @@ public class Tab1 extends SherlockActivity {
 		Button calcback = (Button) this.findViewById(R.id.calcback);
 		calcback.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) { 
-				boxHigh.setText(boxHigh
-						.getText()
-						.toString()
-						.substring(0, boxHigh.getText().toString().length() - 1));
-				boxHigh.setSelection(boxHigh.getText().toString().length());
+			public void onClick(View v) {
+				if (boxHigh.getText().toString().length() != 0) {
+					boxHigh.setText(boxHigh
+							.getText()
+							.toString()
+							.substring(0,
+									boxHigh.getText().toString().length() - 1));
+					boxHigh.setSelection(boxHigh.getText().toString().length());
+				}
 			}
 		});
 
@@ -335,7 +362,7 @@ public class Tab1 extends SherlockActivity {
 
 		if (lang.equalsIgnoreCase("eng")) {
 			// recognizedText = recognizedText.replaceAll("[^a-zA-Z0-9]+", " ");
-			kwota = recognizedText.replaceAll("[^0-9.,]+^.[^0-9]+", "");
+			kwota = recognizedText.replaceAll("[^0-9.,]+", "");
 			kwota = kwota.replaceAll(",+", ".");
 			recognizedText = recognizedText.replaceAll("[^a-zA-Z]+", " ");
 		}

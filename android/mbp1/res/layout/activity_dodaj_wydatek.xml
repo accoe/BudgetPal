@@ -7,41 +7,24 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".DodajWydatek" >
-
-    <TextView
-        android:id="@+id/textDodajWydatekNazwa"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nazwa wydatku"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/textDodajWydatekKwota"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textDodajWydatekNazwa"
-        android:layout_below="@+id/editDodajWydatekNazwa"
-        android:layout_marginTop="16dp"
-        android:text="Kwota"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <EditText
-        android:id="@+id/editDodajWydatekNazwa"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/textDodajWydatekNazwa"
-        android:layout_below="@+id/textDodajWydatekNazwa"
-        android:ems="10" >
-
-        <requestFocus />
-    </EditText>
+  
+	<AutoCompleteTextView
+	    android:id="@+id/autoCompleteDodajWydatekNazwa"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentTop="true"
+	    android:ems="10"
+	    android:hint="Nazwa wydatku" />
 
     <EditText
         android:id="@+id/editDodajWydatekKwota"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/editDodajWydatekNazwa"
-        android:layout_below="@+id/textDodajWydatekKwota"
+        android:layout_alignLeft="@+id/autoCompleteDodajWydatekNazwa"
+        android:layout_below="@+id/autoCompleteDodajWydatekNazwa"
+		android:hint="Kwota"
         android:layout_centerVertical="true"
         android:ems="10"
         android:inputType="numberDecimal" />
@@ -172,7 +155,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/editDodajWydatekKwota"
+        android:layout_alignBaseline="@+id/editDodajWydatekKwota"
         android:text="zł"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

@@ -1,5 +1,6 @@
 package com.mbp1;
 
+import json.Budgets;
 import json.Singleton;
 import com.mbp1.R;
 import android.app.Activity;
@@ -56,9 +57,18 @@ public class MainActivity extends Activity {
 						if (Singleton.getInstance().ws.Login(login, haslo)) {
 							Toast.makeText(MainActivity.this, "Zalogowano",
 									Toast.LENGTH_LONG).show();
-							Intent myIntent = new Intent(MainActivity.this,
-									Portfel.class);
-							MainActivity.this.startActivity(myIntent);
+							Budgets budgets = Singleton.getInstance().ws
+									.GetBudgets();
+							if (budgets != null) {
+								Intent myIntent = new Intent(MainActivity.this,
+										Portfel.class);
+								MainActivity.this.startActivity(myIntent);
+							}
+							else {
+								Intent myIntent = new Intent(MainActivity.this,
+										DodajPierwszyBudzet.class);
+								MainActivity.this.startActivity(myIntent);								
+							}
 							MainActivity.this.finish();
 						} else
 							Toast.makeText(MainActivity.this,

@@ -18,5 +18,7 @@
     <string name="title_activity_tab1">Dodaj wydatek</string>
     <string name="title_activity_tab2">My Budget Pal</string>
     <string name="title_activity_portfel">My Budget Pal</string>
+    <string name="title_activity_dodaj_pierwszy_budzet">Dodaj swój pierwszy budżet</string>
+    <string name="title_activity_about">O aplikacji</string>
 
 </resources>

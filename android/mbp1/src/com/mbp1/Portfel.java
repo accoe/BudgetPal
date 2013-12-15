@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.view.ContextMenu;
@@ -517,10 +516,8 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 			openContextMenu(getWindow().getDecorView().findViewById(
 					android.R.id.content));
 			return false;
-		}
-		else if (item.getItemId() == 4) {
-		}
-		else if (item.getItemId() == 3) {
+		} else if (item.getItemId() == 4) {
+		} else if (item.getItemId() == 3) {
 			try {
 				if (Singleton.getInstance().ws.Logout() == true) {
 					Toast.makeText(Portfel.this, "Wylogowano",
@@ -535,8 +532,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				e.printStackTrace();
 			}
 			return true;
-		}
-		else if (item.getItemId() == 6) {
+		} else if (item.getItemId() == 6) {
 			Intent intent = Portfel.this.getPackageManager()
 					.getLaunchIntentForPackage("edu.sfsu.cs.orange.ocr");
 			if (intent != null) {
@@ -550,10 +546,8 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 				startActivity(intent);
 			}
 			return false;
-		}
-		else if (item.getItemId() == 8) {
-			Intent myIntent = new Intent(Portfel.this,
-					Tab1.class);
+		} else if (item.getItemId() == 8) {
+			Intent myIntent = new Intent(Portfel.this, Tab1.class);
 			Portfel.this.startActivity(myIntent);
 			return false;
 		}
@@ -563,7 +557,6 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
 		menu.setHeaderTitle("Wybierz bud¿et");
 		menu.clear();
 		listaNazw.clear();

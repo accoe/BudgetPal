@@ -72,6 +72,14 @@
             android:name="com.mbp1.Portfel"
             android:label="@string/title_activity_portfel" >
         </activity>
+        <activity
+            android:name="com.mbp1.DodajPierwszyBudzet"
+            android:label="@string/title_activity_dodaj_pierwszy_budzet" >
+        </activity>
+        <activity
+            android:name="com.mbp1.About"
+            android:label="@string/title_activity_about" >
+        </activity>
     </application>
 
 </manifest>
