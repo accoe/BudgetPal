@@ -15,6 +15,7 @@ import json.Singleton;
 import android.os.Bundle;
 //import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentTransaction;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -36,6 +37,7 @@ public class Budzety extends SherlockActivity implements ActionBar.TabListener {
 	List<String> listaOpisowBudzetow;
 	List<Integer> listaIDBudzetow;
 	Bundle bundle;
+	Typeface tf;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,9 @@ public class Budzety extends SherlockActivity implements ActionBar.TabListener {
 		getSupportActionBar().setDisplayShowHomeEnabled(false);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+		tf = Typeface.createFromAsset(getAssets(),
+				"fonts/Roboto-Regular.ttf");
+		
 		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		ActionBar.Tab tab1 = getSupportActionBar().newTab();
 		tab1.setIcon(R.drawable.ic_aktywnosc);

@@ -145,7 +145,7 @@ public class Chart {
 		}
 		String legend = "";
 		for (int i = 0; i < categories.size(); i++) {
-			legend += "<div style=\"width:100px;display:inline-block;\">";
+			legend += "<div style=\"width:150px;display:inline-block;\">";
 			legend += "<font color=\"" + colors[i % colors.length]
 					+ "\">&#9632; </font>" + categories.get(i);
 			legend += "</div>";
@@ -172,7 +172,7 @@ public class Chart {
 				+ "		</style>"
 				+ "	</head>"
 				+ "	<body>"
-				+ "		<canvas id=\"canvas\" height=\""
+				+ "		<center><canvas id=\"canvas\" height=\""
 				+ this.properties.sizeY
 				+ "\" width=\""
 				+ this.properties.sizeX
@@ -184,15 +184,10 @@ public class Chart {
 				+ "	var my = new Chart(document.getElementById(\"canvas\").getContext(\"2d\"))."
 				+ properties.type
 				+ "(Data);"
-				+ "	</script>"
-				+ "<div style=\"width:" + this.properties.sizeX + "px;\">" // usun
-																			// jak
-																			// chcesz
-																			// miec
-																			// legende
-																			// w
-																			// innym
-																			// webview
+				+ "	</script></center>"
+				+ "<div style=\"width:"
+				+ this.properties.sizeX
+				+ "px;\">"
 				+ this.legend + "</div>" + "</body></html>";
 
 	}

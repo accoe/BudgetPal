@@ -88,6 +88,14 @@
             android:name="com.mbp1.FAQ"
             android:label="@string/title_activity_faq" >
         </activity>
+        <activity
+            android:name="com.mbp1.Powiadomienia"
+            android:label="@string/title_activity_powiadomienia" >
+        </activity>
+        <activity
+            android:name="com.mbp1.DodajProdukt"
+            android:label="@string/title_activity_dodaj_produkt" >
+        </activity>
     </application>
 
 </manifest>

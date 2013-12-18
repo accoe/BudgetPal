@@ -54,7 +54,7 @@ public class Stats extends Activity {
 		b1.setText(Html.fromHtml("&raquo;"));
 		b2.setText(Html.fromHtml("&laquo;"));
 
-		final Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+		final Spinner spinner = (Spinner) findViewById(R.id.spinnerDodajProduktKategorie);
 		List<String> list = new ArrayList<String>();
 		list.add("wydatki");
 		list.add("przychody");

@@ -22,5 +22,7 @@
     <string name="title_activity_about">O aplikacji</string>
     <string name="title_activity_zaloz_konto">Załóż konto</string>
     <string name="title_activity_faq">FAQ</string>
+    <string name="title_activity_powiadomienia">Powiadomienia</string>
+    <string name="title_activity_dodaj_produkt">Dodaj produkt do bazy</string>
 
 </resources>

@@ -1,26 +1,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
-    <TwoLineListItem 
+    android:layout_height="match_parent" >
+
+    <TwoLineListItem
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="3dp"
+        android:listSelector="@drawable/list_selector"
+        android:paddingBottom="6dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:paddingBottom="6dp">
-            <TextView
-        android:id="@+id/textWybierzBudzet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:paddingTop="3dp" >
+        
+        <TextView
+            android:id="@+id/textWybierzBudzet"
+            android:layout_width="70dip"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    		<TextView
-        android:id="@+id/textEdytujBudzetNazwa"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textWybierzBudzet"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        <TextView
+            android:id="@+id/textEdytujBudzetNazwa"
+            android:layout_width="30dip"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textWybierzBudzet"
+            android:background="@color/black_overlay"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
     </TwoLineListItem>
+
 </LinearLayout>

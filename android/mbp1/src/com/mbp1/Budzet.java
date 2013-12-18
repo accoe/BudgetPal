@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.util.Log;
@@ -38,6 +39,7 @@ public class Budzet extends SherlockActivity implements ActionBar.TabListener {
 	int BudzetID;
 	ListView listActiv;
 	String BudzetNazwa;
+	Typeface tf;
 	int skip = 3;
 	private TextView mSelected;
 	
@@ -48,6 +50,9 @@ public class Budzet extends SherlockActivity implements ActionBar.TabListener {
 		
 		mSelected = (TextView)findViewById(R.id.text);
 
+		tf = Typeface.createFromAsset(getAssets(),
+				"fonts/Roboto-Regular.ttf");
+		
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
             ActionBar.Tab tab1 = getSupportActionBar().newTab();
             tab1.setText("Bud¿ety");

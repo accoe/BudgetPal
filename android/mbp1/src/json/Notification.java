@@ -6,5 +6,5 @@ public class Notification {
 	public String typ;
 	public String tekst;
 	public String data;
-	public boolean przeczytane;
+	public int przeczytane;
 }

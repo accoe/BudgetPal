@@ -16,7 +16,7 @@
         android:layout_below="@+id/textStatsMiesiac" />
 
     <Spinner
-        android:id="@+id/spinner1"
+        android:id="@+id/spinnerDodajProduktKategorie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

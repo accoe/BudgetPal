@@ -53,7 +53,6 @@ public class ListAdapter extends BaseAdapter {
 
 		holder.text1.setText(this.list1.get(position));
 		holder.text2.setText(this.list2.get(position));
-
 		return vi;
 	}
 

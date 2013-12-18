@@ -317,13 +317,22 @@ public class WebService {
             return new Gson().fromJson(json, double.class);
         }
     }
-    public Notificatons GetNotifications(boolean all) throws Exception {
+    public Notifications GetNotifications(boolean all) throws Exception {
     	String url = "server.php?a=getnotifications&all="+all;
     	this.getJsonFromUrl(url);this.status = new GetStatus(json); 
     	if (this.status.isSet()) {	
     		return null;
     	} else {	
-    		return new Gson().fromJson(json, Notificatons.class);
+    		return new Gson().fromJson(json, Notifications.class);
+    	}
+    }
+    public Notifications GetNotifications() throws Exception {
+    	String url = "server.php?a=getnotifications&all=true";
+    	this.getJsonFromUrl(url);this.status = new GetStatus(json); 
+    	if (this.status.isSet()) {	
+    		return null;
+    	} else {	
+    		return new Gson().fromJson(json, Notifications.class);
     	}
     }
     public boolean MarkNotificationAsRead(int notificationId) throws Exception {
@@ -335,14 +344,14 @@ public class WebService {
     	else	
     		return true;
     }
-    public Notificatons CheckNotifications() throws Exception {
+    public Notifications CheckNotifications() throws Exception {
     	String url = "server.php?a=checknotifications";
     	this.getJsonFromUrl(url);this.status = new GetStatus(json); 
     	if (this.status.isSet()) {	
     		return null;
     	}
     	else {	
-    		return new Gson().fromJson(json, Notificatons.class);
+    		return new Gson().fromJson(json, Notifications.class);
     	}
     }
     public boolean AddScheduledExpense(int budgetId, String productName, double amount, String date) throws Exception {

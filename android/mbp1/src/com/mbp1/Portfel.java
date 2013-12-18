@@ -19,8 +19,8 @@ import json.Activities;
 import json.Budgets;
 import json.Expenses;
 import json.Incomes;
+import json.Notifications;
 import json.Singleton;
-import android.net.Uri;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -70,6 +70,9 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 	TextView bilansBudzetu;
 	public static final String DANE_BUDZETU = "DANE_BUDZETU";
 	int currentTab = 0;
+	int powiadomien = 0;
+	int liczbaMiesiecy = 0;
+	String[] kategorie = {"pensja","inne"};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,19 +86,19 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 
 		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		ActionBar.Tab tab1 = getSupportActionBar().newTab()
-				.setIcon(R.drawable.ic_aktywnosc).setTabListener(this)
+				.setIcon(R.drawable.ic_activity).setTabListener(this)
 				.setTag("aktywnosc");
 		getSupportActionBar().addTab(tab1);
 		ActionBar.Tab tab2 = getSupportActionBar().newTab()
-				.setIcon(R.drawable.ic_wydatki).setTabListener(this)
+				.setIcon(R.drawable.ic_expences).setTabListener(this)
 				.setTag("wydatki");
 		getSupportActionBar().addTab(tab2);
 		ActionBar.Tab tab3 = getSupportActionBar().newTab()
-				.setIcon(R.drawable.ic_przychody).setTabListener(this)
+				.setIcon(R.drawable.ic_incomes).setTabListener(this)
 				.setTag("przychody");
 		getSupportActionBar().addTab(tab3);
 		ActionBar.Tab tab4 = getSupportActionBar().newTab()
-				.setIcon(R.drawable.ic_stats).setTabListener(this)
+				.setIcon(R.drawable.ic_stats_1).setTabListener(this)
 				.setTag("stats");
 		getSupportActionBar().addTab(tab4);
 
@@ -109,7 +112,7 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 		bilansBudzetu = (TextView) findViewById(R.id.textBilans);
 		b1 = (Button) findViewById(R.id.btnZalozKonto);
 		b2 = (Button) findViewById(R.id.calc8);
-		spinner = (Spinner) findViewById(R.id.spinner1);
+		spinner = (Spinner) findViewById(R.id.spinnerDodajProduktKategorie);
 		przegladarka = (WebView) findViewById(R.id.webView);
 		list = new ArrayList<String>();
 		listaNazw = new ArrayList<String>();
@@ -388,6 +391,202 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
+	public void wczytajStats2() {
+		element.setText(Html.fromHtml("<b>Statystyki</b>"));
+		listBudgets.setVisibility(View.GONE);
+		przegladarka.setVisibility(View.VISIBLE);
+		b1.setVisibility(View.VISIBLE);
+		b2.setVisibility(View.VISIBLE);
+		spinner.setVisibility(View.VISIBLE);
+		bilansBudzetu.setVisibility(View.GONE);
+		nazwaMiesiaca.setVisibility(View.VISIBLE);
+		liczbaMiesiecy = 5;
+
+		final String[] nazwyMiesiecy = { "styczeñ", "luty", "marzec",
+				"kwiecieñ", "maj", "czerwiec", "lipiec", "sierpieñ",
+				"wrzesieñ", "paŸdziernik", "listopad", "grudzieñ" };
+
+		przegladarka.getSettings().setJavaScriptEnabled(true);
+
+		b1.setText(Html.fromHtml("&raquo;"));
+		b2.setText(Html.fromHtml("&laquo;"));
+
+		list.clear();
+		list.add("wydatki");
+		list.add("przychody");
+		ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, list);
+		dataAdapter
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(dataAdapter);
+
+		// Wykresy
+		chart = new Chart(Singleton.getInstance().ws);
+		chart.properties.setSize(270, 270);
+		// Ko³owe
+		nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1] + " "
+				+ wybranyRok);
+
+		spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (String.valueOf(spinner.getSelectedItem()).equals("wydatki")) {
+
+					// wydatki
+					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+						b1.setVisibility(View.GONE);
+					}
+					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+							+ " " + wybranyRok);
+					chart1 = chart.IncomesCategoryChart(budzetID,
+							liczbaMiesiecy, kategorie);
+					if (chart.notEmpty) {
+						przegladarka.loadData(chart1, "text/html", "UTF-8");
+					} else {
+						przegladarka.loadData("Brak wydatk&#243;w.",
+								"text/html", "UTF-8");
+					}
+
+					// wydatki - miesiac wstecz
+
+					b2.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							b1.setVisibility(View.VISIBLE);
+							--wybranyMiesiac;
+							if (wybranyMiesiac < 1) {
+								wybranyRok--;
+								wybranyMiesiac = 12;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesCategoryChart(budzetID,
+									liczbaMiesiecy, kategorie);
+							if (chart.notEmpty) {
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak wydatk&#243;w.",
+										"text/html", "UTF-8");
+							}
+						}
+					});
+
+					// wydatki - miesiac do przodu
+
+					b1.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							wybranyMiesiac++;
+							if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+								b1.setVisibility(View.GONE);
+							}
+							if (wybranyMiesiac > 12) {
+								wybranyRok++;
+								wybranyMiesiac = 1;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesCategoryChart(budzetID,
+									liczbaMiesiecy, kategorie);
+							if (chart.notEmpty) {
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak wydatk&#243;w.",
+										"text/html", "UTF-8");
+							}
+						}
+					});
+
+				} else {
+					// przychody
+					if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+						b1.setVisibility(View.GONE);
+					}
+					nazwaMiesiaca.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+							+ " " + wybranyRok);
+					chart1 = chart.IncomesCategoryChart(budzetID,
+							liczbaMiesiecy, kategorie);
+					if (chart.notEmpty) {
+						przegladarka.loadData(chart1, "text/html", "UTF-8");
+					} else {
+						przegladarka.loadData("Brak przychod&#243;w.",
+								"text/html", "UTF-8");
+					}
+
+					// przychody - miesiac wstecz
+
+					b2.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							b1.setVisibility(View.VISIBLE);
+							--wybranyMiesiac;
+							if (wybranyMiesiac < 1) {
+								wybranyRok--;
+								wybranyMiesiac = 12;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesCategoryChart(budzetID,
+									liczbaMiesiecy, kategorie);
+							if (chart.notEmpty) {
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychod&#243;w.",
+										"text/html", "UTF-8");
+							}
+						}
+					});
+
+					// przychody - miesiac do przodu
+
+					b1.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							wybranyMiesiac++;
+							if (wybranyMiesiac == miesiac && wybranyRok == rok) {
+								b1.setVisibility(View.GONE);
+							}
+							if (wybranyMiesiac > 12) {
+								wybranyRok++;
+								wybranyMiesiac = 1;
+							}
+							nazwaMiesiaca
+									.setText(nazwyMiesiecy[wybranyMiesiac - 1]
+											+ " " + wybranyRok);
+							chart1 = chart.IncomesCategoryChart(budzetID,
+									liczbaMiesiecy, kategorie);
+							if (chart.notEmpty) {
+								przegladarka.loadData(chart1, "text/html",
+										"UTF-8");
+							} else {
+								przegladarka.loadData("Brak przychod&#243;w.",
+										"text/html", "UTF-8");
+							}
+						}
+					});
+
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+
+	}
+
 	public void wczytajAktywnosc() {
 		element.setText(Html.fromHtml("<b>" + budzetNazwa + "</b>"));
 		listBudgets.setVisibility(View.VISIBLE);
@@ -475,79 +674,147 @@ public class Portfel extends SherlockActivity implements ActionBar.TabListener {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		appMenu = menu;
-		menu.add(0, 7, 0, "Powiadomienia").setIcon(R.drawable.ic_powiadomienie)
-				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		SubMenu sub = menu.addSubMenu("Menu");
-		sub.add(1, 4, 1, "Limity");
 		try {
-			Budgets budgets = Singleton.getInstance().ws.GetBudgets();
-			if (budgets != null)
-				sub.add(1, 5, 1, "Zmieñ bud¿et");
+			menu.add(0, 10, 0, "1")
+					.setIcon(R.drawable.ic_notification)
+					.setTitle("3")
+					.setShowAsAction(
+							MenuItem.SHOW_AS_ACTION_ALWAYS
+									| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		sub.add(1, 4, 1, "O aplikacji");
-		sub.add(1, 3, 1, "Wyloguj");
+		SubMenu sub = menu.addSubMenu("Menu");
+		sub.add(1, 7, 1, "Planowanie");
+		sub.add(1, 6, 1, "Limity");
+		sub.add(1, 5, 1, "Opcje bud¿etu");
+		sub.add(1, 4, 1, "Zmieñ bud¿et");
+		sub.add(1, 3, 1, "FAQ");
+		sub.add(1, 2, 1, "O aplikacji");
+		sub.add(1, 1, 1, "Wyloguj");
 		sub.getItem().setShowAsAction(
 				MenuItem.SHOW_AS_ACTION_ALWAYS
 						| MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 		if (currentTab == 1) {
-			menu.add(2, 8, 2, "Dodaj wydatek").setIcon(R.drawable.ic_dodaj)
+			menu.add(2, 11, 2, "Dodaj wydatek").setIcon(R.drawable.ic_add)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		} else if (currentTab == 2) {
-			menu.add(2, 6, 2, "Dodaj przychód").setIcon(R.drawable.ic_dodaj)
+			menu.add(2, 12, 2, "Dodaj przychód").setIcon(R.drawable.ic_add)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		} else if (currentTab == 3) {
-			menu.add(2, 6, 2, "Zmieñ typ wykresu").setIcon(R.drawable.ic_stats)
+			menu.add(2, 13, 2, "Zmieñ typ wykresu")
+					.setIcon(R.drawable.ic_stats_2)
 					.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-		}
-		return true;
+		} else if (currentTab == 4) {
+		menu.add(2, 13, 2, "Zmieñ typ wykresu")
+				.setIcon(R.drawable.ic_stats_1)
+				.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+	}
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == 5) {
+		if (item.getItemId() == 10) {
+			try {
+				powiadomienia();
+			} catch (Exception e) {
+			}
+		} else if (item.getItemId() == 7) {
+			planowanie();
+		} else if (item.getItemId() == 6) {
+			limity();
+		} else if (item.getItemId() == 5) {
+			opcjeBudzetu();
+		} else if (item.getItemId() == 4) {
 			registerForContextMenu(getWindow().getDecorView().findViewById(
 					android.R.id.content));
 			openContextMenu(getWindow().getDecorView().findViewById(
 					android.R.id.content));
-			return false;
-		} else if (item.getItemId() == 4) {
 		} else if (item.getItemId() == 3) {
-			try {
-				if (Singleton.getInstance().ws.Logout() == true) {
-					Toast.makeText(Portfel.this, "Wylogowano",
-							Toast.LENGTH_SHORT).show();
-					Intent myIntent = new Intent(Portfel.this,
-							MainActivity.class);
-					Portfel.this.startActivity(myIntent);
-				} else
-					Toast.makeText(Portfel.this, "Problem z wylogowaniem",
-							Toast.LENGTH_SHORT).show();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return true;
+			faq();
+		} else if (item.getItemId() == 2) {
+			about();
+		} else if (item.getItemId() == 1) {
+			wyloguj();
 		} else if (item.getItemId() == 6) {
-			Intent intent = Portfel.this.getPackageManager()
-					.getLaunchIntentForPackage("edu.sfsu.cs.orange.ocr");
-			if (intent != null) {
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-			} else {
-				intent = new Intent(Intent.ACTION_VIEW);
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				intent.setData(Uri.parse("market://details?id="
-						+ "edu.sfsu.cs.orange.ocr"));
-				startActivity(intent);
+		} else if (item.getItemId() == 11) {
+			try {
+				dodajWydatek();
+			} catch (Exception e) {
 			}
-			return false;
-		} else if (item.getItemId() == 8) {
-			Intent myIntent = new Intent(Portfel.this, Tab1.class);
-			Portfel.this.startActivity(myIntent);
-			return false;
+		} else if (item.getItemId() == 13) {
+			if (currentTab != 4) {
+				wczytajStats2();
+				changeMenu(4);
+			} else {
+				wczytajStats();
+				changeMenu(3);
+			}
 		}
 		return true;
+	}
+
+	public void wyloguj() {
+		try {
+			if (Singleton.getInstance().ws.Logout() == true) {
+				Toast.makeText(Portfel.this, "Wylogowano", Toast.LENGTH_SHORT)
+						.show();
+				Intent myIntent = new Intent(Portfel.this, MainActivity.class);
+				Portfel.this.startActivity(myIntent);
+			} else
+				Toast.makeText(Portfel.this, "Problem z wylogowaniem",
+						Toast.LENGTH_SHORT).show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void dodajWydatek() {
+		Intent myIntent = new Intent(Portfel.this, DodajWydatek.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void about() {
+		Intent myIntent = new Intent(Portfel.this, About.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void faq() {
+		Intent myIntent = new Intent(Portfel.this, FAQ.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void opcjeBudzetu() {
+		Intent myIntent = new Intent(Portfel.this, FAQ.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void limity() {
+		Intent myIntent = new Intent(Portfel.this, FAQ.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void planowanie() {
+		Intent myIntent = new Intent(Portfel.this, FAQ.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public void powiadomienia() {
+		Intent myIntent = new Intent(Portfel.this, Powiadomienia.class);
+		Portfel.this.startActivity(myIntent);
+	}
+
+	public int ilePowiadomien() {
+		try {
+			Notifications notifications = Singleton.getInstance().ws
+					.CheckNotifications();
+			if (notifications != null)
+				powiadomien = notifications.count;
+			else
+				powiadomien = 0;
+		} catch (Exception e) {
+		}
+		return powiadomien;
 	}
 
 	@Override

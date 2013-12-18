@@ -10,11 +10,13 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -34,6 +36,9 @@ public class MainActivity extends Activity {
 
 		app = (MyApplication) getApplication();
 
+		TextView title = (TextView) findViewById(R.id.textLogowanie);
+		title.setText(Html.fromHtml("<b>Logowanie</b>"));
+
 		boxLogin = (EditText) this.findViewById(R.id.editTextLogin);
 		boxPassword = (EditText) this.findViewById(R.id.editTextPassword);
 		SharedPreferences settings = getSharedPreferences(DANE_LOGOWANIA, 0);
@@ -46,7 +51,6 @@ public class MainActivity extends Activity {
 
 		Button btnLogin = (Button) this.findViewById(R.id.buttonLogIn);
 		Button btnRegister = (Button) this.findViewById(R.id.btnZalozKonto);
-
 		try {
 			btnLogin.setOnClickListener(new OnClickListener() {
 				@Override
