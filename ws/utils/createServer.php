@@ -24,6 +24,7 @@ class createServer {
 		$class_methods = get_class_methods($class);
 		
 		echo '<?php
+
 				require_once \'mainClass.php\';
 				require_once \'config.php\';
 				require_once \'lang/english.php\';
@@ -31,7 +32,6 @@ class createServer {
 				$json = true;
 				define(\'USE_JSON\',true);
 				define(\'PRETTY_PRINT\',true);
-				
 				if ($json)
 					if (isset($_GET[\'pp\']))
 						require_once \'formats/json_pp.php\';

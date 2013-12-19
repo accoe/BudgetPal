@@ -1,0 +1,112 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="10dp"
+    tools:context=".Portfel" >
+
+    <TextView
+        android:id="@+id/textBudzetNazwaBudzetu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textBudzetBilans2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	<ListView
+        android:id="@+id/listBudgets"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:listSelector="@drawable/list_selector"
+        android:layout_below="@+id/textWybierzBudzet2" >
+    </ListView>
+
+    <TextView
+        android:id="@+id/textWybierzBudzet2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <ListView
+        android:id="@+id/listAktywnosci"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/imageRemove"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/textAktywnosc" >
+    </ListView>
+
+    <TextView
+        android:id="@+id/textAktywnosc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/textBudzetBilans"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+	<WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textStatsMiesiac" />
+
+    <Spinner
+        android:id="@+id/spinnerDodajProduktKategorie"
+		android:layout_below="@+id/textWybierzBudzet2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp" />
+
+    <Button
+        android:id="@+id/calc8"
+        android:layout_below="@+id/textWybierzBudzet2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true" />
+
+    <Button
+        android:id="@+id/btnZalozKonto"
+        android:layout_below="@+id/textWybierzBudzet2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true" />
+
+    <TextView
+        android:id="@+id/textStatsMiesiac"
+        android:layout_below="@+id/calc8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textBilans"
+        android:layout_width="wrap_content"     
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textWybierzBudzet2"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:textAppearance="?android:attr/textAppearance" />
+
+</RelativeLayout>

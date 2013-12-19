@@ -31,6 +31,38 @@ $errors['PRODUCT_NOT_ADDED'] = 'This product cannot be added';
 $errors['CANNOT_GET_EXPENSES'] = 'Cannot get expenses';
 $errors['EXPENSE_NOT_ADDED'] = 'This expense cannot be added';
 
+$errors['NO_SUCH_ORDER'] = 'There is no order type';
+$errors['CANNOT_GET_PRODUCTS'] = 'Cannot get list of products';
+$errors['CANNOT_GET_INCOMES'] = 'Cannot get list of incomes';
+$ok['INCOME_ADDED'] = 'Income has been added successfully';
+$errors['INCOME_NOT_ADDED'] = 'Income has not been added';
+$errors['CANNOT_GET_ACTIVITIES'] = 'Cannot get list of recent activities';
+$errors['NO_INCOMES_ADDED'] = 'You don\'t have any incomes' ;
+$errors['NO_EXPENSES_ADDED'] = 'You don\'t have any expenses';
+$errors['NO_NOTIFICATIONS'] = 'You don\'t have any notifications';
+$errors['NOTIFICATION_MARKED'] = 'Notification has been marked as read';
+$errors['NOTIFICATION_NOT_MARKED'] = 'Notification has not been marked as read';
+$errors['NO_SUCH_NOTIFICATION'] = 'This notification doesn\'t exist';
+$errors['UPDATED'] = 'Updated successfully';
+$errors['NOT_UPDATED'] = 'Not updated';
+$errors['SCHEDULED_EXPENSE_ADDED'] = 'Scheduled expense has been added successfully';
+$errors['SCHEDULED_EXPENSE_NOT_ADDED'] = 'Scheduled expense has not been added';
+$errors['SCHEDULED_EXPENSE_ALREADY_EXISTS'] = 'Scheduled expense already exists';
+$errors['NO_SCHEDULED_EXPANSES'] = 'You don\'t have any scheduled expenses';
+$errors['SCHEDULED_INCOME_ADDED'] = 'Scheduled income has been added successfully';
+$errors['SCHEDULED_INCOME_NOT_ADDED'] = 'Scheduled income has not been added';
+$errors['SCHEDULED_INCOME_ALREADY_EXISTS'] = 'Scheduled income already exists';
+$errors['NO_SCHEDULED_INCOMES'] = 'You don\'t have any scheduled incomes';
+$errors['NO_EXPENSES_IN_MONTH'] = 'You don\'t have any expenses in this month';
+$errors['NO_INCOMES_IN_MONTH'] = 'You don\'t have any incomes in this month';
+$errors['NO_LIMITS'] = 'You don\'t have any limits defined';
+$errors['LIMIT_ADDED'] = 'Limit has been added successfully';
+$errors['LIMIT_NOT_ADDED'] = 'Limit has not been added';
+$errors['NEW_NOTIFICATIONS_ADDED'] = 'New notification has been added';
+$errors['NO_NEW_NOTIFICATIONS'] = 'You don\'t have any new notifications';
+$errors['NO_LIMITS'] = 'You don\'t have any limits defined';
+
+
 
 $ok['PRODUCT_ADDED'] = 'Product has been added successfully';
 $ok['EXPENSE_ADDED'] = 'Expanse has been added successfully';

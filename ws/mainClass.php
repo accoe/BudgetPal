@@ -10,6 +10,7 @@ class mainClass
     var $DBPASS;
     var $userId;
 	var $DEBUG;
+	
     public function __construct($user, $password, $host, $database) 
     {
         $this->DBUSER = $user;
@@ -39,6 +40,7 @@ class mainClass
     {
     	$this->mysqli = new mysqli($this->DBHOST, $this->DBUSER, $this->DBPASS, $this->DBNAME);
     	$this->mysqli->connect_error;
+        $this->mysqli->set_charset("utf8");
     }
     
     public function Close()
@@ -86,7 +88,7 @@ class mainClass
     private function InitializeSession() 
     {
         $session_name = 'myBudgetPal';
-        ini_set('session.use_only_cookies', 1);
+        ini_set('session.use_only_cookies', 0);
         $cookieParams = session_get_cookie_params();
         session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"]);
         session_name($session_name);
@@ -278,8 +280,10 @@ class mainClass
     	return $sql . " ORDER BY ".$columns." DESC";
     }
     
-    private function Limit($sql, $limit){
-    	return $sql . " LIMIT ".$limit;
+    private function Limit($sql, $limit,$offset){
+        if (empty($offset))
+            $offset = 0;
+    	return $sql . " LIMIT $offset,$limit";
     }
     
 	private function OrderBy($sql, $columns, $mode)
@@ -342,10 +346,10 @@ class mainClass
 
 
     /** 
-     * @desc Funkcja rejestruje uzytkownika
+     * @desc Funkcja rejestruje nowego u&#380;ytkownika w systemie. Sprawdza, czy dany login i mail nie s&#261; wykorzystywane przez innego u&#380;ytkownika.
      * @param String, String, String
      * @return boolean
-     * @example krystek, trunde, krystek@example.com
+     * @example krystek, trudne, krystek@example.com
      * @logged false
      */
     public function Register($login, $password, $email) 
@@ -368,10 +372,10 @@ class mainClass
     }
 
 	/** 
-	  * @desc Zaloguj uzytkownika
+	  * @desc Funkcja umo&#380;lia zalogowanie u&#380;ytkownika do systemu. W przypadku podania b&#322;&#281;nych danych wy&#347;wietla odpowiednie informacje. <br/>(haslo <b>password</b>)
 	  * @param String, String
 	  * @return boolean
-	  * @example test, ed5465b9220df9ce176d0bf30d6a317729bd9d37e4ae1cc015cb24c99af1df49
+	  * @example test, 5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8
 	  * @logged false
 	  */
     public function Login($user, $password)
@@ -400,7 +404,7 @@ class mainClass
 
 
     /** 
-      * @desc Wylogowuje uztykownika
+      * @desc Funkcja wylogowuje u&#380;ytkownika, ko&#324;czy sesj&#281; i usuwa ciasteczka
       * @param void
       * @return boolean
       * @example void
@@ -416,7 +420,7 @@ class mainClass
     }
 
     /** 
-      * @desc Zwraca liste budzetow nalezacych do uzytkownika
+      * @desc Metoda zwraca list&#281; bud&#380;et&#243;w nale&#380;&#261;cych do u&#380;ytkownika, zwraca nazw&#281;, opis oraz dat&#281; utworzenia bud&#380;etu.
       * @param void
       * @return Budgets
       * @example void
@@ -442,7 +446,7 @@ class mainClass
    
     
     /** 
-      * @desc Dodaje budzet 
+      * @desc Metoda pozwalaj&#261;ca na dodanie nowego bud&#380;etu do listy bud&#380;et&#243;w u&#380;ytkownika. 
       * @param String, String
       * @return boolean
       * @example testowy, Testowy opis budzetu
@@ -465,7 +469,7 @@ class mainClass
     }
     
     /**
-     * @desc Modyfikuje zdefiniowany budzet
+     * @desc Modyfikuje zdefiniowany bud&#380;et nale&#380;&#261;cy do u&#380;ytkownika
      * @param int, String, String
      * @return boolean
      * @example 14, Nowa nazwa, zmieniony opis
@@ -476,7 +480,7 @@ class mainClass
     	if (!$this->DoesBudgetExist($budgetId))
     		return status('NO_SUCH_BUDGET');
     	{
-    		// Pobierz stare wartości
+    		// Pobierz stare warto&#347;ci
     		if ($s = $this->mysqli->prepare("SELECT nazwa, opis FROM Budzet where where ID_Uzytkownika = ? ID_Budzetu = ?")) {
     			$s->bind_param('ii',$this->userId, $budgetId);
     			$s->execute();
@@ -500,7 +504,7 @@ class mainClass
     }
     
     /** 
-      * @desc Usuwa zdefiniowany budzet
+      * @desc Usuwa bud&#380;et zdefiniowany przez u&#380;ytkownika - dane o wydatkach i dochodach przypisanych do bud&#380;etu pozostaj&#261; 
       * @param int
       * @return boolean
       * @example 14
@@ -524,7 +528,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę kategorii produktów
+     * @desc Pobiera list&#281; kategorii produkt&#243;w/wydatk&#243;w
      * @param void
      * @return ProductsCategories
      * @example void
@@ -549,7 +553,7 @@ class mainClass
 
 
     /** 
-      * @desc Dodaje kategorie do listy kategorii produktow
+      * @desc Dodaje kategori&#281; do listy kategorii produkt&#243;w, je&#380;eli kategoria z podan&#261; nazw&#261; ju&#380; istnieje wy&#347;wietla odpowiedni komunikat.
       * @param String
       * @return boolean
       * @example owoce
@@ -572,7 +576,7 @@ class mainClass
     }
 
     /**
-     * @desc Pobiera listę kategorii przychodow
+     * @desc Pobiera list&#281; kategorii przychod&#243;w.
      * @param void
      * @return IncomeCategories
      * @example void
@@ -597,7 +601,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje kategorie do listy kategorii przychodow
+     * @desc Dodaje kategori&#281; do listy kategorii przychod&#243;w, je&#380;eli kategoria z podan&#261; nazw&#261; ju&#380; istnieje wy&#347;wietla odpowiedni komunikat.
      * @param String
      * @return boolean
      * @example pensja
@@ -623,7 +627,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje produkt do listy produktow
+     * @desc Dodaje produkt do listy produkt&#243;w, je&#380;eli nie podano kategorii do kt&#243;rej nale&#380;y produkt to automatycznie dodaje do kategorii 'inne'.
      * @param String, int
      * @return boolean
      * @example jablko, 1
@@ -650,7 +654,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę produktów
+     * @desc Pobiera list&#281; produkt&#243;w dost&#281;pnych w bazie danych wraz z nazw&#261; kategorii do kt&#243;rej nale&#380;y produkt.
      * @param void
      * @return Products
      * @example void
@@ -674,23 +678,33 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera listę wydatków ze wskazanego budzetu
-     * @param int
+     * @desc Pobiera list&#281; wydatk&#243;w ze wskazanego bud&#380;etu
+     * @param int, String, int, int
      * @return Expenses
-     * @example 1
+     * @example 1, DESC, 10, 0
      * @logged true
      */
-    public function GetExpenses($budgetId)
+    public function GetExpenses($budgetId,$order = 'DESC', $limit = 10, $offset = 0)
     {
+        if (empty($order))
+            $order = "DESC";
+        if (empty($limit))
+            $limit = 20;    
+        if (empty($offset))
+            $offset = 0;        
+        
+        $sql = $this->OrderBy('SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
+                    FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?'
+        , "W.data", $order);          
+        $sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
-	    	if ($s = $this->mysqli->prepare("SELECT W.ID_Wydatku,W.ID_Produktu, P.nazwa, W.kwota, W.data 
-	    			FROM Wydatki W join Produkty P on W.ID_Produktu = P.ID_Produktu where W.ID_Budzetu = ?")) {
+	    	if ($s = $this->mysqli->prepare($sql)) {
 	    		$s->bind_param('i', $budgetId);
 	    		$s->execute();
 	    		$s->bind_result($ID_Wydatku,$ID_Produktu, $nazwa, $kwota, $data);
 	    		$arr = array();
 	            	while ( $s->fetch() ) {
-	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => $kwota, 'data' => $data);
+	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data' =>$this->PrettyDates($data));
 	                    $arr[] = $row;
 	                }
 	                return array('count' =>  $s->num_rows,
@@ -705,7 +719,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje nowy wydatek
+     * @desc Dodaje nowy wydatek do bud&#380;etu wskazanego przez u&#380;ytkownika. Je&#380;eli dodawany jest produkt, kt&#243;ry nie istnieje jeszcze w bazie danych to najpierw dodawany jest nowy produkt z kategorii inne. 
      * @param int, String, double, int
      * @return boolean
      * @example 3, jablko, 1.3, 1
@@ -786,22 +800,32 @@ class mainClass
     
     
     /**
-     * @desc Pobiera listę dochodow ze wskazanego budzetu
-     * @param int
+     * @desc Pobiera list&#281; dochod&#243;w ze wskazanego budzetu
+     * @param int, String, int, int 
      * @return Incomes
-     * @example 1
+     * @example 1, DESC, 10, 0
      * @logged true
      */
-    public function GetIncomes($budgetId)
+    public function GetIncomes($budgetId,$order = 'DESC', $limit = 10, $offset = 0)
     {
+        if (empty($order))
+            $order = "DESC";
+        if (empty($limit))
+            $limit = 20;    
+        if (empty($offset))
+            $offset = 0;        
+        
+        $sql = $this->OrderBy('SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?'
+        , "data", $order);          
+        $sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
-    		if ($s = $this->mysqli->prepare("SELECT ID_Przychodu, nazwa, kwota, data FROM Przychody where ID_Budzetu = ?")) {
+    		if ($s = $this->mysqli->prepare($sql)) {
     	    			$s->bind_param('i', $budgetId);
     	    			$s->execute();
     	    			$s->bind_result($ID_Przychodu, $nazwa, $kwota, $data);
     	    			$arr = array();
     	    			while ( $s->fetch() ) {
-    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $this->PrettyDates($data));
     	    				$arr[] = $row;
     	    			}
     	    			return array('count' =>  $s->num_rows,
@@ -816,10 +840,10 @@ class mainClass
     
     
     /**
-     * @desc Dodaje nowy przychod
+     * @desc Dodaje nowy doch&#243;d do listy dochod&#243;w
      * @param int, String, double, int
      * @return boolean
-     * @example 3, Wypłata listopad, 1600, 1
+     * @example 3, Wyp&#322;ata listopad, 1600, 1
      * @logged true
      */
     public function AddIncome($budgetId,$name,$amount,$incomeCategory)
@@ -838,24 +862,51 @@ class mainClass
     	}
     }
     
+    
+
+    private function GetActivitiesFromMonth($budgetId, $month, $year)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare('(SELECT "przychod" AS  "rodzaj",ID_Przychodu as ID_Zdarzenia, nazwa, kwota, data FROM Przychody WHERE ID_Budzetu = ? and month(data) = ? and year(data) = ?) UNION
+    (SELECT  "wydatek" AS  "rodzaj",`ID_Wydatku` as ID_Zdarzenia, nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu = ? and month(W.data) = ? and year(W.data) = ?)')) {
+                $s->bind_param('iiiiii', $budgetId, $month, $year,$budgetId, $month, $year);
+                $s->execute();
+                $s->bind_result($rodzaj,$ID_Zdarzenia, $nazwa, $kwota, $data);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
+                    $arr[] = $row;
+                }
+                return $arr;
+            }
+            else
+                return null;
+        }
+        else
+            return null;
+    }
+    
+
     /**
-     * @desc Pobiera listę ostatnich operacji ze wskazanego budzetu
-     * @param int, String, int
+     * @desc Pobiera list&#281; ostatnich operacji ze wskazanego bud&#380;etu - lista zawiera zar&#243;wno wydatki jak i dochody. Metoda daje mo&#380;liwo&#347;&#263; okre&#347;lenia limitu, offsetu oraz sposobu sortowania element&#243;w.
+     * @param int, String, int, int
      * @return Activities
-     * @example 1, DESC, 20
+     * @example 1, DESC, 20, 3
      * @logged true
      */
-    public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20)
+    public function GetRecentActivities($budgetId, $order = "DESC ", $limit = 20, $offset = 0)
     {	
     	if (empty($order))
     		$order = "DESC";
     	if (empty($limit))
-    		$limit = 20;    	 	
+    		$limit = 20;    
+        if (empty($offset))
+            $offset = 0;	 	
     	
    		$sql = $this->OrderBy('(SELECT "przychod" AS  "rodzaj",ID_Przychodu as ID_Zdarzenia, nazwa, kwota, data FROM Przychody WHERE ID_Budzetu = ?) UNION
     (SELECT  "wydatek" AS  "rodzaj",`ID_Wydatku` as ID_Zdarzenia, nazwa, kwota, W.data FROM Wydatki W JOIN Produkty P ON W.ID_Produktu = P.ID_Produktu WHERE ID_Budzetu = ?)'
     	, "data", $order);   		
-		$sql = $this->Limit($sql,$limit);
+		$sql = $this->Limit($sql,$limit,$offset);
     	if ($this->DoesBudgetExist($budgetId)){
     		if ($s = $this->mysqli->prepare($sql)) {
     			$s->bind_param('ii', $budgetId,$budgetId);
@@ -863,7 +914,8 @@ class mainClass
     			$s->bind_result($rodzaj,$ID_Zdarzenia, $nazwa, $kwota, $data);
     			$arr = array();
     			while ( $s->fetch() ) {
-    				$row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => $kwota, 'data'=> $data);
+                    $data = $this->PrettyDates($data);
+    				$row = array('rodzaj' => $rodzaj,'ID_Zdarzenia' => $ID_Zdarzenia, 'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
     				$arr[] = $row;
     			}
     			return array('count' =>  $s->num_rows,
@@ -878,7 +930,7 @@ class mainClass
    
     
     /**
-     * @desc Pobiera sume przychodow
+     * @desc Pobiera sum&#281; dochod&#243;w ze wskazanego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -903,7 +955,7 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera sume wydatkow
+     * @desc Pobiera sum&#281; wydatk&#243;w ze wskazanego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -931,7 +983,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera bilans danego budzetu
+     * @desc Pobiera bilans danego bud&#380;etu u&#380;ytkownika.
      * @param int
      * @return double
      * @example 1
@@ -952,7 +1004,7 @@ class mainClass
     
     
     /**
-     * @desc Pobiera powiadomienia
+     * @desc Pobiera powiadomienia u&#380;ytkownika. Metoda daje mo&#380;liwo&#347;&#263; wyboru mi&#281;dzy wy&#347;wietlaniem wszystkich powiadomie&#324; i wy&#347;wietlaniem tych nieprzeczytanych.
      * @param boolean
      * @return Notificatons
      * @example true
@@ -961,17 +1013,21 @@ class mainClass
     public function GetNotifications($all)
     {   
         $all = $all == 'true' ? 1 : 0; 
-        $all = $all ? 1 : 0;
-        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = 1 OR przeczytane <> ?)")) {
+        $all = $all ? 0 : 1;
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = 0 or przeczytane <> ?)")) {
                 $s->bind_param('ii', $this->userId,$all);
                 $s->execute();
                 $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
                 $arr = array();
+                $unreaded = 0;
                 while ( $s->fetch() ) {
-                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane);
+                    if (!$przeczytane)
+                        $unreaded++;
+                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$this->PrettyDates($data),'przeczytane' => $przeczytane);
                     $arr[] = $row;
                 }
                 return array('count' =>  $s->num_rows,
+                             'unreaded' => $unreaded,
                              'notifications' => $arr);
             }
             else
@@ -979,9 +1035,9 @@ class mainClass
     }
     
     /**
-     * @desc Oznacza powiadomienie jako przeczytane
+     * @desc Metoda pozwala na oznaczenie powiadomienia jako przeczytane.
      * @param int
-     * @return void
+     * @return boolean
      * @example 1
      * @logged true
      */
@@ -1048,7 +1104,7 @@ class mainClass
     }
     
     /**
-     * @desc Sprawdza wszystkie powiadomienia - data równa lub mniejsza niz dzisiaj
+     * @desc Sprawdza wszystkie powiadomienia - data r&#243;wna lub mniejsza ni&#380; dzisiaj. W przpadku, gdy powiadomienia dotycz&#261; zaplanowanych wydatk&#243;w/dochod&#243;w to dodaje r&#243;wnie&#380; zdarzenie do bud&#380;etu.
      * @param void
      * @return Notificatons
      * @example void
@@ -1081,7 +1137,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatkow
+     * @desc Dodaje zaplanowany wydatek do listy zaplanowanych wydatk&#243;w w danym bud&#380;ecie.
      * @param int,String, double, String
      * @return boolean
      * @example 1, paliwo, 100, 2013-12-20
@@ -1110,7 +1166,7 @@ class mainClass
     }
     
     /**
-     * @desc Dodaje zaplanowany wydatek do wydatkow
+     * @desc Dodaje zaplanowany wydatek do wydatk&#243;w
      * @param int
      * @return boolean
      * @example 10
@@ -1158,7 +1214,7 @@ class mainClass
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoWydatku,$produkt, $kategoria,$kwota,$data);
                 $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $this->PrettyDates($data));
                     $arr[] = $row;                     
                 }
                 if ($s->num_rows > 0)
@@ -1177,7 +1233,7 @@ class mainClass
     
     
     /**
-     * @desc Dodaje zaplanowany przychod
+     * @desc Dodaje zaplanowany doch&#243;w do listy zaplanowanych dochod&#243;w w danym bud&#380;ecie
      * @param int,String, String, double, String
      * @return boolean
      * @example 1, pensja grudzien, pensja, 4500, 2013-12-10
@@ -1207,7 +1263,7 @@ class mainClass
     }
     
     /**
-     * @desc Dodaje zaplanowany przychod do przychodow
+     * @desc Dodaje zaplanowany doch&#243;d do dochod&#243;w
      * @param int
      * @return boolean
      * @example 10
@@ -1238,7 +1294,7 @@ class mainClass
     }
 
     /**
-     * @desc Pobiera zaplanowane przychody (z przyszlosci)
+     * @desc Pobiera zaplanowane dochody (z przyszlosci)
      * @param int
      * @return ScheduledIncomes
      * @example 1
@@ -1253,7 +1309,7 @@ class mainClass
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
                 $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $this->PrettyDates($data));
                     $arr[] = $row;
                 }
                 if ($s->num_rows > 0)
@@ -1340,9 +1396,9 @@ class mainClass
     
  
     /**
-     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla wydatkow
+     * @desc Pobiera dane dotycz&#261;ce wydatk&#243;w przeznaczone dla wykresu ko&#322;owego. Wykres zawiera dane ze wskazanego miesi&#261;ca. 
      * @param int, String
-     * @return PieChart
+     * @return PieCharts
      * @example 1, 2013-12-10
      * @logged true
      */
@@ -1358,10 +1414,10 @@ class mainClass
                 foreach ($this->ExpenseCategories() as $category => $val) { 
                     $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$month,$year,$val);
                     $arr[] = array('kategoria' => $category,
-                                    'suma' => $sum_cat,
+                                    'suma' => round($sum_cat,2),
                                     'procent' => ($sum_cat/$sum));
                 }
-                return $arr;
+                return array('count' => count($this->ExpenseCategories()), 'PieChart' =>$arr);
             }
                 return status('NO_EXPENSES_IN_MONTH');
         }
@@ -1371,9 +1427,9 @@ class mainClass
     
 
     /**
-     * @desc Pobiera dane do wykresu z ustatnich $Months miesiecy z wydatkow z danej kategorii
+     * @desc Metoda pobiera dane dotycz&#261;ce wydak&#243;w z ostatnich miesi&#281;cy ze wskazanej kategorii. Wydatki dotycz&#261; wskazanej liczby miesi&#281;cy.
      * @param int, int, String
-     * @return BarChart
+     * @return BarCharts
      * @example 1, 6, inne
      * @logged true
      */
@@ -1386,11 +1442,11 @@ class mainClass
             foreach ($this->getMonths($months) as $date) {
                 $sum_cat = $this->GetSumOfExpensesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
                 $arr[] = array('kategoria' => $categoryName,
-                        'suma' => $sum_cat,
+                        'suma' => round($sum_cat,2),
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
-            return $arr;
+            return array('count' => count($this->getMonths($months)), 'BarChart' =>$arr);
         }
         else
             return status('NO_SUCH_BUDGET');
@@ -1420,7 +1476,7 @@ class mainClass
                                                 $s->fetch();
                                                 if (is_null($suma))
                                                     return 0;
-                                                return $suma;
+                                                return round($suma,2);
             }
             return 0;
         }
@@ -1447,7 +1503,7 @@ class mainClass
               
                 if (is_null($suma))
                     return 0;
-                return $suma;
+                return round($suma,2);
             }
             return 0;
         }
@@ -1457,9 +1513,9 @@ class mainClass
     
     
     /**
-     * @desc Pobiera dane do wykresu kolowego z danego miesiaca dla przchodow
+     * @desc Pobiera dane dotycz&#261;ce dochod&#243;w przeznaczone dla wykresu ko&#322;owego. Wykres zawiera dane ze wskazanego miesi&#261;ca.
      * @param int, String
-     * @return PieChart
+     * @return PieCharts
      * @example 1, 2013-12-10
      * @logged true
      */
@@ -1475,10 +1531,10 @@ class mainClass
                 foreach ($this->IncomeCategories() as $category => $val) {
                     $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$month,$year,$val);
                     $arr[] = array('kategoria' => $category,
-                            'suma' => $sum_cat,
+                            'suma' => round($sum_cat,2),
                             'procent' => ($sum_cat/$sum));
                 }
-                return $arr;
+               return array('count' => count($this->IncomeCategories()), 'PieChart' =>$arr);
             }
             return status('NO_INCOMES_IN_MONTH');
         }
@@ -1487,9 +1543,9 @@ class mainClass
     }
     
     /**
-     * @desc Pobiera dane do wykresu z ustatnich Months miesiecy z przchodow z danej kategorii
+     * @desc Metoda pobiera dane dotycz&#261;ce dochod&#243;w z ostatnich miesi&#281;cy ze wskazanej kategorii. Dochody dotycz&#261; wskazanej liczby miesi&#281;cy.
      * @param int, int, String
-     * @return BarChart
+     * @return BarCharts
      * @example 1, 6, inne
      * @logged true
      */
@@ -1502,11 +1558,11 @@ class mainClass
             foreach ($this->getMonths($months) as $date) {
                 $sum_cat = $this->GetSumOfIncomesFromMonthByCategory($budgetId,$date['month'],$date['year'],$category);
                 $arr[] = array('kategoria' => $categoryName,
-                        'suma' => $sum_cat,
+                        'suma' => round($sum_cat,2),
                         'month' => $date['month'],
                         'year' => $date['year']);
             }
-            return $arr;
+            return array('count' => count($this->getMonths($months)), 'BarChart' =>$arr);
         }
         else
             return status('NO_SUCH_BUDGET');
@@ -1576,10 +1632,40 @@ class mainClass
             return false;
     }
     
+    private function GetAllCurrnetLimits($budgetId)
+    {
+        if ($this->DoesBudgetExist($budgetId)){
+            if ($s = $this->mysqli->prepare("SELECT  ID_Limitu,`limit`, KP.nazwa
+                        FROM Limity L
+                        JOIN KategorieProduktow KP ON KP.ID_KatProduktu = L.ID_KatProduktu
+                        WHERE L.`ID_Budzetu` = ?
+                        AND YEAR( L.data) = YEAR(NOW( ) ) 
+                        AND MONTH(L.data) = MONTH(NOW( )) ")) {
+                $s->bind_param('i', $budgetId);
+                $s->execute();
+                $s->bind_result($ID_Limitu,$limit, $nazwa);
+                $arr = array();
+                while ( $s->fetch() ) {
+                    $row = array('ID_Limitu' => $ID_Limitu, 'limit' => $limit, 'nazwa' => $nazwa);
+                    $arr[] = $row;
+                }
+                if ($s->num_rows > 0)
+                    return $arr;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
     
+
+
     
     /**
-     * @desc Pobiera listę limitow wydatkow z danego miesiaca
+     * @desc Pobiera list&#281; limit&#243;w wydatk&#243;w z bie&#380;&#261;cego miesi&#261;ca.
      * @param int
      * @return Limits
      * @example 1
@@ -1587,8 +1673,8 @@ class mainClass
      */
     public function GetLimits($budgetId)
     {
-        $limits = $this->GetCurrnetLimits($budgetId);
-        if ($limit != false)
+        $limits = $this->GetAllCurrnetLimits($budgetId);
+        if ($limits != false)
         {
             return array('count' => count($limits), 'limits' => $limits);        
         }
@@ -1596,9 +1682,27 @@ class mainClass
     }
     
     
+    private function DoesLimitExist($budgetId, $categoryId){
+        if ($s = $this->mysqli->prepare("SELECT * FROM Limity L
+                JOIN KategorieProduktow KP ON KP.ID_KatProduktu = L.ID_KatProduktu
+                WHERE L.`ID_Budzetu` =?
+                AND L.`ID_KatProduktu` =?
+                AND YEAR( L.data ) = YEAR( NOW( ) ) 
+                AND MONTH( L.data ) = MONTH( NOW( ) )")) {
+            $s->bind_param('ii',$budgetId,$categoryId);
+            $s->execute();
+            $s->store_result();
+            if ($s->num_rows > 0)
+                return true;
+            else
+                return false;
+        }
+        return false;
+    }
+
     
     /**
-     * @desc Dodaje limit
+     * @desc Dodaje limit do wskazanego bud&#380;etu. Limit okre&#347;la kwot&#281; przy kt&#243;rej u&#380;ytkownik otrzyma stosowne powiadomienie o przekroczeniu limitu wydatk&#243;w w danej kategorii.
      * @param int,int, double
      * @return boolean
      * @example 1, 4, 1000
@@ -1607,14 +1711,18 @@ class mainClass
     public function AddLimit($budgetId, $categoryId, $limit)
     {
         if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("INSERT INTO `Limity`(`ID_Budzetu`, `ID_KatProduktu`, `limit`, `data`) VALUES (?,?,?,NOW());")) {
-                $s->bind_param('iid',$budgetId,$categoryId,$limit);
-                $s->execute();
-                $s->bind_result();    
-                return status('LIMIT_ADDED');
+            if ($this->DoesLimitExist($budgetId,$categoryId) == false){
+                if ($s = $this->mysqli->prepare("INSERT INTO `Limity`(`ID_Budzetu`, `ID_KatProduktu`, `limit`, `data`) VALUES (?,?,?,NOW());")) {
+                    $s->bind_param('iid',$budgetId,$categoryId,$limit);
+                    $s->execute();
+                    $s->bind_result();    
+                    return status('LIMIT_ADDED');
+                }
+                else
+                    return status('LIMIT_NOT_ADDED');
             }
             else
-                return status('LIMIT_NOT_ADDED');
+                return status('THIS_LIMIT_ALREADY_EXISTS');
         }
         else
             return status('NO_SUCH_BUDGET');
@@ -1622,7 +1730,7 @@ class mainClass
     
    
     /**
-     * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu 
+     * @desc Sprawdza wszystkie dodane limity - dodaje powiadomienie o przekroczeniu limitu, b&#261;d&#378; zbli&#380;eniu si&#281; do limitu (po przekroczeniu 90% kwoty limitu). 
      * @param int 
      * @return boolean
      * @example 1
@@ -1643,15 +1751,14 @@ class mainClass
             foreach ($limits as $limit) {
                 $procent = $limit['procent'];
                 if ($procent <= 0.1 && $procent >=0)
-                    $msg = "Zbilizasz sie do limitu wydatkow w kategorii ".$limit['nazwa'].". Wydales juz ".$limit['suma']." z ". $limit['limit']." zł";
+                    $msg = "Zbilizasz sie do limitu wydatkow w kategorii ".$limit['nazwa'].". Wydales juz ".$limit['suma']." z ". $limit['limit']." z&#322;";
                 if ($procent <= 0)
-                    $msg = "Wlasnie przekroczyles limit wydatkow w kategorii ".$limit['nazwa'].". Wydales ".$limit['suma']." z zaplanowanych ". $limit['limit']." zł";
+                    $msg = "Wlasnie przekroczyles limit wydatkow w kategorii ".$limit['nazwa'].". Wydales ".$limit['suma']." z zaplanowanych ". $limit['limit']." z&#322;";
 
                 if (isset($msg) && !in_array($limit['ID_Limitu'],$previuoslyAdded)){
                     $this->AddNotification($limit['ID_Limitu'], "limit",$msg,date("Y-m-d"));
                     $warnings++;
-                }
-                    
+                }  
             }
             if ($warnings > 0)
                 return status('NEW_NOTIFICATIONS_ADDED');
@@ -1661,31 +1768,166 @@ class mainClass
         return status('NO_LIMITS');
     }
     
+    
+    
+    
+    
     /**
-     * @desc Do testowania
-     * @param int
-     * @return void
-     * @example 2
+     * @desc Metoda pobiera raport wydatków i dochodów z ostatnich miesięcy
+     * @param int, int
+     * @return Report
+     * @example 1, 6
      * @logged true
      */
-    public function Test($id)
+    public function GetReport($budgetId,$months)
     {
-    	$this->AddScheduledExpenseToExpenses($id);
-        
+    	if ($this->DoesBudgetExist($budgetId)){
+    	    $arr = array();
+    	    $expenses_sum = 0;
+    	    $incomes_sum = 0;
+    	    foreach ($this->getMonths($months) as $date) {
+    	        $expenses = $this->GetSumOfExpensesFromMonth($budgetId,$date['month'], $date['year']);
+    	        $incomes   = $this->GetSumOfIncomesFromMonth($budgetId,$date['month'], $date['year']);
+    	        $balance = $incomes - $expenses;
+    	        $activities = $this->GetActivitiesFromMonth($budgetId, $date['month'], $date['year']);
+                $expenses_sum += $expenses;
+                $incomes_sum += $incomes;
+    	        $arr[] = array('activities' => $activities,
+    	                'balance' => round($balance,2),
+    	                'expenses' => round($expenses,2),
+    	                'incomes' => round($incomes,2),
+    	                'month' => $date['month'],
+    	                'year' => $date['year']);
+    	    }
+            $title = "Raport z ostatnich ".$months." miesięcy";
+            return array('title' => $title,
+                         'months' => array_reverse($arr),
+                         'expenses_sum' => round($expenses_sum,2),
+                         'incomes_sum' => round($incomes_sum,2),
+                         'general_balance' => round($incomes_sum-$expenses_sum,2)
+            );
+    	}
+    	else
+    		return status('NO_SUCH_BUDGET');
     }
     
-    //TODO raporty pokaz wydatki wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO raporty pokaz przychodu wg produktow - x dni, tydzien, x tygodni, miesiac, x miesiecy, rok, caly czas
-    //TODO dodawanie zakupow - nazwa i sklep oraz lista produktow dwie metody- dodaje zakupy, dodaj wydatki do zakupow  
-    //TODO dodawanie modyfikowanie i usuwanie planowanych wydatkow i przychodow
-    //TODO dodawanie zleceń stałych 
-    //TODO dodawnie powiadomień - przy dodaniu zlecenia stałego dodaj powiadomienie
+    private function PrettyDates($date){
+        $format = "";
+        $start  = date('Y-m-d H:i:s',strtotime($date)); 
+        $end    = date('Y-m-d H:i:s'); 
+        $d_start    = new DateTime($start); 
+        $d_end      = new DateTime($end); 
+        $diff = $d_start->diff($d_end); 
 
-    // W drugiej kolejnosci
-    //TODO usuwanie i edycja wydatkow z budzetu
-    //TODO zrobic slownik wartosc z paragonu - id produktu na liscie
-    //TODO zmiana danych uzytkownika
-    //TODO modyfikowanie i usuwanie przychodow
+        $lat = $diff->format('%y'); 
+        $mies = $diff->format('%m'); 
+        $dni = $diff->format('%d'); 
+        $godz = $diff->format('%h'); 
+        $min = $diff->format('%i'); 
+        $sek = $diff->format('%s'); 
+        if ($start < $end){
+        if ($lat > 0){
+            if ($lat == 1)
+                $format = "rok temu";
+            else
+                $format = $lat." lat temu";
+        }
+        else{
+            if ($mies > 0){
+                if ($mies == 1)
+                    $format = "miesiąc temu";
+                elseif ($mies < 5)
+                    $format = $mies." miesiące temu";
+                else
+                    $format = $mies." miesięcy temu";
+            }
+            else{
+                if ($dni > 0){
+                    if ($dni == 1)
+                        $format = "wczoraj";
+                    else if ($dni == 2)
+                        $format = "przedwczoraj";
+                    else 
+                        $format = $dni." dni temu";
+                }
+                else {
+                    if ($godz > 0){
+                        if ($godz == 1)
+                            $format = "godzinę temu";
+                        else if ($godz < 5)
+                            $format = $godz." godziny temu";
+                        else
+                            $format = $godz." godzin temu";
+                    }   
+                    else {
+                        if ($min > 0){
+                            if ($min == 1)
+                                $format = "minutę temu";
+                            else if ($min < 5)
+                                $format = $min." minuty temu";
+                            else 
+                                $format = $min." minut temu";
+                        }
+                        else
+                        {
+                            if ($sek > 0)
+                                $format = "mniej niż minutę temu";
+
+                        }}}}}}
+                        else{
+            if ($lat > 0){
+            if ($lat == 1)
+                $format = " za rok";
+            else
+                $format = "za ".$lat." lat";
+        }
+        else{
+            if ($mies > 0){
+                if ($mies == 1)
+                    $format = "za miesiąc";
+                elseif ($mies < 5)
+                    $format = "za ".$mies." miesiące";
+                else
+                    $format = "za ".$mies." miesięcy";
+            }
+            else{
+                if ($dni > 0){
+                    if ($dni == 1)
+                        $format = "jutro";
+                    else if ($dni == 2)
+                        $format = "pojutrze";
+                    else 
+                        $format = "za ".$dni." dni";
+                }
+                else {
+                    if ($godz > 0){
+                        if ($godz == 1)
+                            $format = "za godzinę";
+                        else if ($godz < 5)
+                            $format = "za ".$godz." godziny";
+                        else
+                            $format = "za ".$godz." godzin";
+                    }   
+                    else {
+                        if ($min > 0){
+                            if ($min == 1)
+                                $format = "za minutę";
+                            else if ($min < 5)
+                                $format = "za ".$min." minuty";
+                            else 
+                                $format = "za ".$min." minut";
+                        }
+                        else
+                        {
+                            if ($sek > 0)
+                                $format = "za mniej niż minutę";
+
+                        }}}}}}
+        if (empty($format))
+            return $date;
+        return $format;
+    }
+
 
 }
 ?>

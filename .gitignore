@@ -8,6 +8,9 @@ android/json/.project
 android/json/.buildpath
 android/.metadata/**
 ws/.metadata/**
+android/mbp1/.settings/**
+android/mbp1/.project
+android/mbp1/.buildpath
 
 
 #Eclipse
