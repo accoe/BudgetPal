@@ -100,14 +100,17 @@ public class WordCorection {
 		this.dictionary.addAll(list);
 	}
 
+	public void FillDictionary(List<String> dict){
+		for (String str : dict)
+			this.dictionary.add(str.toLowerCase());	
+	}
+	
 	private void FillDictionary() {
 		this.dictionary.add("mięso mielone");
 		this.dictionary.add("mielone");
 		this.dictionary.add("pragon");
 		this.dictionary.add("fiskalny");
 		this.dictionary.add("Górna Wilda");
-		this.dictionary.add("torba t-shirt");
-		this.dictionary.add("woda niegaz");
 
 	}
 
