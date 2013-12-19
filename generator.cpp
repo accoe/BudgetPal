@@ -102,7 +102,7 @@ public:
 
 
 void Wydatki(int count, int budzet = 1){
-    MersenneTwister *mt = new MersenneTwister(123832);
+    MersenneTwister *mt = new MersenneTwister(1432);
 	while (count-- > 0)
 	{
 		int produkt = mt->Int32()%99;
@@ -130,8 +130,8 @@ void Przychody(int count, int budzet = 1){
 
 int main(void)
 {
-    //Wydatki(100);
-	Przychody(34);
+    Wydatki(4000);
+	//Przychody(34);
 
 	return 0;
 

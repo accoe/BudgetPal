@@ -704,7 +704,7 @@ class mainClass
 	    		$s->bind_result($ID_Wydatku,$ID_Produktu, $nazwa, $kwota, $data);
 	    		$arr = array();
 	            	while ( $s->fetch() ) {
-	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data' =>$this->PrettyDates($data));
+	               		$row = array('ID_Wydatku' => $ID_Wydatku,'ID_Produktu' => $ID_Produktu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data' => $data);
 	                    $arr[] = $row;
 	                }
 	                return array('count' =>  $s->num_rows,
@@ -825,7 +825,7 @@ class mainClass
     	    			$s->bind_result($ID_Przychodu, $nazwa, $kwota, $data);
     	    			$arr = array();
     	    			while ( $s->fetch() ) {
-    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $this->PrettyDates($data));
+    	    				$row = array('ID_Przychodu' => $ID_Przychodu,'nazwa' => $nazwa,'kwota' => round($kwota,2), 'data'=> $data);
     	    				$arr[] = $row;
     	    			}
     	    			return array('count' =>  $s->num_rows,
@@ -1013,21 +1013,17 @@ class mainClass
     public function GetNotifications($all)
     {   
         $all = $all == 'true' ? 1 : 0; 
-        $all = $all ? 0 : 1;
-        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = 0 or przeczytane <> ?)")) {
+        $all = $all ? 1 : 0;
+        if ($s = $this->mysqli->prepare("SELECT `ID_Powiadomienia`,`ID_Zdarzenia`,`typ`,`tekst`,`data`,`przeczytane` FROM Powiadomienia WHERE `ID_Uzytkownika` = ? AND (przeczytane = 1 OR przeczytane <> ?)")) {
                 $s->bind_param('ii', $this->userId,$all);
                 $s->execute();
                 $s->bind_result($ID_Powiadomienia,$ID_Zdarzenia,$typ,$tekst,$data,$przeczytane);
                 $arr = array();
-                $unreaded = 0;
                 while ( $s->fetch() ) {
-                    if (!$przeczytane)
-                        $unreaded++;
-                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$this->PrettyDates($data),'przeczytane' => $przeczytane);
+                    $row = array('ID_Powiadomienia' => $ID_Powiadomienia,'ID_Zdarzenia' => $ID_Zdarzenia,'typ' => $typ,'tekst' => $tekst,'data' =>$data,'przeczytane' => $przeczytane);
                     $arr[] = $row;
                 }
                 return array('count' =>  $s->num_rows,
-                             'unreaded' => $unreaded,
                              'notifications' => $arr);
             }
             else
@@ -1214,7 +1210,7 @@ class mainClass
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoWydatku,$produkt, $kategoria,$kwota,$data);
                 $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $this->PrettyDates($data));
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoWydatku' => $ID_PlanowanegoWydatku, 'produkt' => $produkt, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
                     $arr[] = $row;                     
                 }
                 if ($s->num_rows > 0)
@@ -1309,7 +1305,7 @@ class mainClass
                 $s->bind_result($ID_Budzetu,$ID_PlanowanegoDochodu,$nazwa, $kategoria,$kwota,$data);
                 $arr = array();
                 while ( $s->fetch() ) {
-                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $this->PrettyDates($data));
+                    $row = array('ID_Budzetu' => $ID_Budzetu, 'ID_PlanowanegoDochodu' => $ID_PlanowanegoDochodu, 'nazwa' => $nazwa, 'kategoria' =>  $kategoria, 'kwota' => $kwota, 'data' => $data);
                     $arr[] = $row;
                 }
                 if ($s->num_rows > 0)
@@ -1632,37 +1628,7 @@ class mainClass
             return false;
     }
     
-    private function GetAllCurrnetLimits($budgetId)
-    {
-        if ($this->DoesBudgetExist($budgetId)){
-            if ($s = $this->mysqli->prepare("SELECT  ID_Limitu,`limit`, KP.nazwa
-                        FROM Limity L
-                        JOIN KategorieProduktow KP ON KP.ID_KatProduktu = L.ID_KatProduktu
-                        WHERE L.`ID_Budzetu` = ?
-                        AND YEAR( L.data) = YEAR(NOW( ) ) 
-                        AND MONTH(L.data) = MONTH(NOW( )) ")) {
-                $s->bind_param('i', $budgetId);
-                $s->execute();
-                $s->bind_result($ID_Limitu,$limit, $nazwa);
-                $arr = array();
-                while ( $s->fetch() ) {
-                    $row = array('ID_Limitu' => $ID_Limitu, 'limit' => $limit, 'nazwa' => $nazwa);
-                    $arr[] = $row;
-                }
-                if ($s->num_rows > 0)
-                    return $arr;
-                else
-                    return false;
-            }
-            else
-                return false;
-        }
-        else
-            return false;
-    }
     
-
-
     
     /**
      * @desc Pobiera list&#281; limit&#243;w wydatk&#243;w z bie&#380;&#261;cego miesi&#261;ca.
@@ -1673,8 +1639,8 @@ class mainClass
      */
     public function GetLimits($budgetId)
     {
-        $limits = $this->GetAllCurrnetLimits($budgetId);
-        if ($limits != false)
+        $limits = $this->GetCurrnetLimits($budgetId);
+        if ($limit != false)
         {
             return array('count' => count($limits), 'limits' => $limits);        
         }
@@ -1682,24 +1648,6 @@ class mainClass
     }
     
     
-    private function DoesLimitExist($budgetId, $categoryId){
-        if ($s = $this->mysqli->prepare("SELECT * FROM Limity L
-                JOIN KategorieProduktow KP ON KP.ID_KatProduktu = L.ID_KatProduktu
-                WHERE L.`ID_Budzetu` =?
-                AND L.`ID_KatProduktu` =?
-                AND YEAR( L.data ) = YEAR( NOW( ) ) 
-                AND MONTH( L.data ) = MONTH( NOW( ) )")) {
-            $s->bind_param('ii',$budgetId,$categoryId);
-            $s->execute();
-            $s->store_result();
-            if ($s->num_rows > 0)
-                return true;
-            else
-                return false;
-        }
-        return false;
-    }
-
     
     /**
      * @desc Dodaje limit do wskazanego bud&#380;etu. Limit okre&#347;la kwot&#281; przy kt&#243;rej u&#380;ytkownik otrzyma stosowne powiadomienie o przekroczeniu limitu wydatk&#243;w w danej kategorii.
@@ -1711,18 +1659,14 @@ class mainClass
     public function AddLimit($budgetId, $categoryId, $limit)
     {
         if ($this->DoesBudgetExist($budgetId)){
-            if ($this->DoesLimitExist($budgetId,$categoryId) == false){
-                if ($s = $this->mysqli->prepare("INSERT INTO `Limity`(`ID_Budzetu`, `ID_KatProduktu`, `limit`, `data`) VALUES (?,?,?,NOW());")) {
-                    $s->bind_param('iid',$budgetId,$categoryId,$limit);
-                    $s->execute();
-                    $s->bind_result();    
-                    return status('LIMIT_ADDED');
-                }
-                else
-                    return status('LIMIT_NOT_ADDED');
+            if ($s = $this->mysqli->prepare("INSERT INTO `Limity`(`ID_Budzetu`, `ID_KatProduktu`, `limit`, `data`) VALUES (?,?,?,NOW());")) {
+                $s->bind_param('iid',$budgetId,$categoryId,$limit);
+                $s->execute();
+                $s->bind_result();    
+                return status('LIMIT_ADDED');
             }
             else
-                return status('THIS_LIMIT_ALREADY_EXISTS');
+                return status('LIMIT_NOT_ADDED');
         }
         else
             return status('NO_SUCH_BUDGET');
@@ -1758,7 +1702,8 @@ class mainClass
                 if (isset($msg) && !in_array($limit['ID_Limitu'],$previuoslyAdded)){
                     $this->AddNotification($limit['ID_Limitu'], "limit",$msg,date("Y-m-d"));
                     $warnings++;
-                }  
+                }
+                    
             }
             if ($warnings > 0)
                 return status('NEW_NOTIFICATIONS_ADDED');
@@ -1825,7 +1770,7 @@ class mainClass
         $godz = $diff->format('%h'); 
         $min = $diff->format('%i'); 
         $sek = $diff->format('%s'); 
-        if ($start < $end){
+
         if ($lat > 0){
             if ($lat == 1)
                 $format = "rok temu";
@@ -1836,16 +1781,14 @@ class mainClass
             if ($mies > 0){
                 if ($mies == 1)
                     $format = "miesiąc temu";
-                elseif ($mies < 5)
+                else 
                     $format = $mies." miesiące temu";
-                else
-                    $format = $mies." miesięcy temu";
             }
             else{
                 if ($dni > 0){
                     if ($dni == 1)
                         $format = "wczoraj";
-                    else if ($dni == 2)
+                    if ($dni == 2)
                         $format = "przedwczoraj";
                     else 
                         $format = $dni." dni temu";
@@ -1854,8 +1797,6 @@ class mainClass
                     if ($godz > 0){
                         if ($godz == 1)
                             $format = "godzinę temu";
-                        else if ($godz < 5)
-                            $format = $godz." godziny temu";
                         else
                             $format = $godz." godzin temu";
                     }   
@@ -1863,8 +1804,6 @@ class mainClass
                         if ($min > 0){
                             if ($min == 1)
                                 $format = "minutę temu";
-                            else if ($min < 5)
-                                $format = $min." minuty temu";
                             else 
                                 $format = $min." minut temu";
                         }
@@ -1873,56 +1812,7 @@ class mainClass
                             if ($sek > 0)
                                 $format = "mniej niż minutę temu";
 
-                        }}}}}}
-                        else{
-            if ($lat > 0){
-            if ($lat == 1)
-                $format = " za rok";
-            else
-                $format = "za ".$lat." lat";
-        }
-        else{
-            if ($mies > 0){
-                if ($mies == 1)
-                    $format = "za miesiąc";
-                elseif ($mies < 5)
-                    $format = "za ".$mies." miesiące";
-                else
-                    $format = "za ".$mies." miesięcy";
-            }
-            else{
-                if ($dni > 0){
-                    if ($dni == 1)
-                        $format = "jutro";
-                    else if ($dni == 2)
-                        $format = "pojutrze";
-                    else 
-                        $format = "za ".$dni." dni";
-                }
-                else {
-                    if ($godz > 0){
-                        if ($godz == 1)
-                            $format = "za godzinę";
-                        else if ($godz < 5)
-                            $format = "za ".$godz." godziny";
-                        else
-                            $format = "za ".$godz." godzin";
-                    }   
-                    else {
-                        if ($min > 0){
-                            if ($min == 1)
-                                $format = "za minutę";
-                            else if ($min < 5)
-                                $format = "za ".$min." minuty";
-                            else 
-                                $format = "za ".$min." minut";
-                        }
-                        else
-                        {
-                            if ($sek > 0)
-                                $format = "za mniej niż minutę";
-
-                        }}}}}}
+                        }}}}}
         if (empty($format))
             return $date;
         return $format;
