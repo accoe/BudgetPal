@@ -11,13 +11,8 @@ public class Main {
 		String src = "Turba T-Short 34,124A  >< 0,08 Nda  Niegaz 1,5l a 1235 , x 0,65";
 		
 		List<String> dictionary = new ArrayList<String>();
-		dictionary.add("torba t-shirt");
-		dictionary.add("woda niegaz");
-		dictionary.add("jogurt fruv");
-		dictionary.add("ser camembert");
-		dictionary.add("marchew z groszkiem");
-		dictionary.add("ryż suprem");
-		dictionary.add("filet z piersi kurczaka");
+		// Tu dodaj liste produktow
+		
 		w.FillDictionary(dictionary);
 		
 		

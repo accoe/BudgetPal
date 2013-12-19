@@ -111,7 +111,18 @@ public class WordCorection {
 		this.dictionary.add("pragon");
 		this.dictionary.add("fiskalny");
 		this.dictionary.add("Górna Wilda");
-
+		this.dictionary.add("torba t-shirt");
+		this.dictionary.add("woda niegaz");
+		this.dictionary.add("jogurt fruv");
+		this.dictionary.add("ser camembert");
+		this.dictionary.add("marchew z groszkiem");
+		this.dictionary.add("ryż suprem");
+		this.dictionary.add("filet z piersi kurczaka");
+		this.dictionary.add("pasztet profi");
+		this.dictionary.add("pączek");
+		this.dictionary.add("czekolada do picia");
+		this.dictionary.add("mleko");
+		this.dictionary.add("orzeszki nutto");
 	}
 
 	// Zwraca true w przypadku ustawienia nowego poprawnego wyrazu
